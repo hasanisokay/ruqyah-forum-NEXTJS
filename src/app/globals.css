@@ -2,26 +2,23 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  transition: background-color 5000s ease-in-out 0s; /* Add a long transition to prevent blinking */
+  background-color: #fff; /* Set your desired background color */
+  [data-theme="dark"] & {
+    background-color: #333; /* Set autofill background color for dark mode */
   }
 }
 
-body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+[data-theme="dark"] {
+  @apply bg-[#202124] text-[#ffffff];
+}
+.forum-btn1{
+  @apply  text-white px-4 py-1 rounded-lg cursor-pointer
+}
+.cardinhome{
+  @apply lg:w-[50vw] lg:max-w-[800px] md:w-[90vw] md:max-w-[500px] w-[95vw] mx-auto 
 }
