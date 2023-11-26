@@ -2,7 +2,7 @@
 'use client'
 import formatRelativeDate from '@/utils/formatDate';
 import { useRouter } from 'next/navigation';
-import React, { useRef, useCallback, useContext, useState } from 'react';
+import React, { useRef, useCallback, useContext, useState, useEffect } from 'react';
 import useSWRInfinite from 'swr/infinite';
 import Image from 'next/image'
 import { FaUserLarge } from "react-icons/fa6"
@@ -12,6 +12,8 @@ import AuthContext from '@/contexts/AuthContext';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import { mutate } from 'swr';
+import formatDateInAdmin from '@/utils/formatDateInAdmin';
+import formatDateForUserJoined from '@/utils/formatDateForUserJoined';
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
 const PendingPost = () => {
@@ -29,7 +31,6 @@ const PendingPost = () => {
     const handleSortChange = (event) => {
         setSortOrder(event.target.value);
     };
-
     const { data, error, size, setSize, isValidating } = useSWRInfinite(
         (pageIndex, previousPageData) => {
             if (previousPageData && previousPageData.length === 0) return null;
@@ -43,7 +44,13 @@ const PendingPost = () => {
         },
         fetcher
     );
-    const posts = data ? data.flat() : [];
+    const [posts, setPosts] = useState([])
+    console.log(posts);
+    useEffect(() => {
+        if (data) {
+            setPosts(data?.flat())
+        }
+    }, [data])
     const pageSize = 10;
     const handleToggleExpand = (postId) => {
         setExpandedPosts((prevExpandedPosts) => {
@@ -92,19 +99,21 @@ const PendingPost = () => {
         mutate()
         if (data.status === 200) {
             toast.success(data.message)
+            setPosts((prevPosts) => prevPosts.filter((post) => post._id !== id));
         }
         else {
             toast.error("Internal Server Error. Please try again")
         }
     }
     const handleApprovePost = async (id, username) => {
-        const dataToSend = { actionBy: fetchedUser.name, postAuthorUsername: username, postID: id, action: "approve"}
+        const dataToSend = { actionBy: fetchedUser.name, postAuthorUsername: username, postID: id, action: "approve" }
         const toastID = toast.loading("Approving...")
         const { data } = await axios.post("/api/posts/changestatus", dataToSend)
         toast.dismiss(toastID)
         mutate()
         if (data.status === 200) {
             toast.success(data.message)
+            setPosts((prevPosts) => prevPosts.filter((post) => post._id !== id));
         }
         else {
             toast.error("Internal Server Error. Please try again")
@@ -132,7 +141,7 @@ const PendingPost = () => {
 
     const filteredPosts = searchTerm
         ? sortedPosts.filter((post) =>
-            post.author.name.toLowerCase().includes(searchTerm.toLowerCase())
+            post?.authorInfo?.name?.toLowerCase()?.includes(searchTerm?.toLowerCase())
         )
         : sortedPosts;
     return (
@@ -154,7 +163,7 @@ const PendingPost = () => {
                     <input
                         type="text"
                         className='border-2 rounded-lg'
-                        placeholder="Search by Name"
+                        placeholder="Search by username"
                         value={searchText}
                         onChange={(e) => setSearchText(e.target.value)}
                     />
@@ -180,8 +189,8 @@ const PendingPost = () => {
                     <div className='flex gap-2 items-center'>
                         <div>
                             {
-                                post?.author?.photoURL ?
-                                    <Image src={post?.author?.photoURL} blurDataURL='' alt='User Profile Photo'
+                                post?.authorInfo?.photoURL ?
+                                    <Image src={post?.authorInfo?.photoURL} blurDataURL='' alt='User Profile Photo'
                                         width={64} height={0} loading='lazy'
                                         style={{
                                             width: "45px",
@@ -195,11 +204,13 @@ const PendingPost = () => {
                         </div>
                         <div className='py-2'>
                             {/* todo: fetch name with aggregate with username */}
-                            <p className='font-semibold'>{post?.author?.username}</p>
+                            <p className='font-semibold'>{post?.authorInfo?.name}</p>
                             <div className='text-xs flex gap-2 items-center'>
                                 <p className=''>@{post?.author?.username}</p>
-                                <p className='' title={post.date}> {formatRelativeDate(new Date(post.date))}</p>
+                                <p className='' title={post.date}> {formatDateInAdmin(new Date(post.date))}</p>
                             </div>
+                            <p className='text-xs'>Member since {formatDateForUserJoined(new Date(post?.authorInfo?.joined))}</p>
+
                         </div>
                     </div>
                     <p style={{ whiteSpace: "pre-wrap" }}>{expandedPosts.includes(post._id) ? post?.post : truncateText(post?.post)}

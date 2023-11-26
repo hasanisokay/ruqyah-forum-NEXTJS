@@ -11,7 +11,6 @@ export const POST = async (request) => {
     actionBy,
     postAuthor,
     postAuthorUsername,
-    authorPhotoURL,
     updateActivityLogID,
     deleteAll,
     approveAll
@@ -45,7 +44,6 @@ export const POST = async (request) => {
     if (!post) {
       return NextResponse.json({ error: "Post not found", status: 404 });
     }
-
     if(action ==="delete"){
       await postCollection.deleteOne({ _id: new ObjectId(postID)})
       return NextResponse.json({
@@ -56,6 +54,7 @@ export const POST = async (request) => {
       const updateFields = {
         status: "approved",
         approveDate: new Date(),
+        approvedBy: actionBy
       };
       // Update the post status to "approved"
       await postCollection.updateOne(
@@ -68,13 +67,12 @@ export const POST = async (request) => {
           approvedBy: actionBy,
           declinedBy: "",
           timestamp: new Date(),
-        }} )
+        }})
       } else {
         await adminActivityCollection.insertOne({
           action: "approve",
           postID,
           approvedBy: actionBy,
-          postAuthor,
           postAuthorUsername,
           timestamp: new Date(),
         });
@@ -82,13 +80,12 @@ export const POST = async (request) => {
     } else if (action === "decline") {
       await postCollection.updateOne(
         { _id: new ObjectId(postID) },
-        { $set: { status: "declined", declineDate: new Date() }}
+        { $set: { status: "declined", declineDate: new Date(), declinedBy: actionBy,}}
       );
       await adminActivityCollection.insertOne({
         action: "decline",
         postID,
         post: post.post,
-        postAuthor,
         postAuthorUsername,
         declinedBy: actionBy,
         timestamp: new Date(),

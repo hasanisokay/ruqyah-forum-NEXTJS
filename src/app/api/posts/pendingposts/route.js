@@ -14,10 +14,52 @@ export const GET = async (request) => {
   let query = { status: 'pending' };
 
   if (searchTerm) {
-    query['author.name'] = { $regex: searchTerm, $options: 'i' };
+    query['author.username'] = { $regex: searchTerm, $options: 'i' };
   }
   const sortQuery = { date: sortOrder === 'desc' ? -1 : 1 };
 
-  const result = await postCollection.find(query).sort(sortQuery).skip(skip).limit(pageSize).toArray();
+  // const result = await postCollection.find(query).sort(sortQuery).skip(skip).limit(pageSize).toArray();
+  const result = await postCollection
+        .aggregate([
+            {
+                $match: query,
+            },
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "author.username",
+                    foreignField: "username",
+                    as: "authorInfo",
+                },
+            },
+            {
+                $unwind: "$authorInfo",
+            },
+            {
+                $sort: sortQuery,
+            },
+            {
+                $skip: skip,
+            },
+            {
+                $limit: pageSize,
+            },
+            {
+                $project: {
+                    post: 1,
+                    date: 1,
+                    status: 1,
+                    author: {
+                        username: "$authorInfo.username",
+                    },
+                    authorInfo: {
+                        photoURL: "$authorInfo.photoURL",
+                        name: "$authorInfo.name",
+                        joined: "$authorInfo.joined",
+                    },
+                },
+            },
+        ])
+        .toArray();
   return NextResponse.json(result);
 };
