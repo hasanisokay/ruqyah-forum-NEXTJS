@@ -74,8 +74,8 @@ const AdminActivity = () => {
     if (!data) return <div>
         <LoadinginAdminActivity />
     </div>
-    const handleApprovePost = async (adminName, id, username, name, photoURL, updateActivityLogID) => {
-        const dataToSend = { actionBy: adminName, postAuthor: name, postAuthorUsername: username, postID: id, action: "approve", authorPhotoURL: photoURL, updateActivityLogID }
+    const handleApprovePost = async (adminUsername, postID, postAuthorUsername, updateActivityLogID) => {
+        const dataToSend = { actionBy: adminUsername, postAuthorUsername, postID, action: "approve", updateActivityLogID }
         const toastID = toast.loading("Approving...")
         const { data } = await axios.post("/api/posts/changestatus", dataToSend)
         toast.dismiss(toastID)
@@ -92,7 +92,6 @@ const AdminActivity = () => {
     const sortedPosts = posts.sort((a, b) => {
         const dateA = new Date(a.date).getTime();
         const dateB = new Date(b.date).getTime();
-
         return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
     });
 
@@ -100,10 +99,10 @@ const AdminActivity = () => {
         ? sortedPosts.filter((post) =>
             post?.approvedBy?.toLowerCase()?.includes(searchTerm?.toLowerCase()) ||
             post?.declinedBy?.toLowerCase()?.includes(searchTerm?.toLowerCase()) ||
-            post?.postAuthor?.toLowerCase()?.includes(searchTerm?.toLowerCase())
+            post?.postAuthorUsername?.toLowerCase()?.includes(searchTerm?.toLowerCase())
         )
         : sortedPosts;
-
+console.log(posts);
     return (
         <div>
             <div className="my-4 flex items-center justify-center">
@@ -133,7 +132,7 @@ const AdminActivity = () => {
                     <input
                         type="text"
                         className='border-2 rounded-lg'
-                        placeholder="Search by Name"
+                        placeholder="Search by username"
                         value={searchText}
                         onChange={(e) => setSearchText(e.target.value)}
                     />
@@ -144,8 +143,8 @@ const AdminActivity = () => {
                     <div className='flex gap-2 items-center'>
                         <div>
                             {
-                                post?.authorPhotoURL ?
-                                    <Image src={post?.authorPhotoURL} blurDataURL='' alt='User Profile Photo'
+                                post?.authorInfo.photoURL ?
+                                    <Image src={post?.authorInfo.photoURL} blurDataURL='' alt='User Profile Photo'
                                         width={64} height={0} loading='lazy'
                                         style={{
                                             width: "45px",
@@ -159,7 +158,7 @@ const AdminActivity = () => {
                         </div>
                         <div className='py-2'>
                             <p className={`font-semibold ${post.action === "approve" ? "text-[#308853]" : "text-red-600"}`}><span className='capitalize'>{post?.action}</span>d</p>
-                            <p className='font-semibold'>Author: {post?.postAuthor}</p>
+                            <p className='font-semibold'>Author: {post?.authorInfo.name}</p>
                             <p className='font-semibold'>Author Username : {post?.postAuthorUsername}</p>
                             {
                                 post?.approvedBy && <p className='font-semibold'> Approved by: {post?.approvedBy}</p>
@@ -169,11 +168,11 @@ const AdminActivity = () => {
                             }
                             {
                                 post?.declinedBy && <div className='flex gap-4'>
-                                    <button className='forum-btn1 bg-[#308853]' onClick={() => handleModal(post?.post)}>See Post</button>
-                                    <button className='forum-btn1 bg-[#308853]' onClick={() => handleApprovePost(fetchedUser?.name, post.postID, post?.author?.username, post?.author?.name, post?.author?.photoURL, post._id)}>Approve</button>
+                                    <button className='btn btn-xs text-white bg-[#308853]' onClick={() => handleModal(post?.post)}>See Post</button>
+                                    <button className='btn btn-xs text-white bg-[#308853]' onClick={() => handleApprovePost(fetchedUser?.username, post.postID, post?.author?.username, post._id)}>Approve</button>
                                 </div>
-
                             }
+                          
                             <dialog id="my_modal_2" className="modal">
                                 <div className="modal-box">
                                     <h3 className="whitespace-pre-wrap">{postTextForModal}</h3>
@@ -183,6 +182,9 @@ const AdminActivity = () => {
                                 </form>
                             </dialog>
                             <p className='font-semibold'>Action Date: {formatDateInAdmin(new Date(post?.timestamp))}</p>
+                            {
+                                post?.postID && post?.action ==="approve" && <button className='btn btn-xs btn-warning' onClick={() => router.push(`/${post.postID}`)}>Go to post</button> 
+                            }
                         </div>
                     </div>
                 </div>

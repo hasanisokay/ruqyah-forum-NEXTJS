@@ -9,7 +9,6 @@ export const POST = async (request) => {
     postID,
     action,
     actionBy,
-    postAuthor,
     postAuthorUsername,
     updateActivityLogID,
     deleteAll,
@@ -29,10 +28,9 @@ export const POST = async (request) => {
     if(approveAll){
       const updateFields = {
         status: "approved",
-        approvedBy: approvedBy,
+        approvedBy: actionBy,
         approveDate: new Date(),
       };
-
       await postCollection.updateMany({ status: "pending" }, { $set: updateFields });
 
       return NextResponse.json({

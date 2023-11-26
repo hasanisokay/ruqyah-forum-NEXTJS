@@ -106,7 +106,7 @@ const PendingPost = () => {
         }
     }
     const handleApprovePost = async (id, username) => {
-        const dataToSend = { actionBy: fetchedUser.name, postAuthorUsername: username, postID: id, action: "approve" }
+        const dataToSend = { actionBy: fetchedUser.username, postAuthorUsername: username, postID: id, action: "approve" }
         const toastID = toast.loading("Approving...")
         const { data } = await axios.post("/api/posts/changestatus", dataToSend)
         toast.dismiss(toastID)
@@ -120,7 +120,7 @@ const PendingPost = () => {
         }
     }
     const handleApproveAll = async () => {
-        const dataToSend = { approveAll: true, actionBy: fetchedUser.name, }
+        const dataToSend = { approveAll: true, actionBy: fetchedUser.username, }
         const toastID = toast.loading("Approving...")
         const { data } = await axios.post("/api/posts/changestatus", dataToSend)
         toast.dismiss(toastID)
@@ -210,7 +210,6 @@ const PendingPost = () => {
                                 <p className='' title={post.date}> {formatDateInAdmin(new Date(post.date))}</p>
                             </div>
                             <p className='text-xs'>Member since {formatDateForUserJoined(new Date(post?.authorInfo?.joined))}</p>
-
                         </div>
                     </div>
                     <p style={{ whiteSpace: "pre-wrap" }}>{expandedPosts.includes(post._id) ? post?.post : truncateText(post?.post)}
@@ -223,10 +222,10 @@ const PendingPost = () => {
                     </p>
                     <div className='flex items-center gap-6 mt-2'>
                         <div className='flex items-center flex-col cursor-pointer' >
-                            <span onClick={() => handleApprovePost(post._id, post.author.username)} className='forum-btn1 bg-[#308853] lg:hover:bg-[#0f361f]'> Approve</span>
+                            <span onClick={() => handleApprovePost(post._id, post.author.username)} className='btn btn-xs text-white bg-[#308853] lg:hover:bg-[#0f361f]'> Approve</span>
                         </div>
                         <div className='flex flex-col items-center'>
-                            <span onClick={() => handleDeclinePost(post._id, post.author.username)} className='forum-btn1 bg-red-600 lg:hover:bg-red-900'> Decline</span>
+                            <span onClick={() => handleDeclinePost(post._id, post.author.username)} className='btn btn-xs text-white bg-red-600 lg:hover:bg-red-900'> Decline</span>
                         </div>
                     </div>
                 </div>
