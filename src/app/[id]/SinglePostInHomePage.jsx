@@ -10,7 +10,7 @@ import TextareaAutosize from 'react-textarea-autosize';
 import { useContext, useEffect, useState } from 'react';
 import AuthContext from '@/contexts/AuthContext';
 import formatDateForUserJoined from '@/utils/formatDateForUserJoined';
-
+import { RiSendPlane2Fill, RiSendPlaneFill, RiSendPlaneLine } from "react-icons/ri";
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
 const SinglePostInHomePage = ({ id }) => {
@@ -35,30 +35,41 @@ const SinglePostInHomePage = ({ id }) => {
     if (!fetchedUser) {
       return toast.error("Log in to comment.")
     }
-    const newCommentData = {
+    const dataToSend = {
       comment: newCommentData,
-      postID:id,
+      postID: id,
       date: new Date(),
       author: { username: fetchedUser.username },
     };
     try {
-      const { data } = await axios.post("/api/posts/comment", newCommentData);
+      setLoadingNewPost(true);
+      const { data } = await axios.post("/api/posts/comment", dataToSend);
       console.log(data);
-      // if (data.status === 200) {
-      //     const updatedPost = post.map((post) => {
-      //       if (post?.likes?.length > 0) {
-      //         setPost(prevPost => ({ ...prevPost, likes: [...prevPost.likes, fetchedUser.username] }));
-      //       } else {
-      //         setPost(prevPost => ({ ...prevPost, likes: [fetchedUser.username] }));
-      //       }
-      //         return post;
-      //     });
-      //     setPost(updatedPost)
-      // }
+      if (data.status === 200) {
+        const updatedComment = {
+          comment: newCommentData,
+          author: {
+            username: fetchedUser.username,
+            authorInfo: {
+              name: fetchedUser.name, // Assuming you have the user's name in fetchedUser
+              photoURL: fetchedUser.photoURL, // Assuming you have the user's photoURL in fetchedUser
+              isAdmin: fetchedUser.isAdmin, // Assuming you have the user's isAdmin status in fetchedUser
+            },
+          },
+          date: new Date(),
+        };
+        setPost((prevPost) => ({
+          ...prevPost,
+          comment: [updatedComment, ...prevPost.comment],
+        }));
+        setNewCommentData(""); 
+        setLoadingNewPost(false);
+      }
+ 
     } catch (error) {
       console.error("Error disliking post:", error);
     }
-    // setLoadingNewPost(true)
+
 
     // const toastId = toast.loading("Posting...");
     // const { data } = await axios.post("api/newpost", newPost)
@@ -111,6 +122,7 @@ const SinglePostInHomePage = ({ id }) => {
       console.error("Error disliking post:", error);
     }
   }
+  console.log(post);
   return (
     <div className='p-2 cursor-default border-2 m-2 rounded-lg dark:border-gray-400 cardinhome'>
       <div className='flex gap-2 items-center'>
@@ -141,7 +153,7 @@ const SinglePostInHomePage = ({ id }) => {
       <div className='whitespace-pre-wrap'>
         {post.post}
       </div>
-      <div className='text-xs pt-2'>
+      <div className='text-[10px] pt-2'>
         {
           post?.date && <p className='' title={post.date}> Posted: {formatDateInAdmin(new Date(post.date))}</p>
         }
@@ -160,7 +172,6 @@ const SinglePostInHomePage = ({ id }) => {
           <span className='text-xs'>{post?.likes?.length || 0} Likes</span>
         </div>
       </div>
-      {/* comment section */}
       {
         fetchedUser && <div className=''>
           <form
@@ -171,27 +182,69 @@ const SinglePostInHomePage = ({ id }) => {
               value={newCommentData}
               disabled={loadingNewPost}
               maxRows={3}
-              style={{ paddingRight: "80px" }}
+              style={{ paddingRight: "20px" }}
               onChange={(e) => setNewCommentData(e.target.value)}
               placeholder="Write your comment"
               className="textarea border-2 focus:outline-none border-gray-400 focus:border-blue-700 bordered w-full"
+
             />
-            <div className="absolute bottom-[25%]  right-2">
+            <div className="absolute bottom-[20%]  right-2">
               <button
-                title="Post"
+                title="click to comment"
                 disabled={loadingNewPost}
-                className={`forum-btn1 ${newCommentData === ""
-                  ? "bg-slate-500 cursor-default"
-                  : "bg-[#308853] active:bg-[#0a4421] lg:hover:bg-[#0a4421]"
-                  }`}
+                className={`forum-btn1`}
                 type="submit"
               >
-                Post
+                < RiSendPlane2Fill className={` ${newCommentData === ""
+                  ? "text-slate-500 cursor-default"
+                  : "text-[#1ab744] active:text-[#0a4421] text:hover:text-[#0a4421]"
+                  } w-[22px] h-[22px]`} />
               </button>
             </div>
           </form>
         </div>
       }
+      {
+        post?.comment?.length > 0 && post?.comment[0]?.author?.authorInfo?.name && <div>
+          {post?.comment?.map((c, index) => (
+            <div key={index} className=' my-1'>
+              <div className='flex gap-2 items-center'>
+                <div>
+                  {
+                    c?.author?.authorInfo?.photoURL ?
+                      <Image src={c?.author?.authorInfo?.photoURL} blurDataURL='' alt='User Profile Photo'
+                        width={64} height={0} loading='lazy'
+                        style={{
+                          width: "35px",
+                          height: "35px",
+                          borderRadius: '50%',
+                        }}
+                        className='border-gray-400 border-2'
+                      />
+                      : <div className='flex items-center justify-center rounded-full border-gray-400 border-2 w-[35px] h-[35px]'><FaUserLarge className='' /></div>
+                  }
+                </div>
+                <div className='py-2'>
+                  <p><span className=''> <span className='text-[14px] font-semibold'>{c?.author?.authorInfo?.name}</span> </span> <span className='text-xs'>{(c.author.username === post.authorInfo.username && "Author")}</span>
+                    <span className='text-xs'> {(c?.author?.authorInfo?.isAdmin && "Admin")} </span>
+                  </p>
+                  <div className='text-xs flex gap-2 items-center'>
+                    <p className=''>@{c?.author?.username}</p>
+                    <p className='text-[10px]' title={c?.date}> {formatDateInAdmin(new Date(c?.date) || new Date())}</p>
+                  </div>
+                </div>
+
+                {/* <div>
+          <p className='text-xs'> <span>{post?.authorInfo?.isAdmin ? "Admin" : "Member"} since</span> {formatDateForUserJoined(new Date( post?.author?.authorInfo?.joined))}</p>
+        </div> */}
+              </div>
+              <p className='whitespace-pre-wrap pb-1'>{c.comment}</p>
+            </div>
+          ))}
+        </div>
+      }
+      {/* comment section */}
+
       <div />
     </div >
   );

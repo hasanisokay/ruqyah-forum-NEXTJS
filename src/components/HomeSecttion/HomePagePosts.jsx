@@ -155,9 +155,9 @@ const HomePagePosts = () => {
                                 <p className='' title={post.date}> {formatRelativeDate(new Date(post.date))}</p>
                             </div>
                         </div>
-                        <div>
+                        {/* <div>
                             <p className='text-xs'> <span>{post?.authorInfo?.isAdmin ? "Admin" : "Member"} since</span> {formatDateForUserJoined(new Date(post?.authorInfo?.joined))}</p>
-                        </div>
+                        </div> */}
                     </div>
                     <p style={{ whiteSpace: "pre-wrap" }}>{expandedPosts.includes(post._id) ? post?.post : truncateText(post?.post)}
                         {!expandedPosts.includes(post._id) && post?.post?.length > 200 && (

@@ -8,7 +8,8 @@ const NewPost = () => {
     const { fetchedUser, loading } = useContext(AuthContext);
     const [newPostData, setNewPostData] = useState("");
     const [loadingNewPost, setLoadingNewPost] = useState(false);
-    const handleNewPostForm = async () => {
+    const handleNewPostForm = async (e) => {
+        e.preventDefault()
         if (newPostData === "") {
             return;
         }
@@ -35,7 +36,7 @@ const NewPost = () => {
         return (
             <div>
                 <form
-                    onSubmit={handleNewPostForm}
+                    onSubmit={(e)=>handleNewPostForm(e)}
                     className={`cardinhome ${loadingNewPost ? "opacity-40" : "opacity-100"}`}
                 >
                     <TextareaAutosize
