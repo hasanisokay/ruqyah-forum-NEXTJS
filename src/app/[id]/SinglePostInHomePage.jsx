@@ -11,6 +11,7 @@ import { useContext, useEffect, useState } from 'react';
 import AuthContext from '@/contexts/AuthContext';
 import formatDateForUserJoined from '@/utils/formatDateForUserJoined';
 import { RiSendPlane2Fill, RiSendPlaneFill, RiSendPlaneLine } from "react-icons/ri";
+import { comment } from 'postcss';
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
 const SinglePostInHomePage = ({ id }) => {
@@ -62,10 +63,10 @@ const SinglePostInHomePage = ({ id }) => {
           ...prevPost,
           comment: [updatedComment, ...prevPost.comment],
         }));
-        setNewCommentData(""); 
+        setNewCommentData("");
         setLoadingNewPost(false);
       }
- 
+
     } catch (error) {
       console.error("Error disliking post:", error);
     }
@@ -165,7 +166,7 @@ const SinglePostInHomePage = ({ id }) => {
       <div className='flex items-center gap-6 mt-2'>
         <div className='flex items-center flex-col'>
           <FaRegComment className='' />
-          <span className='text-xs'>{post?.comment?.length || 0} Comments</span>
+          <span className='text-xs'>{(post?.comment && post?.comment[0]?.author?.authorInfo?.name && post?.comment?.length) || 0} Comments</span>
         </div>
         <div className='flex flex-col items-center'>
           {post?.likes?.filter((username) => username === fetchedUser?.username)?.length > 0 ? <FaHeart title='You Liked this. Click to dislike' onClick={handleDislike} className=' text-red-600 cursor-pointer' /> : <FaRegHeart title='Click to Like' onClick={hanldleLike} className='cursor-pointer' />}
@@ -205,40 +206,41 @@ const SinglePostInHomePage = ({ id }) => {
         </div>
       }
       {
-        post?.comment?.length > 0 && post?.comment[0]?.author?.authorInfo?.name && <div>
+        post?.comment?.length > 0 && post?.comment[comment.length - 1]?.author?.authorInfo?.name && <div>
           {post?.comment?.map((c, index) => (
             <div key={index} className=' my-1'>
-              <div className='flex gap-2 items-center'>
-                <div>
-                  {
-                    c?.author?.authorInfo?.photoURL ?
-                      <Image src={c?.author?.authorInfo?.photoURL} blurDataURL='' alt='User Profile Photo'
-                        width={64} height={0} loading='lazy'
-                        style={{
-                          width: "35px",
-                          height: "35px",
-                          borderRadius: '50%',
-                        }}
-                        className='border-gray-400 border-2'
-                      />
-                      : <div className='flex items-center justify-center rounded-full border-gray-400 border-2 w-[35px] h-[35px]'><FaUserLarge className='' /></div>
-                  }
-                </div>
-                <div className='py-2'>
-                  <p><span className=''> <span className='text-[14px] font-semibold'>{c?.author?.authorInfo?.name}</span> </span> <span className='text-xs'>{(c.author.username === post.authorInfo.username && "Author")}</span>
-                    <span className='text-xs'> {(c?.author?.authorInfo?.isAdmin && "Admin")} </span>
-                  </p>
-                  <div className='text-xs flex gap-2 items-center'>
-                    <p className=''>@{c?.author?.username}</p>
-                    <p className='text-[10px]' title={c?.date}> {formatDateInAdmin(new Date(c?.date) || new Date())}</p>
+              {
+                c?.author?.authorInfo?.name && <>
+                  <div className='flex gap-2 items-center'>
+                    <div>
+                      {
+                        c?.author?.authorInfo?.photoURL ?
+                          <Image src={c?.author?.authorInfo?.photoURL} blurDataURL='' alt='User Profile Photo'
+                            width={64} height={0} loading='lazy'
+                            style={{
+                              width: "35px",
+                              height: "35px",
+                              borderRadius: '50%',
+                            }}
+                            className='border-gray-400 border-2'
+                          />
+                          : <div className='flex items-center justify-center rounded-full border-gray-400 border-2 w-[35px] h-[35px]'><FaUserLarge className='' /></div>
+                      }
+                    </div>
+                    <div className='py-2'>
+                      <p><span className=''> <span className='text-[14px] font-semibold'>{c?.author?.authorInfo?.name}</span> </span> <span className='text-xs'>{(c.author.username === post.authorInfo.username && "Author")}</span>
+                        <span className='text-xs'> {(c?.author?.authorInfo?.isAdmin && "Admin")} </span>
+                      </p>
+                      <div className='text-xs flex gap-2 items-center'>
+                        <p className=''>@{c?.author?.username}</p>
+                        <p className='text-[10px]' title={c?.date}> {formatDateInAdmin(new Date(c?.date) || new Date())}</p>
+                      </div>
+                    </div>
                   </div>
-                </div>
+                  <p className='whitespace-pre-wrap pb-1'>{c.comment}</p>
+                </>
+              }
 
-                {/* <div>
-          <p className='text-xs'> <span>{post?.authorInfo?.isAdmin ? "Admin" : "Member"} since</span> {formatDateForUserJoined(new Date( post?.author?.authorInfo?.joined))}</p>
-        </div> */}
-              </div>
-              <p className='whitespace-pre-wrap pb-1'>{c.comment}</p>
             </div>
           ))}
         </div>
