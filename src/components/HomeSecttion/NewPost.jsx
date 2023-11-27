@@ -18,6 +18,9 @@ const NewPost = () => {
             date: new Date(),
             author: { username: fetchedUser.username },
         };
+        if(fetchedUser.isAdmin){
+            newPost.status = "approved"
+        }
         setLoadingNewPost(true)
         const toastId = toast.loading("Posting...");
         const { data } = await axios.post("api/newpost", newPost)

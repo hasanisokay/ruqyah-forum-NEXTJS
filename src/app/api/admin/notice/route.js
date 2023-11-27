@@ -6,8 +6,6 @@ import { NextResponse } from "next/server";
 export const POST = async (request) => {
   const body = await request.json();
   const db = await dbConnect();
-
-
   const noticeCollection = db.collection("notice");
   try {
     await noticeCollection.insertOne(body);

@@ -10,8 +10,9 @@ import toast from 'react-hot-toast';
 import truncateText from '@/utils/trancatText';
 import LoadinginPenginPosts from '../pending-posts/LoadingPendingPost';
 import AuthContext from '@/contexts/AuthContext';
-import React, { useRef, useCallback, useContext, useState } from 'react';
+import React, { useRef, useCallback, useContext, useState, useEffect } from 'react';
 import { mutate } from 'swr';
+import formatDateInAdmin from '@/utils/formatDateInAdmin';
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
@@ -21,6 +22,7 @@ const DeclinedPosts = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [searchText, setSearchText] = useState('');
     const infiniteScrollRef = useRef();
+    const [posts, setPosts] = useState([])
     const [expandedPosts, setExpandedPosts] = useState([]);
     const getKey = (pageIndex, previousPageData) => {
         if (previousPageData && previousPageData.length === 0) return null;
@@ -43,8 +45,14 @@ const DeclinedPosts = () => {
         },
         fetcher
     );
-    const posts = data ? data.flat() : [];
+
     const pageSize = 10;
+    useEffect(()=>{
+        if(data){
+            setPosts(data.flat())
+        }
+    },[data])
+    console.log(posts);
     const handleToggleExpand = (postId) => {
         setExpandedPosts((prevExpandedPosts) => {
             if (prevExpandedPosts.includes(postId)) {
@@ -134,7 +142,7 @@ const DeclinedPosts = () => {
 
     const filteredPosts = searchTerm
         ? sortedPosts.filter((post) =>
-            post.author.name.toLowerCase().includes(searchTerm.toLowerCase())
+            post.author.username.toLowerCase().includes(searchTerm.toLowerCase())
         )
         : sortedPosts;
     return (
@@ -156,7 +164,7 @@ const DeclinedPosts = () => {
                     <input
                         type="text"
                         className='border-2 rounded-lg'
-                        placeholder="Search by Name"
+                        placeholder="Search by username"
                         value={searchText}
                         onChange={(e) => setSearchText(e.target.value)}
                     />
@@ -183,8 +191,8 @@ const DeclinedPosts = () => {
                         <div className='flex gap-2 items-center'>
                             <div>
                                 {
-                                    post?.author?.photoURL ?
-                                        <Image src={post?.author?.photoURL} blurDataURL='' alt='User Profile Photo'
+                                    post?.authorInfo.photoURL ?
+                                        <Image src={post?.authorInfo.photoURL} blurDataURL='' alt='User Profile Photo'
                                             width={64} height={0} loading='lazy'
                                             style={{
                                                 width: "45px",
@@ -197,11 +205,13 @@ const DeclinedPosts = () => {
                                 }
                             </div>
                             <div className='py-2'>
-                                <p className='font-semibold'>{post?.author?.name}</p>
+                                <p className='font-semibold'>{post?.authorInfo.name}</p>
                                 <div className='text-xs flex gap-2 items-center'>
-                                    <p className=''>@{post?.author?.username}</p>
-                                    <p className='' title={post.date}> {formatRelativeDate(new Date(post.date))}</p>
+                                    <p className=''>@{post?.authorInfo.username}</p>
+                                    <p className='' title={post.date}>Post Date: {formatDateInAdmin(new Date(post.date))}</p>
                                 </div>
+                                <p className='text-xs'> Declined By: {post?.declinedBy || "n/a"}</p>
+                                <p className='text-xs'> Declined Date: {formatDateInAdmin(new Date(post?.declineDate))}</p>
                             </div>
                         </div>
                         <p style={{ whiteSpace: "pre-wrap" }}>{expandedPosts.includes(post._id) ? post?.post : truncateText(post?.post)}

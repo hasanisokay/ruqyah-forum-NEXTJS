@@ -50,10 +50,13 @@ const PublicNotice = () => {
                     <div className="collapse collapse-arrow border-2 shadow-md my-1">
                         <input type="radio" name="my-accordion-2" defaultChecked={index === 0} />
                         <div className="collapse-title">
-                            Date: {formatDateInAdmin(new Date(notice.date))}
+                            {notice?.title}
                         </div>
                         <div className="collapse-content font-semibold whitespace-pre-wrap">
                             <p>{notice.notice}</p>
+                            <p className='text-xs'>
+                            Notice Date: {formatDateInAdmin(new Date(notice.date))}
+                            </p>
                             {fetchedUser.isAdmin && <button className='forum-btn1 bg-red-600 mt-2' onClick={() => handleDeleteNotice(notice._id)}>Delete</button>}
                         </div>
                     </div>

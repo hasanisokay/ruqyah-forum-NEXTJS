@@ -8,14 +8,16 @@ const Notice = () => {
     const { fetchedUser, loading } = useContext(AuthContext);
     const [newNoticeData, setNewNoticeData] = useState("");
     const [loadingNewNotice, setLoadingNewNotice] = useState(false);
+    const [noticeTitle, setNoticeTitle] = useState("")
     const handleNewNoticeForm = async (e) => {
         e.preventDefault();
-        if (newNoticeData === "") {
-            return;
+        if (newNoticeData === "" || noticeTitle ==="") {
+            return toast.error("Write in both field.")
         }
         const newPost = {
             notice: newNoticeData,
             date: new Date(),
+            title: noticeTitle,
             author: { username: fetchedUser.username },
         };
         setLoadingNewNotice(true)
@@ -38,6 +40,9 @@ const Notice = () => {
                 onSubmit={handleNewNoticeForm}
                 className={`cardinhome ${loadingNewNotice ? "opacity-40" : "opacity-100"}`}
             >
+                <div className="text-center">
+                    <input type="text" disabled={loadingNewNotice} value={noticeTitle} onChange={(e) => setNoticeTitle(e.target.value)} placeholder="Notice Title" className="input input-bordered focus:outline-none w-full my-4 md:max-w-[50%] max-w-[95%]" />
+                </div>
                 <TextareaAutosize
                     value={newNoticeData}
                     disabled={loadingNewNotice}

@@ -9,9 +9,14 @@ export const POST = async (request) => {
 
   const postCollection = db.collection("posts");
   try {
-    body.status = "pending";
+    if (!body?.status) {
+      body.status = "pending";
+    }
     await postCollection.insertOne(body);
-    return NextResponse.json({ status: 200, message: "Posted. Wait for admin approval." });
+    return NextResponse.json({
+      status: 200,
+      message: "Posted. Wait for admin approval.",
+    });
   } catch {
     return NextResponse.json({
       status: 401,
