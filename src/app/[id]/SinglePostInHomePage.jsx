@@ -1,7 +1,7 @@
 'use client'
 import formatDateInAdmin from '@/utils/formatDateInAdmin';
 import Image from 'next/image';
-import useSWR from 'swr';
+import useSWR, { mutate } from 'swr';
 import { FaUserLarge, FaHeart } from "react-icons/fa6";
 import { FaRegComment, FaRegHeart } from "react-icons/fa";
 import axios from 'axios';
@@ -10,24 +10,28 @@ import TextareaAutosize from 'react-textarea-autosize';
 import { useContext, useEffect, useState } from 'react';
 import AuthContext from '@/contexts/AuthContext';
 import formatDateForUserJoined from '@/utils/formatDateForUserJoined';
-import { RiSendPlane2Fill, RiSendPlaneFill, RiSendPlaneLine } from "react-icons/ri";
+import { RiSendPlane2Fill } from "react-icons/ri";
 import { comment } from 'postcss';
+import { notFound } from 'next/navigation'
+import LoadingCards from '@/components/LoadingCards';
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
 const SinglePostInHomePage = ({ id }) => {
   const { fetchedUser } = useContext(AuthContext);
-  const { data, error } = useSWR(`/api/posts/${id}`, fetcher);
+  const { data, error, isLoading } = useSWR(`/api/posts/${id}`, fetcher);
   const [newCommentData, setNewCommentData] = useState("");
-  const [loadingNewPost, setLoadingNewPost] = useState(false);
+  const [loadingNewPost, setLoadingNewComment] = useState(false);
   const [post, setPost] = useState(data ? data[0] : []);
-
+  console.log(data);
   useEffect(() => {
     if (data) {
       setPost(data[0])
     }
   }, [data])
-  if (error) return <div>Error loading post</div>;
-  if (!post) return <div>Loading...</div>;
+  if (error || data?.status === 500) return notFound();
+  if (!post || isLoading) return <LoadingCards />;
+  console.log(post);
+
   const handleNewCommentForm = async (e) => {
     e.preventDefault()
     if (newCommentData === "") {
@@ -36,25 +40,27 @@ const SinglePostInHomePage = ({ id }) => {
     if (!fetchedUser) {
       return toast.error("Log in to comment.")
     }
+
     const dataToSend = {
+      postAuthorUsername: post.authorInfo.username,
+      name: fetchedUser.name,
       comment: newCommentData,
       postID: id,
       date: new Date(),
       author: { username: fetchedUser.username },
     };
     try {
-      setLoadingNewPost(true);
+      setLoadingNewComment(true);
       const { data } = await axios.post("/api/posts/comment", dataToSend);
-      console.log(data);
       if (data.status === 200) {
         const updatedComment = {
           comment: newCommentData,
           author: {
             username: fetchedUser.username,
             authorInfo: {
-              name: fetchedUser.name, // Assuming you have the user's name in fetchedUser
-              photoURL: fetchedUser.photoURL, // Assuming you have the user's photoURL in fetchedUser
-              isAdmin: fetchedUser.isAdmin, // Assuming you have the user's isAdmin status in fetchedUser
+              name: fetchedUser.name,
+              photoURL: fetchedUser.photoURL,
+              isAdmin: fetchedUser.isAdmin,
             },
           },
           date: new Date(),
@@ -64,26 +70,12 @@ const SinglePostInHomePage = ({ id }) => {
           comment: [updatedComment, ...prevPost.comment],
         }));
         setNewCommentData("");
-        setLoadingNewPost(false);
+        setLoadingNewComment(false);
+        mutate();
       }
-
     } catch (error) {
       console.error("Error disliking post:", error);
     }
-
-
-    // const toastId = toast.loading("Posting...");
-    // const { data } = await axios.post("api/newpost", newPost)
-    // if (data?.status === 200) {
-    //   toast.dismiss(toastId)
-    //   toast.success(data.message)
-    //   setNewCommentData("");
-
-    // }
-    // else if (data?.status === 401) {
-    //   toast.success(data.message)
-    // }
-    // setLoadingNewPost(false)
   };
   const handleDislike = async () => {
     if (!fetchedUser) {
@@ -123,7 +115,6 @@ const SinglePostInHomePage = ({ id }) => {
       console.error("Error disliking post:", error);
     }
   }
-  console.log(post);
   return (
     <div className='p-2 cursor-default border-2 m-2 rounded-lg dark:border-gray-400 cardinhome'>
       <div className='flex gap-2 items-center'>

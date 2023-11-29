@@ -1,14 +1,18 @@
 'use client'
 import React, { useEffect, useState } from 'react';
-
+import Image from 'next/image';
+import LoadingAdmin from './LoadingAdmin';
 const Dashboard = () => {
     const [postData, setPostData] = useState(null);
+    const [loadingData, setLoadingData] = useState(false);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
+                setLoadingData(true)
                 const response = await fetch('/api/getstat');
                 const jsonData = await response.json();
+                setLoadingData(false)
                 setPostData(jsonData);
             } catch (error) {
                 console.error('Error fetching data:', error);
@@ -21,6 +25,8 @@ const Dashboard = () => {
     return (
         <div>
             <h2 className='font-semibold text-center text-lg mt-6'>Total counts</h2>
+            {loadingData && <LoadingAdmin />}
+
             {postData && (
                 <div className='flex items-center flex-col'>
                     <div>

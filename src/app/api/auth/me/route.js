@@ -1,4 +1,5 @@
 import { COOKIE_NAME } from "@/constants";
+import dbConnect from "@/services/DbConnect";
 import { jwtVerify } from "jose";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
@@ -13,8 +14,12 @@ export const GET = async () => {
   const secret = new TextEncoder().encode(process.env.ACCESS_TOKEN_SECRET);
   try {
     const { payload } = await jwtVerify(token, secret);
-    const { username, email, name, gender, phone, joined, isAdmin, photoURL } = payload;
-    return NextResponse.json({ username, email, name, gender, phone, joined, isAdmin, photoURL });
+    const { username } = payload;
+    const db = await dbConnect();
+    const userCollection = db.collection("users");
+    const user = await userCollection.findOne({ username: username });
+    delete user.password;
+    return NextResponse.json(user);
   } catch {
     return NextResponse.json({ message: "Validation Error", status: 401 });
   }

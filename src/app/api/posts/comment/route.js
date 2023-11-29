@@ -4,18 +4,55 @@ import { NextResponse } from "next/server";
 
 export const POST = async (request) => {
   const body = await request.json();
-  console.log(body);
-  const { comment, author, date, postID } = body;
+  const { comment, author, date, postID, name, postAuthorUsername } = body;
   const db = await dbConnect();
 
   try {
     const postCollection = db.collection("posts");
-    const result = await postCollection.updateOne(
+    const userCollection = db.collection("users");
+    const updatedDocument = await postCollection.findOneAndUpdate(
       { _id: new ObjectId(postID) },
-      { $push: { comment: { comment, author, date}} }
+      { $push: { comment: { comment, author, date } } },
+      { returnDocument: "after" }
     );
 
-    if (result.modifiedCount === 1) {
+    const usernames = updatedDocument.comment.reduce((accumulator, comment) => {
+      const username = comment.author.username;
+      accumulator.add(username);
+      return accumulator;
+    }, new Set());
+    if (usernames.has(author.username)) {
+      usernames.delete(author.username);
+    }
+
+    const prevCommenters = Array.from(usernames);
+    const newNotification = {
+      message: `${name} commented on a post you are following.`,
+      date: new Date(),
+      postID,
+      read: false
+    };
+    if(author.username !==postAuthorUsername){
+      prevCommenters.push(postAuthorUsername)
+    };
+    if (prevCommenters) {
+      const result = await userCollection.updateMany(
+        { username: { $in: prevCommenters } },
+        { $push: { notifications: newNotification } }
+      );
+      if (result.modifiedCount === 1) {
+        return NextResponse.json({
+          status: 200,
+          message: "Commented successfully.",
+        });
+      } else {
+        return NextResponse.json({
+          status: 400,
+          message: "Failed to comment.",
+        });
+      }
+    }
+    if (updatedDocument) {
       return NextResponse.json({
         status: 200,
         message: "Commented successfully.",
