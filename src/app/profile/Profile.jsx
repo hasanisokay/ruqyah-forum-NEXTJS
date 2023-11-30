@@ -26,11 +26,11 @@ const Profile = () => {
                 formData
             );
             const url = response?.data?.data?.url
-         
+
             fetchedUser.photoURL = url;
-        
+
             const { data } = await axios.post("api/auth/uploadpp", fetchedUser)
-   
+
             if (data.status === 200) {
                 toast.dismiss(toastID)
 
@@ -91,7 +91,11 @@ const Profile = () => {
                     }
                 </div>
             }
-
+            {
+                fetchedUser?.blocked && <div className="text-red-500 font-semibold cardinhome text-center">
+                    <p>You are blocked by admin. You cant interact for now. Contact support for further instructions</p>
+                </div>
+            }
             <div className="pl-4">
                 <p>Name: <span className="font-semibold">{name}</span></p>
                 <p>Email: <span className="font-semibold">{email}</span></p>

@@ -1,5 +1,6 @@
 'use client'
 import formatRelativeDate from '@/utils/formatDate';
+import { BsThreeDotsVertical } from "react-icons/bs";
 import { useRouter } from 'next/navigation';
 import React, { useRef, useCallback, useContext, useState, useEffect } from 'react';
 import useSWRInfinite from 'swr/infinite';
@@ -12,12 +13,13 @@ import truncateText from '@/utils/trancatText';
 import formatDateForUserJoined from '@/utils/formatDateForUserJoined';
 import axios from 'axios';
 import { mutate } from 'swr';
+import toast from 'react-hot-toast';
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
 const HomePagePosts = () => {
     const { fetchedUser } = useContext(AuthContext);
     const infiniteScrollRef = useRef();
-
+    const [selectedPostIdForOptions, setSelectedPostIdForOptions] = useState(null);
     const [expandedPosts, setExpandedPosts] = useState([]);
     const router = useRouter();
     const getKey = (pageIndex, previousPageData) => {
@@ -29,7 +31,6 @@ const HomePagePosts = () => {
 
     // const posts = data ? data.flat() : [];
     const [posts, setPosts] = useState(data ? data.flat() : []);
-    const pageSize = 10;
     useEffect(() => {
         setPosts(data?.flat())
     }, [data])
@@ -47,6 +48,25 @@ const HomePagePosts = () => {
     const handleShowLess = (postId) => {
         setExpandedPosts((prevExpandedPosts) => prevExpandedPosts.filter((id) => id !== postId));
     };
+    useEffect(() => {
+        const handleOutsideClick = (event) => {
+            if (
+                selectedPostIdForOptions &&
+                !event.target.closest('.relative') &&
+                event.target !== infiniteScrollRef.current
+            ) {
+                // Clicked outside the options, hide them
+                setSelectedPostIdForOptions(null);
+            }
+        };
+
+        document.addEventListener('click', handleOutsideClick);
+
+        return () => {
+            document.removeEventListener('click', handleOutsideClick);
+        };
+    }, [selectedPostIdForOptions]);
+
     const handleScroll = useCallback(() => {
         // Check if the user has scrolled to the bottom
         if (
@@ -74,6 +94,24 @@ const HomePagePosts = () => {
         <LoadingCards />
         <LoadingCards />
     </div>
+    const handleDeletePost = async(id, isAdmin) => {
+        if (!isAdmin) return;
+        const dataToSend =  {
+            postID:id,
+            action:"delete",
+          } 
+        const {data} = await axios.post("/api/posts/changestatus",dataToSend)
+        if(data.status===200){
+            toast.success(data?.message)
+        }
+        else{
+            toast.error(data?.message)
+        }
+    }
+    const handlePostOptions = (id) => {
+        if (!fetchedUser?.isAdmin) return;
+        setSelectedPostIdForOptions(id);
+    }
     const handleDislike = async (id) => {
         if (!fetchedUser) {
             return toast.error("Log in to react")
@@ -128,10 +166,19 @@ const HomePagePosts = () => {
             console.error("Error disliking post:", error);
         }
     }
+
     return (
         <div>
             {posts?.map((post) => (
                 <div key={post._id} className='p-2 cursor-default border-2 m-2 rounded-lg dark:border-gray-400 cardinhome '>
+                    {fetchedUser?.isAdmin && <div className='relative'>
+                        <BsThreeDotsVertical onClick={() => handlePostOptions(post._id)} className='absolute right-0 cursor-pointer' />
+                        {selectedPostIdForOptions === post._id && (
+                            <div className='absolute lg:hover:bg-red-500 lg:hover:text-white border-2 text-sm right-0 top-2 mt-2 p-1 bg-white shadow-lg rounded-md'>
+                                <button onClick={() => handleDeletePost(post._id, fetchedUser.isAdmin)}>Delete Post</button>
+                            </div>
+                        )}
+                    </div>}
                     <div className='flex gap-2 items-center'>
                         <div>
                             {
@@ -152,12 +199,15 @@ const HomePagePosts = () => {
                             <p className='font-semibold'>{post?.authorInfo?.name}</p>
                             <div className='text-xs flex gap-2 items-center'>
                                 <p className=''>@{post?.authorInfo?.username}</p>
-                                <p className='' title={post.date}> {formatRelativeDate(new Date(post.date))}</p>
+                                <p className='' title={post?.date}> {formatRelativeDate(new Date(post?.date))}</p>
                             </div>
+                            {
+                                fetchedUser?.isAdmin && <div>
+                                    <p className='text-[10px]'> <span>{post?.authorInfo?.isAdmin ? "Admin" : "Member"} since</span> {formatDateForUserJoined(new Date(post?.authorInfo?.joined))}</p>
+                                </div>
+                            }
                         </div>
-                        {/* <div>
-                            <p className='text-xs'> <span>{post?.authorInfo?.isAdmin ? "Admin" : "Member"} since</span> {formatDateForUserJoined(new Date(post?.authorInfo?.joined))}</p>
-                        </div> */}
+
                     </div>
                     <p style={{ whiteSpace: "pre-wrap" }}>{expandedPosts.includes(post._id) ? post?.post : truncateText(post?.post)}
                         {!expandedPosts.includes(post._id) && post?.post?.length > 200 && (

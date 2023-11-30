@@ -13,11 +13,13 @@ import 'react-loading-skeleton/dist/skeleton.css'
 import { FaBell } from "react-icons/fa6";
 import axios from "axios";
 import toast from "react-hot-toast";
+import formatRelativeDate from "@/utils/formatDate";
+import formatDateInAdmin from "@/utils/formatDateInAdmin";
 const Navbar = () => {
   const [navToggle, setNavToggle] = useState(false);
   const [showNotificationMenu, setShowNotificationMenu] = useState(false)
   const { theme, toggleTheme } = useTheme()
-  const { fetchedUser, loading, logOut, loggedOut, notificationsCount, allNotifications } = useContext(AuthContext);
+  const { fetchedUser, loading, logOut, loggedOut, notificationsCount, allNotifications, setAllNotifications } = useContext(AuthContext);
   const [navData, setNavData] = useState()
   const router = useRouter();
   const [isPending, startTransition] = useTransition()
@@ -69,7 +71,7 @@ const Navbar = () => {
       document.removeEventListener("click", handleClickOutside);
     };
   }, []);
-
+  const notificationsToDisplay = allNotifications?.slice(0, 10);
   const handleNotificationsClick = async (id, read) => {
     if (!fetchedUser) {
       return toast.error("login to continue");
@@ -77,6 +79,14 @@ const Navbar = () => {
     if (read === false) {
       const data = await axios.post("/api/readnotification", { id, username: fetchedUser.username })
       if (data.status === 200) {
+        setAllNotifications((prevNotifications) =>
+          prevNotifications.map((notification) => {
+            if (notification.postID === id) {
+              return { ...notification, read: true };
+            }
+            return notification;
+          })
+        );
        return router.push(`/${id}`)
       }
     }
@@ -146,7 +156,7 @@ const Navbar = () => {
               <div tabIndex={0} role="button" className="">
                 <div className=" relative">
                   <FaBell onClick={() => setShowNotificationMenu(!showNotificationMenu)} title="notifications" className={`${notificationsCount > 0 ? "text-red-500" : ""}`} />
-                  <div className="text-red-400 absolute -right-[20%] cursor-default  font-semibold -top-[30%] text-[8px]">{notificationsCount > 0 ? notificationsCount : ""}</div>
+                  <div className="text-red-400 absolute -right-[40%] cursor-default  font-semibold -top-[40%] text-[8px]">{notificationsCount > 0 ? notificationsCount : ""}</div>
                 </div>
               </div>
             </div>
@@ -154,19 +164,21 @@ const Navbar = () => {
         </ul>
       </div>
       {
-        showNotificationMenu && <div className={`rounded-md absolute mx-2 right-0 top-14 w-[70vw] bg-gray-300 transition-all duration-1000 dark:bg-slate-900 lg:w-[unset] lg:bg-transparent text-sm dark:lg:bg-transparent`}>
-          <ul className=" shadow bg-base-200 rounded-md">
-            {allNotifications?.map((n, index) => (
+        fetchedUser && showNotificationMenu && <div className={`rounded-md px-1 z-10 absolute mx-2 right-0 top-14 w-[70vw] bg-gray-300 transition-all duration-1000 dark:bg-slate-900 lg:w-[unset] lg:bg-transparent text-sm dark:lg:bg-gray-300`}>
+          <ul className="shadow rounded-md">
+            {notificationsToDisplay?.map((n, index) => (
               <li
                 key={index}
                 onClick={() => handleNotificationsClick(n.postID, n.read)}
-                className={`p-2 font-normal  rounded-lg lg:hover:bg-slate-500 lg:hover:text-white cursor-pointer my-1 ${n.read === false ? "bg-slate-300 dark:bg-slate-800" : "bg-slate-100 dark:bg-inherit"
+                className={`p-2 font-normal  rounded-lg lg:hover:bg-slate-600 lg:hover:text-white cursor-pointer my-2 ${n.read === false ? "bg-slate-300 dark:bg-blue-800" : "bg-slate-100 dark:bg-inherit text-black"
                   }`}
               >
-                {n.message}
+                {n.message} <span className="block text-xs">{formatRelativeDate(new Date(n.date))  + " ago"} {" on " + formatDateInAdmin(new Date(n.date)) }</span>
               </li>
             ))}
-            <li className="p-2 font-normal text-sm rounded-lg lg:hover:bg-slate-500 lg:hover:text-white cursor-pointer mt-1 text-center"><Link href={"/notifications"}>See All</Link></li>
+            {
+              notificationsToDisplay?.length < 1 ? <li className="p-2 font-normal  rounded-lg lg:hover:bg-slate-500 lg:hover:text-white cursor-pointer my-1 text-center dark:bg-slate-800">No notification available</li> : <li onClick={()=>router.push("/notifications")} className="p-2 font-normal  rounded-lg lg:hover:bg-slate-500 lg:hover:text-white cursor-pointer my-1 text-center dark:bg-slate-800">See All</li>
+            }
           </ul>
         </div>
       }
@@ -177,7 +189,7 @@ const Navbar = () => {
             <div tabIndex={0} role="button" className="">
               <div className=" relative">
                 <FaBell onClick={() => setShowNotificationMenu(!showNotificationMenu)} title="notifications" className={`${notificationsCount > 0 ? "text-red-500" : ""}`} />
-                <div className="text-red-400 absolute -right-[20%] cursor-default  font-semibold -top-[30%] text-[8px]">{notificationsCount > 0 ? notificationsCount : ""}</div>
+                <div className="text-red-400 absolute -right-[40%] cursor-default  font-semibold -top-[40%] text-[8px]">{notificationsCount > 0 ? notificationsCount : ""}</div>
               </div>
             </div>
           </div>

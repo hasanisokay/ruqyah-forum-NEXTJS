@@ -45,7 +45,6 @@ const PendingPost = () => {
         fetcher
     );
     const [posts, setPosts] = useState([])
-    console.log(posts);
     useEffect(() => {
         if (data) {
             setPosts(data?.flat())

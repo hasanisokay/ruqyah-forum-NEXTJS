@@ -1,7 +1,6 @@
 
 import axios from "axios";
 const getUser = async () => {
-
     try {
         const { data } = await axios.get("/api/auth/me")
         return {

@@ -5,10 +5,11 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useContext, useEffect, useState, useTransition } from 'react';
 import toast from 'react-hot-toast';
 import LoadingSignUpPage from './LoadingSignUpPage';
+import createJWT from '@/utils/createJWT';
 
 const SignUpForm = () => {
 
-  const { fetchedUser } = useContext(AuthContext)
+  const { fetchedUser, setFetchedUser, signIn } = useContext(AuthContext)
   const search = useSearchParams();
   const from = search.get("redirectUrl") || "/";
 
@@ -115,15 +116,25 @@ const SignUpForm = () => {
 
     try {
       const toastId = toast.loading("Loading...");
-      const response = await fetch(`api/auth/signup`, {
+      await fetch(`api/auth/signup`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ name, username, email, phone, password, gender, photoURL:"", joined: formatDate() }),
       });
-      toast.remove(toastId);
-      toast.success("Success");
+      const res = await signIn(username, password)
+      if (res.status===404) {
+          toast.dismiss(toastId);
+          toast.error(res.message)
+      }
+      else {
+          const { username, email, name, gender, phone, joined, isAdmin, photoURL } = res;
+          await createJWT({ username, email, name, gender, phone, joined, isAdmin, photoURL })
+          setFetchedUser(res)
+          toast.dismiss(toastId);
+          toast.success("Success");
+      }
 
     } catch (error) {
       console.error('Error while sign up: ', error.message);
@@ -133,9 +144,6 @@ const SignUpForm = () => {
 
   const inputClasses = `w-full p-2 border rounded-md focus:outline-none focus:border-blue-500 ${theme === 'dark' ? 'bg-black' : 'bg-white'
     } `;
-
-
-
   useEffect(() => {
     const checkAvailability = async () => {
       if (username?.length > 3) {
@@ -162,6 +170,7 @@ const SignUpForm = () => {
         className={`lg:w-[40vw] md:w-[80vw] w-[90vw] mx-auto mt-4 p-4 shadow-md rounded-md ${theme === 'dark' ? 'bg-white' : 'bg-[#f0f1f3]'
           }`}
       >
+                        <h1 className='text-xl text-center dark:text-black font-semibold'>Sign Up</h1>
         <label htmlFor="name" className="block mb-2 text-gray-600">
           Name
         </label>
@@ -266,6 +275,9 @@ const SignUpForm = () => {
         >
           Sign Up
         </button>
+        <div className='my-2 dark:text-black'>
+                    <p className='text-sm'>Already have an account? Please <button onClick={()=>push("/login")} title='goto login' className='text-blue-600 italic'>login</button>.</p>
+                </div>
       </form>
     );
   }

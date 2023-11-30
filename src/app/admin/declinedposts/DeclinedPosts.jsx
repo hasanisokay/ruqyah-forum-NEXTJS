@@ -52,7 +52,6 @@ const DeclinedPosts = () => {
             setPosts(data.flat())
         }
     },[data])
-    console.log(posts);
     const handleToggleExpand = (postId) => {
         setExpandedPosts((prevExpandedPosts) => {
             if (prevExpandedPosts.includes(postId)) {

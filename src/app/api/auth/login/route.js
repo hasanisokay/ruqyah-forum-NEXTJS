@@ -21,14 +21,5 @@ if(passwordsMatch){
 else{
   return NextResponse.json({ status: 404, message:"Wrong username or password." });
 }
-
-  // const hashedPassword = await bcrypt.hash(password, 10);
-  // body.password = hashedPassword; 
-
-  // const usernameCollection = db.collection("usernames");
-  // await userCollection.insertOne(body);
-  // NextResponse.json({ status:200, message: "User Created" });
-  // await usernameCollection.insertOne({username});
   return;
 };
-// hasanvai

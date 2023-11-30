@@ -102,7 +102,6 @@ const AdminActivity = () => {
             post?.postAuthorUsername?.toLowerCase()?.includes(searchTerm?.toLowerCase())
         )
         : sortedPosts;
-console.log(posts);
     return (
         <div>
             <div className="my-4 flex items-center justify-center">

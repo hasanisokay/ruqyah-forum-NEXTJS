@@ -30,6 +30,7 @@ export const POST = async (request) => {
       message: `${name} commented on a post you are following.`,
       date: new Date(),
       postID,
+      commenterUsername: author.username,
       read: false
     };
     if(author.username !==postAuthorUsername){
@@ -40,15 +41,15 @@ export const POST = async (request) => {
         { username: { $in: prevCommenters } },
         { $push: { notifications: newNotification } }
       );
-      if (result.modifiedCount === 1) {
+      if (result.modifiedCount > 0) {
         return NextResponse.json({
           status: 200,
           message: "Commented successfully.",
         });
       } else {
         return NextResponse.json({
-          status: 400,
-          message: "Failed to comment.",
+          status: 200,
+          message: "Commented but failed to update notifications",
         });
       }
     }

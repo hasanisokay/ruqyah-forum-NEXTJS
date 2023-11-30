@@ -17,8 +17,10 @@ export const GET = async () => {
     const { username } = payload;
     const db = await dbConnect();
     const userCollection = db.collection("users");
-    const user = await userCollection.findOne({ username: username });
-    delete user.password;
+    const user = await userCollection.findOne(
+      { username: username },
+      { projection: { password: 0} }
+    );
     return NextResponse.json(user);
   } catch {
     return NextResponse.json({ message: "Validation Error", status: 401 });

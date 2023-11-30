@@ -4,7 +4,6 @@ import { NextResponse } from "next/server";
 
 export const POST = async (request) => {
   const body = await request.json();
-  console.log(body);
   const { postID, action, actionByUsername } = body;
   const db = await dbConnect();
 

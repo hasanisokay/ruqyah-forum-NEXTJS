@@ -20,9 +20,9 @@ const SinglePostInHomePage = ({ id }) => {
   const { fetchedUser } = useContext(AuthContext);
   const { data, error, isLoading } = useSWR(`/api/posts/${id}`, fetcher);
   const [newCommentData, setNewCommentData] = useState("");
-  const [loadingNewPost, setLoadingNewComment] = useState(false);
+  const [loadingNewComment, setLoadingNewComment] = useState(false);
   const [post, setPost] = useState(data ? data[0] : []);
-  console.log(data);
+
   useEffect(() => {
     if (data) {
       setPost(data[0])
@@ -30,7 +30,6 @@ const SinglePostInHomePage = ({ id }) => {
   }, [data])
   if (error || data?.status === 500) return notFound();
   if (!post || isLoading) return <LoadingCards />;
-  console.log(post);
 
   const handleNewCommentForm = async (e) => {
     e.preventDefault()
@@ -53,6 +52,8 @@ const SinglePostInHomePage = ({ id }) => {
       setLoadingNewComment(true);
       const { data } = await axios.post("/api/posts/comment", dataToSend);
       if (data.status === 200) {
+        setNewCommentData("");
+        setLoadingNewComment(false);
         const updatedComment = {
           comment: newCommentData,
           author: {
@@ -69,9 +70,6 @@ const SinglePostInHomePage = ({ id }) => {
           ...prevPost,
           comment: [updatedComment, ...prevPost.comment],
         }));
-        setNewCommentData("");
-        setLoadingNewComment(false);
-        mutate();
       }
     } catch (error) {
       console.error("Error disliking post:", error);
@@ -165,25 +163,25 @@ const SinglePostInHomePage = ({ id }) => {
         </div>
       </div>
       {
-        fetchedUser && <div className=''>
+        fetchedUser && !fetchedUser.blocked && <div className=''>
           <form
             onSubmit={(e) => handleNewCommentForm(e)}
-            className={`relative ${loadingNewPost ? "opacity-40" : "opacity-100"} mt-4`}
+            className={`relative ${loadingNewComment ? "opacity-40" : "opacity-100"} mt-4`}
           >
             <TextareaAutosize
               value={newCommentData}
-              disabled={loadingNewPost}
+              disabled={loadingNewComment}
               maxRows={3}
               style={{ paddingRight: "20px" }}
               onChange={(e) => setNewCommentData(e.target.value)}
-              placeholder="Write your comment"
+              placeholder={`Comment as ${fetchedUser.name}`}
               className="textarea border-2 focus:outline-none border-gray-400 focus:border-blue-700 bordered w-full"
 
             />
             <div className="absolute bottom-[20%]  right-2">
               <button
                 title="click to comment"
-                disabled={loadingNewPost}
+                disabled={loadingNewComment}
                 className={`forum-btn1`}
                 type="submit"
               >

@@ -28,14 +28,13 @@ const NewPost = () => {
             toast.dismiss(toastId)
             toast.success(data.message)
             setNewPostData("");
-
         }
         else if (data?.status === 401) {
             toast.success(data.message)
         }
         setLoadingNewPost(false)
     };
-    if (fetchedUser && loading === false) {
+    if (fetchedUser && loading === false && !fetchedUser?.blocked) {
         return (
             <div>
                 <form

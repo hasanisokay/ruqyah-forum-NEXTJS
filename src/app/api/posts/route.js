@@ -52,5 +52,4 @@ export const GET = async (request) => {
 
   return NextResponse.json(result);
   // const result = await postCollection.find({ status: "approved" }).sort({ date: -1 }).skip(skip).limit(pageSize).toArray();
-  return NextResponse.json(result);
 };
