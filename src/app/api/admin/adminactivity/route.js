@@ -30,7 +30,7 @@ export const GET = async (request) => {
   const sortQuery = { timestamp: sortOrder === "desc" ? -1 : 1 };
 
   const result = await adminActivityCollection
-    .aggregate([
+    ?.aggregate([
       { $match: query },
       {
         $lookup: {

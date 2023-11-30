@@ -21,7 +21,7 @@ export const GET = async (request) => {
     const sortQuery = { date: sortOrder === 'desc' ? -1 : 1 };
 
     const result = await postCollection
-        .aggregate([
+        ?.aggregate([
             { $match: query },
             {
                 $lookup: {

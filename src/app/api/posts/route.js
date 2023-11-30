@@ -9,7 +9,7 @@ export const GET = async (request) => {
   const usersCollection = db?.collection("users");
   const pageSize = 10;
   const skip = (page - 1) * pageSize;
-  const result = await postCollection.aggregate([
+  const result = await postCollection?.aggregate([
     {
         $match: { status: "approved" },
     },

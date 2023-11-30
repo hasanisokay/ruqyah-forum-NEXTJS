@@ -14,7 +14,7 @@ export const GET = async (request) => {
     const db = await dbConnect();
     const postCollection = db?.collection("posts");
 
-    const post = await postCollection.aggregate([
+    const post = await postCollection?.aggregate([
       {
         $match: { _id: new ObjectId(id), status: "approved" },
       },

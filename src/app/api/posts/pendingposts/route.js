@@ -20,7 +20,7 @@ export const GET = async (request) => {
 
   // const result = await postCollection.find(query).sort(sortQuery).skip(skip).limit(pageSize).toArray();
   const result = await postCollection
-        .aggregate([
+        ?.aggregate([
             {
                 $match: query,
             },

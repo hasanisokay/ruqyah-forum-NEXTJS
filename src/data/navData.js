@@ -4,14 +4,6 @@ const commonNavData = [
       title: "Home",
     },
     {
-      path: "/about",
-      title: "About",
-    },
-    {
-      path: "/feed",
-      title: "Feed",
-    },
-    {
       path: "/notice",
       title: "Notice",
     },
