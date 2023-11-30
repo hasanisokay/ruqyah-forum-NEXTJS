@@ -62,7 +62,7 @@ const Profile = () => {
         if (!loading && !fetchedUser) {
             replace(from)
         }
-    }, [loading, fetchedUser])
+    }, [loading, fetchedUser, from, replace])
     if (!showProfile) {
         return <LoadingProfile />
     }
