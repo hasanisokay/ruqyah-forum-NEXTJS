@@ -197,7 +197,7 @@ const SinglePostInHomePage = ({ id }) => {
       {
         post?.comment?.length > 0 && post?.comment[comment.length - 1]?.author?.authorInfo?.name && <div>
           {post?.comment?.map((c, index) => (
-            <div key={index} className=' my-1'>
+            <div key={index} className=' my-1 pl-4 pr-2'>
               {
                 c?.author?.authorInfo?.name && <>
                   <div className='flex gap-2 items-center'>
@@ -216,7 +216,7 @@ const SinglePostInHomePage = ({ id }) => {
                           : <div className='flex items-center justify-center rounded-full border-gray-400 border-2 w-[35px] h-[35px]'><FaUserLarge className='' /></div>
                       }
                     </div>
-                    <div className='py-2'>
+                    <div className='pt-2 pb-1'>
                       <p><span className=''> <span className='text-[14px] font-semibold'>{c?.author?.authorInfo?.name}</span> </span> <span className='text-xs'>{(c.author.username === post.authorInfo.username && "Author")}</span>
                         <span className='text-xs'> {(c?.author?.authorInfo?.isAdmin && "Admin")} </span>
                       </p>
@@ -226,7 +226,7 @@ const SinglePostInHomePage = ({ id }) => {
                       </div>
                     </div>
                   </div>
-                  <p className='whitespace-pre-wrap pb-1'>{c.comment}</p>
+                  <p className='whitespace-pre-wrap pb-1 pl-[43px] text-[14px] '>{c.comment}</p>
                 </>
               }
 

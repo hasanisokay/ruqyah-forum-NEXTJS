@@ -170,7 +170,7 @@ const HomePagePosts = () => {
     return (
         <div>
             {posts?.map((post) => (
-                <div key={post._id} className='p-2 cursor-default border-2 m-2 rounded-lg dark:border-gray-400 cardinhome '>
+                <div key={post._id} className='p-2 cursor-default border-2 m-2 border-gray-500 rounded-lg dark:border-gray-400 cardinhome '>
                     {fetchedUser?.isAdmin && <div className='relative'>
                         <BsThreeDotsVertical onClick={() => handlePostOptions(post._id)} className='absolute right-0 cursor-pointer' />
                         {selectedPostIdForOptions === post._id && (
