@@ -3,9 +3,9 @@ import { NextResponse } from "next/server";
 
 export const GET = async () => {
     const db = await dbConnect();
-    const postCollection = db.collection("posts");
-    const noticeCollection = db.collection("notice");
-    const usersCollection = db.collection("users");
+    const postCollection = db?.collection("posts");
+    const noticeCollection = db?.collection("notice");
+    const usersCollection = db?.collection("users");
 
     try {
         // Count the number of posts with different statuses

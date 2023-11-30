@@ -13,8 +13,8 @@ export const POST = async (request) => {
   const hashedPassword = await bcrypt.hash(password, 10);
   body.password = hashedPassword;
   const db = await dbConnect();
-  const userCollection = db.collection("users");
-  const usernameCollection = db.collection("usernames");
+  const userCollection = db?.collection("users");
+  const usernameCollection = db?.collection("usernames");
   try {
     body.isAdmin = false;
     body.comment = [];

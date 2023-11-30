@@ -7,8 +7,8 @@ export const POST = async (request) => {
   const body = await request.json();
   const db = await dbConnect();
   const { username, action, actionBy } = body;
-  const userCollection = db.collection("users");
-  const rulesActivityCollection = db.collection("rules-activity");
+  const userCollection = db?.collection("users");
+  const rulesActivityCollection = db?.collection("rules-activity");
 
   try {
     if (action === "make-admin") {

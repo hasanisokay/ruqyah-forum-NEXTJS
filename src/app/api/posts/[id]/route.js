@@ -12,7 +12,7 @@ export const GET = async (request) => {
 
   try {
     const db = await dbConnect();
-    const postCollection = db.collection("posts");
+    const postCollection = db?.collection("posts");
 
     const post = await postCollection.aggregate([
       {

@@ -8,7 +8,7 @@ export const POST = async (request) => {
   const db = await dbConnect();
 
   try {
-    const postCollection = db.collection("posts");
+    const postCollection = db?.collection("posts");
     if (action === "like") {
       // Update to add the username to the 'likes' array
       const result = await postCollection.updateOne(

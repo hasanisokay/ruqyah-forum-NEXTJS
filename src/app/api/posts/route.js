@@ -5,8 +5,8 @@ export const GET = async (request) => {
   const page = parseInt(request.nextUrl.searchParams.get("page")) || 1; // Use default value if request.query is undefined
 
   const db = await dbConnect();
-  const postCollection = db.collection("posts");
-  const usersCollection = db.collection("users");
+  const postCollection = db?.collection("posts");
+  const usersCollection = db?.collection("users");
   const pageSize = 10;
   const skip = (page - 1) * pageSize;
   const result = await postCollection.aggregate([

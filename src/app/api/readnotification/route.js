@@ -11,7 +11,7 @@ export const POST = async (request) => {
     const db = await dbConnect();
 
     // Get the user collection
-    const userCollection = db.collection("users");
+    const userCollection = db?.collection("users");
 
     // Update the notifications array
     const result = await userCollection.updateOne(

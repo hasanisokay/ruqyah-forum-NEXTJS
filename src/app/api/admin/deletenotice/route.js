@@ -8,7 +8,7 @@ export const POST = async (request) => {
   const body = await request.json();
   const db = await dbConnect();
 
-  const noticeCollection = db.collection("notice");
+  const noticeCollection = db?.collection("notice");
   try {
     await noticeCollection.deleteOne({ _id: new ObjectId(body.id) });
     return NextResponse.json({ status: 200, message: "Deleted" });

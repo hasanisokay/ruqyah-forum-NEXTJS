@@ -9,8 +9,8 @@ export const POST = async (request) => {
   const body = await request.json();
   const { username, photoURL } = body;
   const db = await dbConnect();
-  const userCollection = db.collection("users");
-  const postCollection = db.collection("posts");
+  const userCollection = db?.collection("users");
+  const postCollection = db?.collection("posts");
   const result = await userCollection.updateOne(
     { username: username },
     { $set: { photoURL: photoURL } }

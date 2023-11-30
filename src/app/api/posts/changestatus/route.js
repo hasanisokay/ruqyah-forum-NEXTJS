@@ -16,8 +16,8 @@ export const POST = async (request) => {
 
   const db = await dbConnect();
   try {
-    const postCollection = db.collection("posts");
-    const adminActivityCollection = db.collection("admin-activity");
+    const postCollection = db?.collection("posts");
+    const adminActivityCollection = db?.collection("admin-activity");
     if(deleteAll){
       await postCollection.deleteMany({status:"declined"})
       await adminActivityCollection.deleteMany({status:"decline"})

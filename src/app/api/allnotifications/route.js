@@ -10,7 +10,7 @@ export const GET = async (request) => {
 
   try {
     const db = await dbConnect();
-    const userCollection = db.collection("users");
+    const userCollection = db?.collection("users");
 
     const aggregationPipeline = [
       { $match: { username: username } },

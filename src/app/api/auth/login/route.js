@@ -8,7 +8,7 @@ export const POST = async (request) => {
   const body = await request.json();
 const username = body.username;
 const db = await dbConnect();
-const userCollection = db.collection("users");
+const userCollection = db?.collection("users");
 const user = await userCollection.findOne({username:username})
 if(!user){
   return NextResponse.json({ status: 404, message:"Wrong username or password." });

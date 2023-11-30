@@ -7,8 +7,8 @@ export const GET = async (request) => {
     const searchTerm = request.nextUrl.searchParams.get('searchTerm');
 
     const db = await dbConnect();
-    const postCollection = db.collection('posts');
-    const usersCollection = db.collection('users');
+    const postCollection = db?.collection('posts');
+    const usersCollection = db?.collection('users');
 
     const pageSize = 10;
     const skip = (page - 1) * pageSize;

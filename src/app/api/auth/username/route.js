@@ -4,7 +4,7 @@ export const GET = async (request) => {
   const { searchParams } = new URL(request.url);
   const username = searchParams.get("username");
   const db = await dbConnect();
-  const usernameCollection = db.collection("usernames");
+  const usernameCollection = db?.collection("usernames");
   const result = await usernameCollection
     .find({ username: username })
     .toArray();

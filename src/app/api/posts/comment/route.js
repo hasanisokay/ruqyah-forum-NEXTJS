@@ -8,8 +8,8 @@ export const POST = async (request) => {
   const db = await dbConnect();
 
   try {
-    const postCollection = db.collection("posts");
-    const userCollection = db.collection("users");
+    const postCollection = db?.collection("posts");
+    const userCollection = db?.collection("users");
     const updatedDocument = await postCollection.findOneAndUpdate(
       { _id: new ObjectId(postID) },
       { $push: { comment: { comment, author, date } } },

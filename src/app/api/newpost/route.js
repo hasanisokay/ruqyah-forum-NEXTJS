@@ -7,7 +7,7 @@ export const POST = async (request) => {
   const body = await request.json();
   const db = await dbConnect();
 
-  const postCollection = db.collection("posts");
+  const postCollection = db?.collection("posts");
   try {
     if (!body?.status) {
       body.status = "pending";

@@ -16,7 +16,7 @@ export const GET = async () => {
     const { payload } = await jwtVerify(token, secret);
     const { username } = payload;
     const db = await dbConnect();
-    const userCollection = db.collection("users");
+    const userCollection = db?.collection("users");
     const user = await userCollection.findOne(
       { username: username },
       { projection: { password: 0} }

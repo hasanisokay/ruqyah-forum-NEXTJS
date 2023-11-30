@@ -5,7 +5,7 @@ export const GET = async (request) => {
   const username = request.nextUrl.searchParams.get("username");
   try {
     const db = await dbConnect();
-    const userCollection = db.collection("users");
+    const userCollection = db?.collection("users");
 
     const result = await userCollection.findOne(
         { username: username },

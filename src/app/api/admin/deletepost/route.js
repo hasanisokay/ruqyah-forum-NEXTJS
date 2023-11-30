@@ -7,7 +7,7 @@
 //   const body = await request.json();
 //   const { postID,actionBy } = body;
 //   const db = await dbConnect();
-//   const postCollection = db.collection("posts");
+//   const postCollection = db?.collection("posts");
 //   try {
 //     await postCollection.deleteOne();
 //     return NextResponse.json({ status: 200, message: "Posted new notice" });

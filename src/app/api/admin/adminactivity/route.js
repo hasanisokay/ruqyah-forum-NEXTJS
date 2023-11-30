@@ -8,8 +8,8 @@ export const GET = async (request) => {
   const actionFilter = request.nextUrl.searchParams.get("actionFilter");
 
   const db = await dbConnect();
-  const adminActivityCollection = db.collection("admin-activity");
-  const usersCollection = db.collection("users");
+  const adminActivityCollection = db?.collection("admin-activity");
+  const usersCollection = db?.collection("users");
 
   const pageSize = 10;
   const skip = (page - 1) * pageSize;

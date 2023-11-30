@@ -8,7 +8,7 @@ export const GET = async (request) => {
   
 
   const db = await dbConnect();
-  const postCollection = db.collection("posts");
+  const postCollection = db?.collection("posts");
   const pageSize = 10;
   const skip = (page - 1) * pageSize;
   let query = { status: 'pending' };
