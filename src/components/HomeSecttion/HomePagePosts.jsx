@@ -174,7 +174,7 @@ const HomePagePosts = () => {
                     {fetchedUser?.isAdmin && <div className='relative'>
                         <BsThreeDotsVertical onClick={() => handlePostOptions(post._id)} className='absolute right-0 cursor-pointer' />
                         {selectedPostIdForOptions === post._id && (
-                            <div className='absolute lg:hover:bg-red-500 lg:hover:text-white border-2 text-sm right-0 top-2 mt-2 p-1 bg-white shadow-lg rounded-md'>
+                            <div className='absolute lg:hover:bg-red-500 border-2 text-sm right-0 top-2 mt-2 p-1  shadow-lg rounded-md'>
                                 <button onClick={() => handleDeletePost(post._id, fetchedUser.isAdmin)}>Delete Post</button>
                             </div>
                         )}

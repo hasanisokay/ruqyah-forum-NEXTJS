@@ -14,7 +14,7 @@ input:-webkit-autofill:active {
 }
 
 [data-theme="dark"] {
-  @apply bg-[#4c4c4c] text-[#ffffff];
+  @apply bg-[#4c4c4c] text-[#e3ebdb];
 }
 .forum-btn1{
   @apply  text-white px-4 py-1 rounded-lg cursor-pointer

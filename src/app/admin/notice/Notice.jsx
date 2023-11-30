@@ -34,7 +34,7 @@ const Notice = () => {
         }
         setLoadingNewNotice(false)
     };
-    if (fetchedUser && loading === false) return (
+    if (fetchedUser) return (
         <div>
             <form
                 onSubmit={handleNewNoticeForm}
