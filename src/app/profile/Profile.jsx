@@ -72,7 +72,7 @@ const Profile = () => {
             <div>
                 {photoURL ? <Image src={photoURL} width={300} height={300} loading="lazy" className="border-4 border-gray-500 rounded-lg" alt="profile photo" /> : <FaUserLarge />}            </div>
             {
-                !photoURL && <div className="w-full py-4 text-center">
+                 <div className="w-full py-4 text-center">
                     <label className="cursor-pointer bg-[#308853] lg:hover:bg-[#0f2216] text-white py-2 px-4 rounded-lg text-center">
                         Set Profile Photo
                         <input

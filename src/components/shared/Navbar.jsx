@@ -94,7 +94,7 @@ const Navbar = () => {
   };
 
   if (loading) {
-    return <div className="flex md:px-10 px-4 justify-between items-center">
+    return <div className=" flex md:px-10 px-4 justify-between items-center">
       <SkeletonTheme baseColor={baseColor} highlightColor={highlightColor}>
         <p>
           <Skeleton count={1} width={150} height={30} />
@@ -110,15 +110,15 @@ const Navbar = () => {
     </div>
   }
   if (!loading) return (
-    <div className="flex md:px-10 px-4 lg:justify-between justify-between items-center font-semibold" ref={navRef}>
+    <div className="flex md:px-10 px-4 lg:justify-between justify-between items-center font-semibold z-50" ref={navRef}>
       <Link href={"/"}><Image placeholder="blur" src={logo} alt="logo" width={150} /></Link>
 
       <div
-        className={`absolute ${navToggle ? "right-0" : "left-[-120%]"
+        className={`z-40 absolute ${navToggle ? "right-0" : "left-[-120%]"
           } top-[4.5rem] w-[40vw] flex justify-center items-center bg-slate-200 py-3 rounded-xl transition-all duration-1000 dark:bg-slate-900 lg:static lg:w-[unset] lg:flex-row lg:bg-transparent lg:pb-0 lg:pt-0 dark:lg:bg-transparent`}
       >
 
-        <ul className="flex flex-col lg:flex-row gap-4 items-center justify-center mr-6">
+        <ul className="flex flex-col lg:flex-row gap-4 items-center justify-center mr-6" >
           {
             navData?.map(({ path, title }) => <li key={path}>
               <NavLink activeClassName={"text-[#308853] text-semibold"} href={path} exact={path === "/" && true}>{title}</NavLink>
