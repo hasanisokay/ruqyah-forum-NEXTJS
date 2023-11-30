@@ -53,11 +53,11 @@ const PublicNotice = () => {
                             {notice?.title}
                         </div>
                         <div className="collapse-content font-semibold whitespace-pre-wrap">
-                            <p>{notice.notice}</p>
+                            <p>{notice?.notice}</p>
                             <p className='text-xs'>
-                            Notice Date: {formatDateInAdmin(new Date(notice.date))}
+                            Notice Date: {formatDateInAdmin(new Date(notice?.date))}
                             </p>
-                            {fetchedUser.isAdmin && <button className='forum-btn1 bg-red-600 mt-2' onClick={() => handleDeleteNotice(notice._id)}>Delete</button>}
+                            {fetchedUser?.isAdmin && <button className='forum-btn1 bg-red-600 mt-2' onClick={() => handleDeleteNotice(notice?._id)}>Delete</button>}
                         </div>
                     </div>
                 </div>)
