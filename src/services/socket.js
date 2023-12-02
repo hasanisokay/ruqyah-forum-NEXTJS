@@ -11,6 +11,7 @@ const initializeSocket = async () => {
       query: {
         username: user.username,
       },
+      transports: ['websocket'],
     });
 
     socket.on('connect', () => {
