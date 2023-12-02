@@ -12,6 +12,7 @@ const initializeSocket = async () => {
         username: user.username,
       },
       transports: ['websocket'],
+      upgrade: false,
     });
 
     socket.on('connect', () => {
