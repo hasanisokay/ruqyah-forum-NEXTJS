@@ -4,7 +4,7 @@ import { io } from 'socket.io-client';
 const initializeSocket = async () => {
   try {
     // const serverUrl = 'http://localhost:3001';
-    const serverUrl = 'https://13.229.79.153:3001';
+    const serverUrl = 'ws://13.229.79.153:3001';
     const { user } = await getUser();
     const socket = io(serverUrl, {
       query: {
