@@ -6,6 +6,7 @@ const initializeSocket = async () => {
     // const serverUrl = 'http://localhost:3001';
     const serverUrl = 'https://forum-socket.vercel.app';
     const { user } = await getUser();
+    console.log(user);
     const socket = io(serverUrl, {
       query: {
         username: user.username,
