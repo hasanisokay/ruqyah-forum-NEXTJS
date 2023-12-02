@@ -6,7 +6,6 @@ export const POST = async (request) => {
   const body = await request.json();
   const { comment, author, date, postID, name, postAuthorUsername } = body;
   const db = await dbConnect();
-
   try {
     const postCollection = db?.collection("posts");
     const userCollection = db?.collection("users");
@@ -38,7 +37,7 @@ export const POST = async (request) => {
     };
     if (prevCommenters) {
       const result = await userCollection.updateMany(
-        { username: { $in: prevCommenters } },
+        { username: { $in: prevCommenters }},
         { $push: { notifications: newNotification } }
       );
       if (result.modifiedCount > 0) {

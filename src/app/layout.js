@@ -13,7 +13,7 @@ export const metadata = {
 const RootLayout = ({ children }) => {
 
   return (
-    <html lang="en" data-theme={ "light"} className="transition-all">
+    <html lang="en" data-theme={ "dark"} className="transition-all">
       <body className={inter.className}>
         <Providers>
           <Navbar></Navbar>

@@ -14,6 +14,7 @@ import { RiSendPlane2Fill } from "react-icons/ri";
 import { comment } from 'postcss';
 import { notFound } from 'next/navigation'
 import LoadingCards from '@/components/LoadingCards';
+import initializeSocket from '@/services/socket';
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
 const SinglePostInHomePage = ({ id }) => {
@@ -28,6 +29,30 @@ const SinglePostInHomePage = ({ id }) => {
       setPost(data[0])
     }
   }, [data])
+  useEffect(() => {
+    const setupSocket = async () => {
+      try {
+        const socket = await initializeSocket();
+        socket.on('newComment', (newCommentData) => {
+          console.log({ newCommentData });
+
+          // Check if the new comment is for the current post
+          if (newCommentData.postID === id) {
+            setPost((prevPost) => ({
+              ...prevPost,
+              comment: [newCommentData, ...prevPost.comment],
+            }));
+          }
+        });
+      } catch (error) {
+        console.error("Error setting up socket:", error);
+      }
+    };
+
+    setupSocket();
+  }, [id]);
+
+
   if (error || data?.status === 500) return notFound();
   if (!post || isLoading) return <LoadingCards />;
 
@@ -39,7 +64,6 @@ const SinglePostInHomePage = ({ id }) => {
     if (!fetchedUser) {
       return toast.error("Log in to comment.")
     }
-
     const dataToSend = {
       postAuthorUsername: post.authorInfo.username,
       name: fetchedUser.name,
@@ -54,27 +78,52 @@ const SinglePostInHomePage = ({ id }) => {
       if (data.status === 200) {
         setNewCommentData("");
         setLoadingNewComment(false);
-        const updatedComment = {
+        // const updatedComment = {
+        //   comment: newCommentData,
+        //   author: {
+        //     username: fetchedUser.username,
+        //     authorInfo: {
+        //       name: fetchedUser.name,
+        //       photoURL: fetchedUser.photoURL,
+        //       isAdmin: fetchedUser.isAdmin,
+        //     },
+        //   },
+        //   date: new Date(),
+        // };
+        // setPost((prevPost) => ({
+        //   ...prevPost,
+        //   comment: [updatedComment, ...prevPost.comment],
+        // }));
+        // send comment with socket
+        const dataToSendInSocket = {
           comment: newCommentData,
+          date: dataToSend.date,
           author: {
             username: fetchedUser.username,
             authorInfo: {
-              name: fetchedUser.name,
-              photoURL: fetchedUser.photoURL,
               isAdmin: fetchedUser.isAdmin,
-            },
+              name: fetchedUser.name,
+              photoURL: fetchedUser.photoURL
+            }
           },
-          date: new Date(),
-        };
-        setPost((prevPost) => ({
-          ...prevPost,
-          comment: [updatedComment, ...prevPost.comment],
-        }));
+          postID: id,
+        }
+        const socket = await initializeSocket();
+        const allUsernamesSet = new Set(post?.comment?.flatMap(comment => comment?.author?.username));
+        const uniqueUsernames = Array.from(allUsernamesSet);
+        if (uniqueUsernames.includes(fetchedUser.username)) {
+          // delete the username from array and send notifications to rest
+          uniqueUsernames.slice(uniqueUsernames.indexOf(fetchedUser.username),1)
+        }
+        console.log(uniqueUsernames);
+        console.log(fetchedUser.username);
+        socket.emit('newComment', dataToSendInSocket)
       }
     } catch (error) {
-      console.error("Error disliking post:", error);
+      console.error("Error commenting:", error);
     }
   };
+
   const handleDislike = async () => {
     if (!fetchedUser) {
       return toast.error("Log in to react")
@@ -113,6 +162,7 @@ const SinglePostInHomePage = ({ id }) => {
       console.error("Error disliking post:", error);
     }
   }
+  // console.log(post);
   return (
     <div className='p-2 cursor-default border-2 m-2 rounded-lg dark:border-gray-400 cardinhome'>
       <div className='flex gap-2 items-center'>

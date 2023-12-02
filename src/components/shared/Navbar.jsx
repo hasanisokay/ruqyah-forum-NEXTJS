@@ -15,20 +15,43 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import formatRelativeDate from "@/utils/formatDate";
 import formatDateInAdmin from "@/utils/formatDateInAdmin";
+import initializeSocket from "@/services/socket";
+
+
 const Navbar = () => {
   const [navToggle, setNavToggle] = useState(false);
   const [showNotificationMenu, setShowNotificationMenu] = useState(false)
   const { theme, toggleTheme } = useTheme()
-  const { fetchedUser, loading, logOut, loggedOut, notificationsCount, allNotifications, setAllNotifications } = useContext(AuthContext);
+  const { fetchedUser, loading, logOut, loggedOut, notificationsCount, allNotifications, setAllNotifications, setNotificationsCount } = useContext(AuthContext);
   const [navData, setNavData] = useState()
   const router = useRouter();
   const [isPending, startTransition] = useTransition()
   const navRef = useRef(null);
   const baseColor = theme === "dark" ? "#7d7d7d" : "#f4f4f4"
   const highlightColor = theme === "dark" ? "#e3ebdb" : "#b2b2b2"
+
   useEffect(() => {
     setNavData(fetchedUser ? afterLoginNavData : beforeLoginNavData)
   }, [fetchedUser, loggedOut])
+
+  // socket to update noitifications
+  useEffect(() => {
+    const setupSocket = async () => {
+      try {
+        const socket = await initializeSocket();
+        // socket.on('newNotification', (newCommentData) => {
+        //   setPost((prevPost) => ({
+        //     ...prevPost,
+        //     comment: [newCommentData, ...prevPost.comment],
+        //   }));
+        // });
+
+      } catch (error) {
+      }
+    };
+
+    setupSocket();
+  }, []);
 
   useEffect(() => {
     if (fetchedUser) {
@@ -42,6 +65,7 @@ const Navbar = () => {
       router.refresh()
     });
   }, [loading, router])
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
@@ -79,19 +103,21 @@ const Navbar = () => {
     if (read === false) {
       const data = await axios.post("/api/readnotification", { id, username: fetchedUser.username })
       if (data.status === 200) {
-        setAllNotifications((prevNotifications) =>
-          prevNotifications.map((notification) => {
-            if (notification.postID === id) {
+        const newUnreadCount = allNotifications?.filter((n) => n.postID === id && n.read === false)
+        setAllNotifications(
+          allNotifications?.map((notification) => {
+            if (notification?.postID === id) {
               return { ...notification, read: true };
             }
             return notification;
           })
         );
-       return router.push(`/${id}`)
+        setNotificationsCount((prev) => prev - newUnreadCount?.length);
       }
     }
     return router.push(`/${id}`)
   };
+
 
   if (loading) {
     return <div className=" flex md:px-10 px-4 justify-between items-center">
@@ -173,11 +199,11 @@ const Navbar = () => {
                 className={`p-2 font-normal  rounded-lg lg:hover:bg-slate-600 lg:hover:text-white cursor-pointer my-2 ${n.read === false ? "bg-slate-300 dark:bg-blue-800" : "bg-slate-100 dark:bg-inherit text-black"
                   }`}
               >
-                {n.message} <span className="block text-xs">{formatRelativeDate(new Date(n.date))  + " ago"} {" on " + formatDateInAdmin(new Date(n.date)) }</span>
+                {n.message} <span className="block text-xs">{formatRelativeDate(new Date(n.date)) + " ago"} {" on " + formatDateInAdmin(new Date(n.date))}</span>
               </li>
             ))}
             {
-              notificationsToDisplay?.length < 1 ? <li className="p-2 font-normal  rounded-lg lg:hover:bg-slate-500 lg:hover:text-white cursor-pointer my-1 text-center dark:bg-slate-800">No notification available</li> : <li onClick={()=>router.push("/notifications")} className="p-2 font-normal  rounded-lg lg:hover:bg-slate-500 lg:hover:text-white cursor-pointer my-1 text-center dark:bg-slate-800">See All</li>
+              notificationsToDisplay?.length < 1 ? <li className="p-2 font-normal  rounded-lg lg:hover:bg-slate-500 lg:hover:text-white cursor-pointer my-1 text-center dark:bg-slate-800">No notification available</li> : <li onClick={() => router.push("/notifications")} className="p-2 font-normal  rounded-lg lg:hover:bg-slate-500 lg:hover:text-white cursor-pointer my-1 text-center dark:bg-slate-800">See All</li>
             }
           </ul>
         </div>
