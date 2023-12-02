@@ -29,28 +29,28 @@ const SinglePostInHomePage = ({ id }) => {
       setPost(data[0])
     }
   }, [data])
-  useEffect(() => {
-    const setupSocket = async () => {
-      try {
-        const socket = await initializeSocket();
-        socket.on('newComment', (newCommentData) => {
-          console.log({ newCommentData });
+  // useEffect(() => {
+  //   const setupSocket = async () => {
+  //     try {
+  //       const socket = await initializeSocket();
+  //       socket.on('newComment', (newCommentData) => {
+  //         console.log({ newCommentData });
 
-          // Check if the new comment is for the current post
-          if (newCommentData.postID === id) {
-            setPost((prevPost) => ({
-              ...prevPost,
-              comment: [newCommentData, ...prevPost.comment],
-            }));
-          }
-        });
-      } catch (error) {
-        console.error("Error setting up socket:", error);
-      }
-    };
+  //         // Check if the new comment is for the current post
+  //         if (newCommentData.postID === id) {
+  //           setPost((prevPost) => ({
+  //             ...prevPost,
+  //             comment: [newCommentData, ...prevPost.comment],
+  //           }));
+  //         }
+  //       });
+  //     } catch (error) {
+  //       console.error("Error setting up socket:", error);
+  //     }
+  //   };
 
-    setupSocket();
-  }, [id]);
+  //   setupSocket();
+  // }, [id]);
 
 
   if (error || data?.status === 500) return notFound();
@@ -78,46 +78,46 @@ const SinglePostInHomePage = ({ id }) => {
       if (data.status === 200) {
         setNewCommentData("");
         setLoadingNewComment(false);
-        // const updatedComment = {
-        //   comment: newCommentData,
-        //   author: {
-        //     username: fetchedUser.username,
-        //     authorInfo: {
-        //       name: fetchedUser.name,
-        //       photoURL: fetchedUser.photoURL,
-        //       isAdmin: fetchedUser.isAdmin,
-        //     },
-        //   },
-        //   date: new Date(),
-        // };
-        // setPost((prevPost) => ({
-        //   ...prevPost,
-        //   comment: [updatedComment, ...prevPost.comment],
-        // }));
-        // send comment with socket
-        const dataToSendInSocket = {
+        const updatedComment = {
           comment: newCommentData,
-          date: dataToSend.date,
           author: {
             username: fetchedUser.username,
             authorInfo: {
-              isAdmin: fetchedUser.isAdmin,
               name: fetchedUser.name,
-              photoURL: fetchedUser.photoURL
-            }
+              photoURL: fetchedUser.photoURL,
+              isAdmin: fetchedUser.isAdmin,
+            },
           },
-          postID: id,
-        }
-        const socket = await initializeSocket();
-        const allUsernamesSet = new Set(post?.comment?.flatMap(comment => comment?.author?.username));
-        const uniqueUsernames = Array.from(allUsernamesSet);
-        if (uniqueUsernames.includes(fetchedUser.username)) {
-          // delete the username from array and send notifications to rest
-          uniqueUsernames.slice(uniqueUsernames.indexOf(fetchedUser.username),1)
-        }
-        console.log(uniqueUsernames);
-        console.log(fetchedUser.username);
-        socket.emit('newComment', dataToSendInSocket)
+          date: new Date(),
+        };
+        setPost((prevPost) => ({
+          ...prevPost,
+          comment: [updatedComment, ...prevPost.comment],
+        }));
+        // send comment with socket
+        // const dataToSendInSocket = {
+        //   comment: newCommentData,
+        //   date: dataToSend.date,
+        //   author: {
+        //     username: fetchedUser.username,
+        //     authorInfo: {
+        //       isAdmin: fetchedUser.isAdmin,
+        //       name: fetchedUser.name,
+        //       photoURL: fetchedUser.photoURL
+        //     }
+        //   },
+        //   postID: id,
+        // }
+        // const socket = await initializeSocket();
+        // const allUsernamesSet = new Set(post?.comment?.flatMap(comment => comment?.author?.username));
+        // const uniqueUsernames = Array.from(allUsernamesSet);
+        // if (uniqueUsernames.includes(fetchedUser.username)) {
+        //   // delete the username from array and send notifications to rest
+        //   uniqueUsernames.slice(uniqueUsernames.indexOf(fetchedUser.username),1)
+        // }
+        // console.log(uniqueUsernames);
+        // console.log(fetchedUser.username);
+        // socket.emit('newComment', dataToSendInSocket)
       }
     } catch (error) {
       console.error("Error commenting:", error);

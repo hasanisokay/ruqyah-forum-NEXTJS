@@ -15,7 +15,7 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import formatRelativeDate from "@/utils/formatDate";
 import formatDateInAdmin from "@/utils/formatDateInAdmin";
-import initializeSocket from "@/services/socket";
+// import initializeSocket from "@/services/socket";
 
 
 const Navbar = () => {
@@ -35,23 +35,23 @@ const Navbar = () => {
   }, [fetchedUser, loggedOut])
 
   // socket to update noitifications
-  useEffect(() => {
-    const setupSocket = async () => {
-      try {
-        const socket = await initializeSocket();
-        // socket.on('newNotification', (newCommentData) => {
-        //   setPost((prevPost) => ({
-        //     ...prevPost,
-        //     comment: [newCommentData, ...prevPost.comment],
-        //   }));
-        // });
+  // useEffect(() => {
+  //   const setupSocket = async () => {
+  //     try {
+  //       const socket = await initializeSocket();
+  //       // socket.on('newNotification', (newCommentData) => {
+  //       //   setPost((prevPost) => ({
+  //       //     ...prevPost,
+  //       //     comment: [newCommentData, ...prevPost.comment],
+  //       //   }));
+  //       // });
 
-      } catch (error) {
-      }
-    };
+  //     } catch (error) {
+  //     }
+  //   };
 
-    setupSocket();
-  }, []);
+  //   setupSocket();
+  // }, []);
 
   useEffect(() => {
     if (fetchedUser) {
@@ -152,6 +152,9 @@ const Navbar = () => {
           }
           {
             fetchedUser?.isAdmin && <li><NavLink activeClassName={"text-[#308853] text-semibold"} href={"/admin"}>Admin</NavLink></li>
+          }
+          {
+            fetchedUser?.isAdmin && <li><NavLink activeClassName={"text-[#308853] text-semibold"} href={"/chat"}>Chat</NavLink></li>
           }
           {
             fetchedUser && <li onClick={logOut} className="cursor-pointer" title="Log out from your account">LogOut</li>
