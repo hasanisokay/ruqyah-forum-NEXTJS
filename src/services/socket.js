@@ -6,13 +6,10 @@ const initializeSocket = async () => {
     // const serverUrl = 'http://localhost:3001';
     const serverUrl = 'https://13.229.79.153:3001';
     const { user } = await getUser();
-    console.log(user);
     const socket = io(serverUrl, {
       query: {
-        username: user.username,
+        username: user?.username || "unauthorized",
       },
-      transports: ['websocket'],
-      upgrade: false,
     });
 
     socket.on('connect', () => {
