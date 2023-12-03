@@ -7,20 +7,13 @@ import toast from 'react-hot-toast';
 import formatDateInAdmin from '@/utils/formatDateInAdmin';
 import axios from 'axios';
 import AuthContext from '@/contexts/AuthContext';
+import handleAdminAction from '@/utils/handleAdminAction';
 const Dashboard = () => {
     const [postData, setPostData] = useState(null);
     const { fetchedUser } = useContext(AuthContext);
     const [loadingData, setLoadingData] = useState(false);
     const [retrievedUser, setRetrievedUser] = useState(null);
-    const handleAdminAction = async (username, action) => {
-        const { data } = await axios.post("api/admin/changeuserrole", { username, action, actionBy: fetchedUser.username })
-        if(data.status===200){
-            toast.success(data.message)
-        }
-        else{
-            toast.error(data.message)
-        }
-    }
+
     const handleSearch = async (username) => {
         try {
             const toastID = toast.loading("Getting user information")
@@ -86,14 +79,14 @@ const Dashboard = () => {
                         <p>Email: {retrievedUser?.email}</p>
                         <p>Admin Status: {retrievedUser?.isAdmin ? "Admin" : "No"}</p>
                         {
-                            !retrievedUser?.isAdmin && <button onClick={() => handleAdminAction(retrievedUser.username, "make-admin")} className='forum-btn1 bg-[#308853] mr-2' >Make Admin</button>
+                            !retrievedUser?.isAdmin && <button onClick={() => handleAdminAction(retrievedUser.username, "make-admin", fetchedUser.username)} className='forum-btn1 bg-[#308853] mr-2' >Make Admin</button>
                         }
                         {
-                            !retrievedUser?.blocked ? <button onClick={() => handleAdminAction(retrievedUser.username, "block")} className='forum-btn1 bg-red-600'>Block</button> : <button onClick={() => handleAdminAction(retrievedUser.username, "unblock")} className='forum-btn1 bg-[#308853]'>Unblock</button>
+                            !retrievedUser?.blocked ? <button onClick={() => handleAdminAction(retrievedUser.username, "block", fetchedUser.username)} className='forum-btn1 bg-red-600'>Block</button> : <button onClick={() => handleAdminAction(retrievedUser.username, "unblock")} className='forum-btn1 bg-[#308853]'>Unblock</button>
                         }
                         <p>Gender: {retrievedUser?.gender}</p>
                         <p>Joined: {formatDateInAdmin(new Date(retrievedUser?.joined))}</p>
-                        <button onClick={() => handleAdminAction(retrievedUser.username, "delete")} className='forum-btn1 bg-red-700'>Delete User</button>
+                        <button onClick={() => handleAdminAction(retrievedUser.username, "delete", fetchedUser.username)} className='forum-btn1 bg-red-700'>Delete User</button>
                     </div>}
                     <div className="modal-action">
                         <form method="dialog">

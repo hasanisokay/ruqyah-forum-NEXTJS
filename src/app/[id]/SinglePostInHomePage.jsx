@@ -15,6 +15,7 @@ import { comment } from 'postcss';
 import { notFound } from 'next/navigation'
 import LoadingCards from '@/components/LoadingCards';
 import initializeSocket from '@/services/socket';
+import ModalUser from '@/components/ModalUser';
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
 const SinglePostInHomePage = ({ id }) => {
@@ -22,6 +23,7 @@ const SinglePostInHomePage = ({ id }) => {
   const { data, error, isLoading } = useSWR(`/api/posts/${id}`, fetcher);
   const [newCommentData, setNewCommentData] = useState("");
   const [loadingNewComment, setLoadingNewComment] = useState(false);
+  const [selectedUsernameToShowDetails, setSelectedUsernameToShowDetails] = useState(null)
   const [post, setPost] = useState(data ? data[0] : []);
 
   useEffect(() => {
@@ -51,11 +53,19 @@ const SinglePostInHomePage = ({ id }) => {
 
   //   setupSocket();
   // }, [id]);
-
+  useEffect(() => {
+    if (selectedUsernameToShowDetails) {
+        document.getElementById('my_modal_5').showModal();
+    }
+}, [selectedUsernameToShowDetails]);
 
   if (error || data?.status === 500) return notFound();
   if (!post || isLoading) return <LoadingCards />;
 
+  const handleShowUser = (username) => {
+    console.log(username);
+    setSelectedUsernameToShowDetails(username);
+  }
   const handleNewCommentForm = async (e) => {
     e.preventDefault()
     if (newCommentData === "") {
@@ -162,7 +172,7 @@ const SinglePostInHomePage = ({ id }) => {
       console.error("Error disliking post:", error);
     }
   }
-  // console.log(post);
+
   return (
     <div className='p-2 cursor-default border-2 m-2 rounded-lg dark:border-gray-400 cardinhome'>
       <div className='flex gap-2 items-center'>
@@ -182,7 +192,7 @@ const SinglePostInHomePage = ({ id }) => {
           }
         </div>
         <div className='py-2'>
-          <p className='font-semibold'>{post?.authorInfo?.name}</p>
+          <p onClick={() => handleShowUser(post?.authorInfo?.username)} className='font-semibold cursor-pointer'>{post?.authorInfo?.name}</p>
 
           <div className='text-xs'>
             <p className=''>@{post?.authorInfo?.username}</p>
@@ -267,7 +277,7 @@ const SinglePostInHomePage = ({ id }) => {
                       }
                     </div>
                     <div className='pt-2 pb-1'>
-                      <p><span className=''> <span className='text-[14px] font-semibold'>{c?.author?.authorInfo?.name}</span> </span> <span className='text-xs'>{(c.author.username === post.authorInfo.username && "Author")}</span>
+                      <p><span className=''> <span onClick={() => handleShowUser(c?.author?.username)} className='text-[14px] font-semibold cursor-pointer'>{c?.author?.authorInfo?.name}</span> </span> <span className='text-xs'>{(c.author.username === post.authorInfo.username && "Author")}</span>
                         <span className='text-xs'> {(c?.author?.authorInfo?.isAdmin && "Admin")} </span>
                       </p>
                       <div className='text-xs flex gap-2 items-center'>
@@ -284,9 +294,10 @@ const SinglePostInHomePage = ({ id }) => {
           ))}
         </div>
       }
-      {/* comment section */}
-
+  {selectedUsernameToShowDetails && <ModalUser username={selectedUsernameToShowDetails} setterFunction={setSelectedUsernameToShowDetails} />}
       <div />
+    
+
     </div >
   );
 };

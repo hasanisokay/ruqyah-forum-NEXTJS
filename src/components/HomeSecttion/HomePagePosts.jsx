@@ -14,6 +14,7 @@ import formatDateForUserJoined from '@/utils/formatDateForUserJoined';
 import axios from 'axios';
 import { mutate } from 'swr';
 import toast from 'react-hot-toast';
+import ModalUser from '../ModalUser';
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
 const HomePagePosts = () => {
@@ -21,6 +22,7 @@ const HomePagePosts = () => {
     const infiniteScrollRef = useRef();
     const [selectedPostIdForOptions, setSelectedPostIdForOptions] = useState(null);
     const [expandedPosts, setExpandedPosts] = useState([]);
+    const [selectedUsernameToShowDetails, setSelectedUsernameToShowDetails] = useState(null)
     const router = useRouter();
     const getKey = (pageIndex, previousPageData) => {
         if (previousPageData && previousPageData.length === 0) return null;
@@ -79,6 +81,15 @@ const HomePagePosts = () => {
             setSize(size + 1)
         }
     }, [setSize, size, data]);
+    
+    const handleShowUser = (username) => {
+        setSelectedUsernameToShowDetails(username);
+    }
+    useEffect(() => {
+        if (selectedUsernameToShowDetails) {
+            document.getElementById('my_modal_5').showModal();
+        }
+    }, [selectedUsernameToShowDetails]);
 
     // Attach the scroll event listener
     React.useEffect(() => {
@@ -94,17 +105,17 @@ const HomePagePosts = () => {
         <LoadingCards />
         <LoadingCards />
     </div>
-    const handleDeletePost = async(id, isAdmin) => {
+    const handleDeletePost = async (id, isAdmin) => {
         if (!isAdmin) return;
-        const dataToSend =  {
-            postID:id,
-            action:"delete",
-          } 
-        const {data} = await axios.post("/api/posts/changestatus",dataToSend)
-        if(data.status===200){
+        const dataToSend = {
+            postID: id,
+            action: "delete",
+        }
+        const { data } = await axios.post("/api/posts/changestatus", dataToSend)
+        if (data.status === 200) {
             toast.success(data?.message)
         }
-        else{
+        else {
             toast.error(data?.message)
         }
     }
@@ -196,7 +207,7 @@ const HomePagePosts = () => {
                             }
                         </div>
                         <div className='py-2'>
-                            <p className='font-semibold'>{post?.authorInfo?.name}</p>
+                            <p onClick={() => handleShowUser(post?.authorInfo?.username)} className='cursor-pointer font-semibold'>{post?.authorInfo?.name}</p>
                             <div className='text-xs flex gap-2 items-center'>
                                 <p className=''>@{post?.authorInfo?.username}</p>
                                 <p className='' title={post?.date}> {formatRelativeDate(new Date(post?.date))}</p>
@@ -227,6 +238,7 @@ const HomePagePosts = () => {
                             <span className='text-xs'>{post?.likes?.length || 0} Likes</span>
                         </div>
                     </div>
+                    {selectedUsernameToShowDetails && <ModalUser username={selectedUsernameToShowDetails} setterFunction={setSelectedUsernameToShowDetails} />}
                 </div>
             ))}
 

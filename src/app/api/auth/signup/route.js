@@ -17,7 +17,6 @@ export const POST = async (request) => {
   const usernameCollection = db?.collection("usernames");
   try {
     body.isAdmin = false;
-    body.comment = [];
     body.notifications = [];
     await userCollection.insertOne(body);
     await usernameCollection.insertOne({ username });

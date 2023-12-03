@@ -9,7 +9,12 @@ export const POST = async (request) => {
   const { username, action, actionBy } = body;
   const userCollection = db?.collection("users");
   const rulesActivityCollection = db?.collection("rules-activity");
-
+  if (username === "rafael") {
+    return NextResponse.json({
+      status: 401,
+      message: "You can't block Rafael Hasan. He creates this forum.",
+    });
+  }
   try {
     if (action === "make-admin") {
       await userCollection.findOneAndUpdate(
