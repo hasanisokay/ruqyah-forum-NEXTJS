@@ -13,7 +13,6 @@ import LoadingModalData from "./LoadingModalData";
 import axios from "axios";
 
 const ModalUser = ({ username, setterFunction }) => {
-    console.log(username + "from modal");
     const [user, setUser] = useState({});
     const { fetchedUser } = useContext(AuthContext);
     const [postsByUser, setPostsByUser] = useState([]);
@@ -76,15 +75,30 @@ const ModalUser = ({ username, setterFunction }) => {
         }
     }, [username, setterFunction])
 
+    useEffect(() => {
+        const handleCloseModal = (event) => {
+            if (event.target.classList.contains("modal-backdrop")) {
+                setterFunction(null);
+            }
+        };
+        document.addEventListener("click", handleCloseModal);
+        return () => {
+            document.removeEventListener("click", handleCloseModal);
+        };
+    }, [setterFunction]);
+
     return (
         <div>
             <dialog id="my_modal_5" className="modal modal-bottom sm:modal-middle">
+                <input type="checkbox" id="my_modal_5" className="modal-toggle" />
                 <div className="modal-box">
+
                     <div className="modal-action">
                         <form method="dialog">
-                            <button className="btn btn-sm" onClick={() => setterFunction(null)}>Close</button>
+                            <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-0" onClick={() => setterFunction(null)}>✕</button>
                         </form>
                     </div>
+
                     {
                         loadingUser ? <LoadingModalData /> : <div>
                             <div className="flex items-center justify-center">
@@ -122,7 +136,7 @@ const ModalUser = ({ username, setterFunction }) => {
                             {
                                 !loadingPostData && postsByUser?.length > 0 && <div>
                                     {
-                                        postsByUser?.map((post) => <div key={post._id} className="my-4  bg-base-300">
+                                        postsByUser?.map((post) => <div key={post._id} className="my-4 p-1 bg-base-300">
                                             <div className='flex gap-2 items-center'>
                                                 <div>
                                                     {
@@ -188,7 +202,9 @@ const ModalUser = ({ username, setterFunction }) => {
                     }
 
                 </div>
+                <label className="modal-backdrop" htmlFor="my_modal_5">Close</label>
             </dialog>
+
         </div>
     );
 };

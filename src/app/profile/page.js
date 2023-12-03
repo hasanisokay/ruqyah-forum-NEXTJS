@@ -1,14 +1,14 @@
 import React from "react";
 import Profile from "./Profile";
-import { COOKIE_NAME } from "@/constants";
-import { jwtVerify } from "jose";
-import { cookies } from "next/headers";
-import { notFound, redirect } from "next/navigation";
 
-const ProfilePage = ({ user }) => {
+export const metadata = {
+  title: "Profile | Ruqyah Forum",
+  description: "Forum by Ruqyah Support BD",
+};
+const ProfilePage = () => {
   return (
     <div>
-      <Profile></Profile>
+      <Profile />
     </div>
   );
 };

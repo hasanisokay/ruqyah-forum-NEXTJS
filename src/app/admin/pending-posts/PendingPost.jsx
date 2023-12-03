@@ -131,6 +131,19 @@ const PendingPost = () => {
             toast.error("Internal Server Error. Please try again")
         }
     }
+    const handleDeclineAll = async () => {
+        const dataToSend = { declineAll: true, actionBy: fetchedUser.username, }
+        const toastID = toast.loading("Declining...")
+        const { data } = await axios.post("/api/posts/changestatus", dataToSend)
+        toast.dismiss(toastID)
+        mutate()
+        if (data.status === 200) {
+            toast.success(data.message)
+        }
+        else {
+            toast.error("Internal Server Error. Please try again")
+        }
+    }
     const sortedPosts = posts.sort((a, b) => {
         const dateA = new Date(a.date).getTime();
         const dateB = new Date(b.date).getTime();
@@ -169,11 +182,18 @@ const PendingPost = () => {
                 </form>
 
             </div>
-            {
-                posts?.length > 0 && <div className='text-center my-2'>
-                    <button className='forum-btn1 bg-red-600' onClick={() => document.getElementById('my_modal_2').showModal()}>Approve All</button>
-                </div>
-            }
+            <div className='flex gap-4 items-center justify-center'>
+                {
+                    posts?.length > 0 && <div className='text-center my-2'>
+                        <button className='forum-btn1 bg-red-600' onClick={() => document.getElementById('my_modal_2').showModal()}>Approve All</button>
+                    </div>
+                }
+                {
+                    posts?.length > 0 && <div className='text-center my-2'>
+                        <button className='forum-btn1 bg-red-600' onClick={() => document.getElementById('my_modal_0').showModal()}>Decline All</button>
+                    </div>
+                }
+            </div>
             <dialog id="my_modal_2" className="modal">
                 <div className="modal-box text-center">
                     <h3 className="font-bold text-lg">Sure to do this?</h3>
@@ -183,6 +203,16 @@ const PendingPost = () => {
                     <button>close</button>
                 </form>
             </dialog>
+            <dialog id="my_modal_0" className="modal">
+                <div className="modal-box text-center">
+                    <h3 className="font-bold text-lg">Sure to do this?</h3>
+                    <button onClick={handleDeclineAll} className='forum-btn1 bg-red-500'>Yes, I want to decline all</button>
+                </div>
+                <form method="dialog" className="modal-backdrop">
+                    <button>close</button>
+                </form>
+            </dialog>
+
             {posts.map((post) => (
                 <div key={post._id} className='p-2 cursor-default border-2 m-2 rounded-lg dark:border-gray-400 cardinhome '>
                     <div className='flex gap-2 items-center'>

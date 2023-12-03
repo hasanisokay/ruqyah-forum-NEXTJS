@@ -163,9 +163,9 @@ const SinglePostInHomePage = ({ id }) => {
       const { data } = await axios.post("/api/posts/reaction", dataToSend);
       if (post._id === id) {
         if (post?.likes?.length > 0) {
-          setPost(prevPost => ({ ...prevPost, likes: [...prevPost.likes, fetchedUser.username] }));
+          setPost(prevPost => ({ ...prevPost, likes: [...prevPost?.likes, fetchedUser?.username] }));
         } else {
-          setPost(prevPost => ({ ...prevPost, likes: [fetchedUser.username] }));
+          setPost(prevPost => ({ ...prevPost, likes: [fetchedUser?.username] }));
         }
       }
     } catch (error) {
@@ -176,7 +176,7 @@ const SinglePostInHomePage = ({ id }) => {
   return (
     <div className='p-2 cursor-default border-2 m-2 rounded-lg dark:border-gray-400 cardinhome'>
       <div className='flex gap-2 items-center'>
-        <div>
+        <div onClick={() => handleShowUser(post?.authorInfo?.username)} className='cursor-pointer'>
           {
             post?.authorInfo?.photoURL ?
               <Image src={post?.authorInfo?.photoURL} blurDataURL='' alt='User Profile Photo'
@@ -261,7 +261,7 @@ const SinglePostInHomePage = ({ id }) => {
               {
                 c?.author?.authorInfo?.name && <>
                   <div className='flex gap-2 items-center'>
-                    <div>
+                    <div onClick={() => handleShowUser(c?.author?.username)} className='cursor-pointer'>
                       {
                         c?.author?.authorInfo?.photoURL ?
                           <Image src={c?.author?.authorInfo?.photoURL} blurDataURL='' alt='User Profile Photo'

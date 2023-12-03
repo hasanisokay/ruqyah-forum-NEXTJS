@@ -4,7 +4,7 @@ const LoadingAdmin = () => {
     return (
         <div className='flex flex-col items-center justify-center'>
             <p className='font-semibold text-lg'>Loading data. Please Wait...</p>
-            <Image src={spinner} alt='Spinner' width={80} height={80} />
+            <Image src={spinner} alt='Spinner' priority width={80} height={80} />
         </div>);
 };
 

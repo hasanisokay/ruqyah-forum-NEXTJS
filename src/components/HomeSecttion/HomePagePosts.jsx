@@ -191,7 +191,7 @@ const HomePagePosts = () => {
                         )}
                     </div>}
                     <div className='flex gap-2 items-center'>
-                        <div>
+                        <div onClick={() => handleShowUser(post?.authorInfo?.username)} className='cursor-pointer'>
                             {
                                 post?.authorInfo?.photoURL ?
                                     <Image src={post?.authorInfo?.photoURL} blurDataURL='' alt='User Profile Photo'

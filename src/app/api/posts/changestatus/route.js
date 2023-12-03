@@ -11,7 +11,8 @@ export const POST = async (request) => {
     postAuthorUsername,
     updateActivityLogID,
     deleteAll,
-    approveAll
+    approveAll,
+    declineAll
   } = body;
 
   const db = await dbConnect();
@@ -35,7 +36,19 @@ export const POST = async (request) => {
       return NextResponse.json({
         message:"All pending post approved", status: 200});
     }
-    // Retrieve the post from the postCollection
+    if(declineAll){
+      const updateFields = {
+        status: "declined",
+        declinedBy: actionBy,
+        declineDate: new Date(),
+      };
+      await postCollection.updateMany({ status: "pending" }, { $set: updateFields });
+
+      return NextResponse.json({
+        message:"All pending post declined", status: 200});
+    }
+
+
     const post = await postCollection.findOne({ _id: new ObjectId(postID) });
 
     if (!post) {

@@ -8,25 +8,33 @@ export const GET = async () => {
     const usersCollection = db.collection("users");
 
     try {
-        // Count the number of posts with different statuses
-        const totalPendingPosts= await postCollection.countDocuments({ status: "pending" });
-        const totalApprovedPosts= await postCollection.countDocuments({ status: "approved" });
-        const totalDeclinedPosts= await postCollection.countDocuments({ status: "declined" });
+        const [postStats, noticeStats, userStats] = await Promise.all([
+            // Aggregate for post statistics
+            postCollection.aggregate([
+                { $group: { _id: "$status", count: { $sum: 1 } } },
+                {
+                    $group: {
+                        _id: null,
+                        totalPendingPosts: { $sum: { $cond: [{ $eq: ["$_id", "pending"] }, "$count", 0] } },
+                        totalApprovedPosts: { $sum: { $cond: [{ $eq: ["$_id", "approved"] }, "$count", 0] } },
+                        totalDeclinedPosts: { $sum: { $cond: [{ $eq: ["$_id", "declined"] }, "$count", 0] } },
+                    },
+                },
+            ]).toArray(),
 
-        // Count the number of notices
-        const totalNoticesCount = await noticeCollection.countDocuments();
+            // Aggregate for notice statistics
+            noticeCollection.aggregate([{ $group: { _id: null, totalNoticesCount: { $sum: 1 } } }]).toArray(),
 
-        // Count the number of users
-        const totalUsersCount = await usersCollection.countDocuments();
-        const totalAdminCount = await usersCollection.countDocuments({isAdmin:true});
+            // Aggregate for user statistics
+            usersCollection.aggregate([
+                { $group: { _id: null, totalUsersCount: { $sum: 1 }, totalAdminCount: { $sum: { $cond: [{ $eq: ["$isAdmin", true] }, 1, 0] } } }} 
+            ]).toArray(),
+        ]);
 
         return NextResponse.json({
-            totalPendingPosts,
-            totalApprovedPosts,
-            totalDeclinedPosts,
-            totalUsersCount,
-            totalNoticesCount,
-            totalAdminCount,
+            ...postStats[0],
+            ...noticeStats[0],
+            ...userStats[0],
         });
     } catch (error) {
         console.error("Error counting documents:", error);
