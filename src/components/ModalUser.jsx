@@ -122,7 +122,7 @@ const ModalUser = ({ username, setterFunction }) => {
                             {
                                 !loadingPostData && postsByUser?.length > 0 && <div>
                                     {
-                                        postsByUser?.map((post) => <div key={post._id} className="my-2">
+                                        postsByUser?.map((post) => <div key={post._id} className="my-4  bg-base-300">
                                             <div className='flex gap-2 items-center'>
                                                 <div>
                                                     {
@@ -158,7 +158,7 @@ const ModalUser = ({ username, setterFunction }) => {
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div className='whitespace-pre-wrap bg-base-300 rounded-lg p-2'>
+                                            <div className='whitespace-pre-wrap rounded-lg p-2'>
                                                 {post?.post}
                                             </div>
                                             {
