@@ -12,7 +12,7 @@ export const POST = async (request) => {
   if (username === "rafael") {
     return NextResponse.json({
       status: 401,
-      message: "You can't block Rafael Hasan. He creates this forum.",
+      message: "You can't block Rafael Hasan. He created this forum.",
     });
   }
   try {
