@@ -17,7 +17,6 @@ const navLinks = [
 const ProfileSidebar = () => {
     return (
         <div>
-        <h1 className="text-2xl font-semibold text-center">Profile</h1>
         <ul className="font-semibold flex lg:flex-row flex-col items-center justify-center gap-4">
             {
                 navLinks.map(({ path, title }) => <li key={path}>

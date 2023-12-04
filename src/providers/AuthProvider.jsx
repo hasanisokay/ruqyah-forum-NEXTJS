@@ -15,7 +15,7 @@ const AuthProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
     const router = useRouter();
     const signIn = async (username, password) => {
-        const response = await fetch(`api/auth/login`, {
+        const response = await fetch(`/api/auth/login`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -28,12 +28,11 @@ const AuthProvider = ({ children }) => {
     }
     const logOut = async () => {
         setLoading(true);
-        const { data } = await axios.post("api/auth/logout")
+        const { data } = await axios.get("/api/auth/logout")
         toast.success(data.message)
         setLoggedOut(true)
         setLoading(false);
-
-    }
+    }      
 
     useEffect(() => {
         const fetchUser = async () => {

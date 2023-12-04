@@ -29,7 +29,7 @@ const Profile = () => {
 
             fetchedUser.photoURL = url;
 
-            const { data } = await axios.post("api/auth/uploadpp", fetchedUser)
+            const { data } = await axios.post("/api/auth/uploadpp", fetchedUser)
 
             if (data.status === 200) {
                 toast.dismiss(toastID)
@@ -66,11 +66,12 @@ const Profile = () => {
     if (!showProfile) {
         return <LoadingProfile />
     }
+
     const { username, email, name, gender, phone, joined, isAdmin, photoURL } = fetchedUser || {};
     if (fetchedUser) return (
         <div className="flex flex-col items-center gap-4">
             <div>
-                {photoURL ? <Image src={photoURL} width={300} height={300} loading="lazy" className="border-4 border-gray-500 rounded-lg" alt="profile photo" /> : <FaUserLarge />}            </div>
+                {photoURL ? <Image src={photoURL} width={300} height={300} loading="lazy" className="h-[300px] w-[300px] border-4 border-gray-500 rounded-lg" alt="profile photo" /> : <FaUserLarge />}            </div>
             {
                  <div className="w-full py-4 text-center">
                     <label className="cursor-pointer bg-[#308853] lg:hover:bg-[#0f2216] text-white py-2 px-4 rounded-lg text-center">

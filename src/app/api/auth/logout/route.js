@@ -1,15 +1,16 @@
 import { NextResponse } from "next/server";
-
-export const POST = async (request) => {
+import { COOKIE_NAME } from "@/constants";
+export const GET = async (request) => {
   const res = new NextResponse(
     JSON.stringify({
       message: "successfully logged out",
     })
   );
 
-  res.cookies.set("jwt-token", "", {
+  res.cookies.set(COOKIE_NAME, "", {
     expires: new Date(0),
     httpOnly: true,
+    secure: true,
   });
   return res;
 };

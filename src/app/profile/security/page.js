@@ -1,10 +1,11 @@
+import ProfileSecurity from "./ProfileSecurity";
+
 const securityPage = () => {
-    return (
-        <div>
-            HHHH
-            
-        </div>
-    );
+  return (
+    <div>
+      <ProfileSecurity />
+    </div>
+  );
 };
 
 export default securityPage;

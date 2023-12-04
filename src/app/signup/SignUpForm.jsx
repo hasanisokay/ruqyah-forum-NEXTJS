@@ -59,7 +59,7 @@ const SignUpForm = () => {
 
   const checkUsernameAvailability = async (newUsername) => {
     try {
-      const response = await fetch(`api/auth/username?username=${newUsername}`);
+      const response = await fetch(`/api/auth/username?username=${newUsername}`);
       const data = await response.json();
       return data.available; // Assuming your API returns an object with a boolean property 'available'
     } catch (error) {
@@ -116,7 +116,7 @@ const SignUpForm = () => {
 
     try {
       const toastId = toast.loading("Loading...");
-      await fetch(`api/auth/signup`, {
+      await fetch(`/api/auth/signup`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

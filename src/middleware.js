@@ -5,7 +5,7 @@ import { jwtVerify } from "jose";
 export default async function middleware(request) {
   const { pathname, searchParams } = request.nextUrl;
   let token = request.cookies.get(COOKIE_NAME)?.value.split("Bearer")[1];;
-  if ((pathname === "/profile" && !token) || (pathname.startsWith("/api/allnotifications") && !token) || (pathname.startsWith("/api/newpost") && !token)) {
+  if ((pathname.startsWith("/profile") && !token) || (pathname.startsWith("/api/allnotifications") && !token) || (pathname.startsWith("/api/newpost") && !token)) {
     return NextResponse.redirect(new URL("/", request.url));
   }
   if ((pathname === "/login" || pathname === "/signup") && token) {

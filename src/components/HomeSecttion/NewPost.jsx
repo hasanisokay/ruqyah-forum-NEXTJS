@@ -23,7 +23,7 @@ const NewPost = () => {
         }
         setLoadingNewPost(true)
         const toastId = toast.loading("Posting...");
-        const { data } = await axios.post("api/newpost", newPost)
+        const { data } = await axios.post("/api/newpost", newPost)
         toast.dismiss(toastId)
         if (data?.status === 200) {
             toast.success(data.message)

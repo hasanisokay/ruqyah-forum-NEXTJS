@@ -65,7 +65,7 @@ export const GET = async (request) => {
     return NextResponse.json({ status: 200, user: result[0] });
   } else if (allpostby) {
     const result = await postCollection
-      .find({ "author.username": allpostby })
+      .find({ "author.username": allpostby }).sort({date: -1})
       .toArray();
     if (result) {
       return NextResponse.json({ status: 200, posts: result});

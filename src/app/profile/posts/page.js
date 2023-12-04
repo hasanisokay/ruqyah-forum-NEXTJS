@@ -1,11 +1,11 @@
-
+import ProfilePosts from "./ProfilePosts";
 
 const pagePostsInProfile = () => {
-    return (
-        <div>
-            this is page posts
-        </div>
-    );
+  return (
+    <div>
+      <ProfilePosts />
+    </div>
+  );
 };
 
 export default pagePostsInProfile;
