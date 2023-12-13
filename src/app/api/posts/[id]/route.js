@@ -68,7 +68,10 @@ export const GET = async (request) => {
                 },
               },
               comment: "$comment.comment",
+              likes: "$comment.likes",
               date: "$comment.date",
+              _id: "$comment._id",
+              replies: { $size: { $ifNull: ["$comment.replies", []] } }
             },
           },
           likes: { $first: "$likes" },

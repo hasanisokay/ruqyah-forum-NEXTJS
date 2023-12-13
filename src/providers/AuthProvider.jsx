@@ -13,7 +13,9 @@ const AuthProvider = ({ children }) => {
     const [loggedOut, setLoggedOut] = useState(false);
     const [fetchedUser, setFetchedUser] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
     const router = useRouter();
+
     const signIn = async (username, password) => {
         const response = await fetch(`/api/auth/login`, {
             method: "POST",
@@ -29,10 +31,11 @@ const AuthProvider = ({ children }) => {
     const logOut = async () => {
         setLoading(true);
         const { data } = await axios.get("/api/auth/logout")
+        setFetchedUser(null)
         toast.success(data.message)
         setLoggedOut(true)
         setLoading(false);
-    }      
+    }
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -43,12 +46,18 @@ const AuthProvider = ({ children }) => {
                 setLoading(false)
                 return;
             }
+
             setLoggedOut(false);
             setFetchedUser(user);
             setLoading(false);
         }
         fetchUser()
     }, [loggedOut])
+    useEffect(() => {
+        if (showDeleteModal) {
+            document.getElementById('deletModal').showModal()
+        }
+    }, [showDeleteModal])
     useEffect(() => {
         if (fetchedUser) {
             const unr = fetchedUser?.notifications?.filter((n) => n.read === false)
@@ -67,7 +76,9 @@ const AuthProvider = ({ children }) => {
         notificationsCount,
         setNotificationsCount,
         setAllNotifications,
-        allNotifications
+        allNotifications,
+        showDeleteModal,
+        setShowDeleteModal
     };
 
     return (
@@ -77,5 +88,5 @@ const AuthProvider = ({ children }) => {
     );
 };
 
-// export { getServerSideProps };
+
 export default AuthProvider;

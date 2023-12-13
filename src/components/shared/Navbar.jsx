@@ -15,7 +15,7 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import formatRelativeDate from "@/utils/formatDate";
 import formatDateInAdmin from "@/utils/formatDateInAdmin";
-// import initializeSocket from "@/services/socket";
+import { io } from "socket.io-client";
 
 
 const Navbar = () => {
@@ -25,6 +25,7 @@ const Navbar = () => {
   const { fetchedUser, loading, logOut, loggedOut, notificationsCount, allNotifications, setAllNotifications, setNotificationsCount } = useContext(AuthContext);
   const [navData, setNavData] = useState()
   const router = useRouter();
+  const [socket, setSocket] = useState(null)
   const [isPending, startTransition] = useTransition()
   const navRef = useRef(null);
   const baseColor = theme === "dark" ? "#7d7d7d" : "#f4f4f4"
@@ -34,24 +35,33 @@ const Navbar = () => {
     setNavData(fetchedUser ? afterLoginNavData : beforeLoginNavData)
   }, [fetchedUser, loggedOut])
 
-  // socket to update noitifications
-  // useEffect(() => {
-  //   const setupSocket = async () => {
-  //     try {
-  //       const socket = await initializeSocket();
-  //       // socket.on('newNotification', (newCommentData) => {
-  //       //   setPost((prevPost) => ({
-  //       //     ...prevPost,
-  //       //     comment: [newCommentData, ...prevPost.comment],
-  //       //   }));
-  //       // });
+  useEffect(() => {
+    (async () => {
+      // setSocket(await io(process.env.NEXT_PUBLIC_server))
+      if (fetchedUser) {
+        const userSocket = await io(process.env.NEXT_PUBLIC_server);
+        setSocket(userSocket);
+      }
+    })()
+  }, [fetchedUser])
 
-  //     } catch (error) {
-  //     }
-  //   };
+  useEffect(() => {
+    if (socket && fetchedUser) {
+      socket.emit('join', { username: fetchedUser?.username });
+      socket.on('newCommentNotification', (newNotification) => {
+        setAllNotifications((prev) => [newNotification, ...prev]);
+        setNotificationsCount((prev) => prev + 1);
+      });
+    }
+    return () => {
+      if (socket && fetchedUser) {
+        socket.emit('leave', { username: fetchedUser?.username });
+        socket.disconnect();
+      }
+    };
+  }, [fetchedUser, setAllNotifications, setNotificationsCount, socket]);
 
-  //   setupSocket();
-  // }, []);
+
 
   useEffect(() => {
     if (fetchedUser) {
@@ -120,7 +130,7 @@ const Navbar = () => {
 
 
   if (loading) {
-    return <div className=" flex md:px-10 px-4 justify-between items-center">
+    return <div className="h-[100px] flex md:px-10 px-4 justify-between items-center">
       <SkeletonTheme baseColor={baseColor} highlightColor={highlightColor}>
         <p>
           <Skeleton count={1} width={150} height={30} />
@@ -193,20 +203,20 @@ const Navbar = () => {
         </ul>
       </div>
       {
-        fetchedUser && showNotificationMenu && <div className={`rounded-md px-1 z-10 absolute mx-2 right-0 top-14 w-[70vw] bg-gray-300 transition-all duration-1000 dark:bg-slate-900 lg:w-[unset] lg:bg-transparent text-sm dark:lg:bg-gray-300`}>
-          <ul className="shadow rounded-md">
+        fetchedUser && showNotificationMenu && <div className={`rounded-md px-1 z-50 shadow-xl absolute mx-2 right-0 top-14 w-[70vw] bg-gray-300 transition-all duration-1000 dark:bg-slate-900 lg:w-[unset] lg:bg-white text-sm dark:lg:bg-slate-900`}>
+          <ul className="">
             {notificationsToDisplay?.map((n, index) => (
               <li
                 key={index}
                 onClick={() => handleNotificationsClick(n.postID, n.read)}
-                className={`p-2 font-normal  rounded-lg lg:hover:bg-slate-600 lg:hover:text-white cursor-pointer my-2 ${n.read === false ? "bg-slate-300 dark:bg-blue-800" : "bg-slate-100 dark:bg-inherit text-black"
+                className={`p-2 font-normal  rounded-lg lg:hover:bg-slate-800 lg:hover:text-white cursor-pointer my-2 ${n.read === false ? "dark:text-white" : "text-gray-400 lg:hover:text-gray-400"
                   }`}
               >
-                {n.message} <span className="block text-xs">{formatRelativeDate(new Date(n.date)) + " ago"} {" on " + formatDateInAdmin(new Date(n.date))}</span>
+                {n.message} <span className={` block text-xs  ${n.read === false ? "text-blue-600" : "text-gray-400"} `}>{formatRelativeDate(new Date(n.date)) + " ago"} {" on " + formatDateInAdmin(new Date(n.date))}</span>
               </li>
             ))}
             {
-              notificationsToDisplay?.length < 1 ? <li className="p-2 font-normal  rounded-lg lg:hover:bg-slate-500 lg:hover:text-white cursor-pointer my-1 text-center dark:bg-slate-800">No notification available</li> : <li onClick={() => router.push("/notifications")} className="p-2 font-normal  rounded-lg lg:hover:bg-slate-500 lg:hover:text-white cursor-pointer my-1 text-center dark:bg-slate-800">See All</li>
+              notificationsToDisplay?.length < 1 ? <li className="p-2 font-normal  rounded-lg lg:hover:bg-slate-500 lg:hover:text-white cursor-pointer my-1 text-center dark:bg-slate-950">No notification available</li> : <li onClick={() => router.push("/notifications")} className="p-2 font-normal  rounded-lg lg:hover:bg-slate-800 lg:hover:text-white cursor-pointer my-1 text-center dark:bg-slate-800 dark:lg:hover:bg-slate-700">See All</li>
             }
           </ul>
         </div>

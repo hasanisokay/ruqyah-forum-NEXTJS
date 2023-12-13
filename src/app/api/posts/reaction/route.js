@@ -4,13 +4,32 @@ import { NextResponse } from "next/server";
 
 export const POST = async (request) => {
   const body = await request.json();
-  const { postID, action, actionByUsername } = body;
+  const { postID, action, actionByUsername, commentID } = body;
   const db = await dbConnect();
 
   try {
     const postCollection = db?.collection("posts");
     if (action === "like") {
-      // Update to add the username to the 'likes' array
+      if (commentID) {
+        const result = await postCollection.updateOne(
+          {
+            _id: new ObjectId(postID),
+            "comment._id": new ObjectId(commentID),
+          },
+          { $push: { "comment.$.likes": actionByUsername } }
+        );
+        if (result.modifiedCount === 1) {
+          return NextResponse.json({
+            status: 200,
+            message: "Comment liked successfully.",
+          });
+        } else {
+          return NextResponse.json({
+            status: 400,
+            message: "Failed to like the comment.",
+          });
+        }
+      }
       const result = await postCollection.updateOne(
         { _id: new ObjectId(postID) },
         { $push: { likes: actionByUsername } }
@@ -28,7 +47,26 @@ export const POST = async (request) => {
         });
       }
     } else if (action === "dislike") {
-      // Update to remove the username from the 'likes' array
+      if (commentID) {
+        const result = await postCollection.updateOne(
+          {
+            _id: new ObjectId(postID),
+            "comment._id": new ObjectId(commentID),
+          },
+          { $pull: { "comment.$.likes": actionByUsername } }
+        );
+        if (result.modifiedCount === 1) {
+          return NextResponse.json({
+            status: 200,
+            message: "Comment disliked successfully.",
+          });
+        } else {
+          return NextResponse.json({
+            status: 400,
+            message: "Failed to dislike the comment.",
+          });
+        }
+      }
       const result = await postCollection.updateOne(
         { _id: new ObjectId(postID) },
         { $pull: { likes: actionByUsername } }

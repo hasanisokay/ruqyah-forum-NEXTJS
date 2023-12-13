@@ -17,6 +17,7 @@ const ModalUser = ({ username, setterFunction }) => {
     const { fetchedUser } = useContext(AuthContext);
     const [postsByUser, setPostsByUser] = useState([]);
     const [loadingUser, setLoadingUser] = useState(true);
+    const [seeAllPostsClicked, setSeeAllPostsClicked] = useState(false);
     const [loadingPostData, setLoadingPostData] = useState(false);
     const router = useRouter();
     const handleSeeAllPost = async () => {
@@ -30,6 +31,7 @@ const ModalUser = ({ username, setterFunction }) => {
         else {
             setPostsByUser(data?.posts?.filter((post) => post.status === "approved"))
         }
+        setSeeAllPostsClicked(true);
     }
     const handleDeclinePost = async (id, username) => {
         const dataToSend = { actionBy: fetchedUser.username, postAuthorUsername: username, postID: id, action: "decline" }
@@ -89,16 +91,14 @@ const ModalUser = ({ username, setterFunction }) => {
 
     return (
         <div>
-            <dialog id="my_modal_5" className="modal modal-bottom sm:modal-middle">
+            <dialog id="my_modal_5" className=" modal modal-bottom sm:modal-middle">
                 <input type="checkbox" id="my_modal_5" className="modal-toggle" />
-                <div className="modal-box">
-
+                <div className="modal-box scrollforchat">
                     <div className="modal-action">
                         <form method="dialog">
                             <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-0" onClick={() => setterFunction(null)}>✕</button>
                         </form>
                     </div>
-
                     {
                         loadingUser ? <LoadingModalData /> : <div>
                             <div className="flex items-center justify-center">
@@ -125,7 +125,7 @@ const ModalUser = ({ username, setterFunction }) => {
                                 </div>}
                             </div>
                             {
-                                user?.postCounts?.total > 0 && <div className="my-2">
+                                user?.postCounts?.total > 0 && !seeAllPostsClicked && <div className="my-2">
                                     {fetchedUser?.isAdmin ? <span onClick={handleSeeAllPost} className="forum-btn-sm bg-[#308853] cursor-pointer text-white">See all post</span>
                                         : user?.postCounts?.approved > 0 && <span onClick={handleSeeAllPost} className="forum-btn-sm bg-[#308853] cursor-pointer text-white">See all post</span>}
                                 </div>

@@ -129,8 +129,8 @@ const SignUpForm = () => {
           toast.error(res.message)
       }
       else {
-          const { username, email, name, gender, phone, joined, isAdmin, photoURL } = res;
-          await createJWT({ username, email, name, gender, phone, joined, isAdmin, photoURL })
+          const { username, email, isAdmin} = res;
+          await createJWT({ username, email, isAdmin })
           setFetchedUser(res)
           toast.dismiss(toastId);
           toast.success("Success");

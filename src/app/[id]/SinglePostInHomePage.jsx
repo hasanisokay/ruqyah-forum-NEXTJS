@@ -1,7 +1,8 @@
 'use client'
 import formatDateInAdmin from '@/utils/formatDateInAdmin';
 import Image from 'next/image';
-import useSWR, { mutate } from 'swr';
+import { io } from 'socket.io-client';
+import useSWR from 'swr';
 import { FaUserLarge, FaHeart } from "react-icons/fa6";
 import { FaRegComment, FaRegHeart } from "react-icons/fa";
 import axios from 'axios';
@@ -14,56 +15,102 @@ import { RiSendPlane2Fill } from "react-icons/ri";
 import { comment } from 'postcss';
 import { notFound } from 'next/navigation'
 import LoadingCards from '@/components/LoadingCards';
-import initializeSocket from '@/services/socket';
 import ModalUser from '@/components/ModalUser';
+import { BsThreeDotsVertical } from 'react-icons/bs';
+import LikersModal from '@/components/LikersModal';
+import Comments from '@/components/Comments';
+import PostEditModal from '@/components/PostEditModal';
+import DeleteConfirmationModal from '@/components/DeleteConfirmationModal';
+
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
 const SinglePostInHomePage = ({ id }) => {
-  const { fetchedUser } = useContext(AuthContext);
+  const [likersArray, setLikersArray] = useState(null);
+  const { fetchedUser, showDeleteModal, setShowDeleteModal } = useContext(AuthContext);
   const { data, error, isLoading } = useSWR(`/api/posts/${id}`, fetcher);
   const [newCommentData, setNewCommentData] = useState("");
   const [loadingNewComment, setLoadingNewComment] = useState(false);
   const [selectedUsernameToShowDetails, setSelectedUsernameToShowDetails] = useState(null)
   const [post, setPost] = useState(data ? data[0] : []);
+  const [selectedPostIdForOptions, setSelectedPostIdForOptions] = useState(null);
+  const [socket, setSocket] = useState(null)
+  const [showEditModal, setShowEditModal] = useState(false);
+
+  useEffect(() => {
+    if (likersArray) {
+      document?.getElementById('likerModal')?.click();
+    }
+  }, [likersArray]);
+
+  useEffect(() => {
+    (async () => {
+      // setSocket(await io(process.env.NEXT_PUBLIC_server))
+
+      const userSocket = await io(process.env.NEXT_PUBLIC_server);
+      setSocket(userSocket);
+      userSocket.emit('joinRoom', { roomId: id });
+    })()
+  }, [id])
+
+  useEffect(() => {
+    if (socket) {
+      socket.on('newComment', (comment) => {
+        if (comment.postID === id) {
+          setPost((prevPost) => ({
+            ...prevPost,
+            comment: [comment, ...prevPost.comment,
+            ],
+          }));
+        }
+      });
+    }
+    return () => {
+      if (socket) {
+        socket.emit('leaveRoom', { roomId: id });
+        socket.disconnect();
+      }
+    };
+  }, [id, socket]);
 
   useEffect(() => {
     if (data) {
       setPost(data[0])
     }
   }, [data])
-  // useEffect(() => {
-  //   const setupSocket = async () => {
-  //     try {
-  //       const socket = await initializeSocket();
-  //       socket.on('newComment', (newCommentData) => {
-  //         console.log({ newCommentData });
 
-  //         // Check if the new comment is for the current post
-  //         if (newCommentData.postID === id) {
-  //           setPost((prevPost) => ({
-  //             ...prevPost,
-  //             comment: [newCommentData, ...prevPost.comment],
-  //           }));
-  //         }
-  //       });
-  //     } catch (error) {
-  //       console.error("Error setting up socket:", error);
-  //     }
-  //   };
+  useEffect(() => {
+    const handleOutsideClick = (event) => {
+      if (
+        selectedPostIdForOptions &&
+        !event.target.closest('.relative')
+      ) {
+        // Clicked outside the options, hide them
+        setSelectedPostIdForOptions(null);
+      }
+    };
 
-  //   setupSocket();
-  // }, [id]);
+    document.addEventListener('click', handleOutsideClick);
+
+    return () => {
+      document.removeEventListener('click', handleOutsideClick);
+    };
+  }, [selectedPostIdForOptions]);
+
   useEffect(() => {
     if (selectedUsernameToShowDetails) {
-        document.getElementById('my_modal_5').showModal();
+      document.getElementById('my_modal_5').showModal();
     }
-}, [selectedUsernameToShowDetails]);
+  }, [selectedUsernameToShowDetails]);
+
+  useEffect(() => {
+    if (showEditModal) document?.getElementById('editModal')?.showModal()
+    // if (!showEditModal) document.getElementById('editModal').close()
+  }, [showEditModal])
 
   if (error || data?.status === 500) return notFound();
   if (!post || isLoading) return <LoadingCards />;
 
   const handleShowUser = (username) => {
-    console.log(username);
     setSelectedUsernameToShowDetails(username);
   }
   const handleNewCommentForm = async (e) => {
@@ -74,67 +121,66 @@ const SinglePostInHomePage = ({ id }) => {
     if (!fetchedUser) {
       return toast.error("Log in to comment.")
     }
+
     const dataToSend = {
       postAuthorUsername: post.authorInfo.username,
       name: fetchedUser.name,
       comment: newCommentData,
       postID: id,
       date: new Date(),
-      author: { username: fetchedUser.username },
+      author: { username: fetchedUser?.username },
     };
     try {
       setLoadingNewComment(true);
       const { data } = await axios.post("/api/posts/comment", dataToSend);
       if (data.status === 200) {
-        setNewCommentData("");
-        setLoadingNewComment(false);
-        const updatedComment = {
+        ;
+        // send comment with socket
+        const dataToSendInSocket = {
           comment: newCommentData,
+          date: dataToSend.date,
+          _id: data?._id,
+          likes: [],
+          replies: 0,
           author: {
             username: fetchedUser.username,
             authorInfo: {
-              name: fetchedUser.name,
-              photoURL: fetchedUser.photoURL,
               isAdmin: fetchedUser.isAdmin,
-            },
+              name: fetchedUser.name,
+              photoURL: fetchedUser.photoURL
+            }
           },
-          date: new Date(),
-        };
-        setPost((prevPost) => ({
-          ...prevPost,
-          comment: [updatedComment, ...prevPost.comment],
-        }));
-        // send comment with socket
-        // const dataToSendInSocket = {
-        //   comment: newCommentData,
-        //   date: dataToSend.date,
-        //   author: {
-        //     username: fetchedUser.username,
-        //     authorInfo: {
-        //       isAdmin: fetchedUser.isAdmin,
-        //       name: fetchedUser.name,
-        //       photoURL: fetchedUser.photoURL
-        //     }
-        //   },
-        //   postID: id,
-        // }
-        // const socket = await initializeSocket();
-        // const allUsernamesSet = new Set(post?.comment?.flatMap(comment => comment?.author?.username));
-        // const uniqueUsernames = Array.from(allUsernamesSet);
-        // if (uniqueUsernames.includes(fetchedUser.username)) {
-        //   // delete the username from array and send notifications to rest
-        //   uniqueUsernames.slice(uniqueUsernames.indexOf(fetchedUser.username),1)
-        // }
-        // console.log(uniqueUsernames);
-        // console.log(fetchedUser.username);
-        // socket.emit('newComment', dataToSendInSocket)
+          postID: id,
+        }
+
+
+        const newCommentNotification = {
+          commenterUsername: fetchedUser.username,
+          commenterName: fetchedUser.name,
+          date: dataToSend.date,
+          postID: id,
+        }
+
+        socket.emit('newComment', dataToSendInSocket);
+        socket.emit("newCommentNotification", { newCommentNotification });
+      }
+      if (data.status === 500) {
+        toast.error(data?.message || "error")
       }
     } catch (error) {
       console.error("Error commenting:", error);
     }
+    finally {
+      setNewCommentData("");
+      setLoadingNewComment(false)
+    }
   };
+  const handlePostOptions = (id) => {
+    if (!fetchedUser?.isAdmin) return;
+    setSelectedPostIdForOptions(id);
+  }
 
-  const handleDislike = async () => {
+  const handleDislike = async (commentID = undefined) => {
     if (!fetchedUser) {
       return toast.error("Log in to react")
     }
@@ -142,17 +188,35 @@ const SinglePostInHomePage = ({ id }) => {
       postID: id, action: "dislike", actionByUsername: fetchedUser?.username
     }
     try {
+      if (commentID) {
+        dataToSend.commentID = commentID;
+      }
       const { data } = await axios.post("/api/posts/reaction", dataToSend);
-
-      if (data.status === 200) {
+      if (commentID && data.status === 200) {
+        if (data.status === 200 && commentID) {
+          setPost((prevPost) => ({
+            ...prevPost,
+            comment: prevPost.comment.map((c) =>
+              c._id === commentID
+                ? {
+                  ...c,
+                  likes: c.likes.filter((uname) => uname !== fetchedUser.username),
+                }
+                : c
+            ),
+          }))
+        }
+      }
+      if (data.status === 200 && !commentID) {
         const filteredLikesArray = post?.likes?.filter((uname) => uname !== fetchedUser.username)
         setPost(prevPost => ({ ...prevPost, likes: filteredLikesArray }));
       }
+
     } catch (error) {
       console.error("Error disliking post:", error);
     }
   }
-  const hanldleLike = async () => {
+  const hanldleLike = async (commentID = undefined) => {
     if (!fetchedUser) {
       return toast.error("Log in to react")
     }
@@ -160,21 +224,60 @@ const SinglePostInHomePage = ({ id }) => {
       postID: id, action: "like", actionByUsername: fetchedUser?.username
     }
     try {
+      if (commentID) {
+        dataToSend.commentID = commentID;
+      }
       const { data } = await axios.post("/api/posts/reaction", dataToSend);
-      if (post._id === id) {
-        if (post?.likes?.length > 0) {
-          setPost(prevPost => ({ ...prevPost, likes: [...prevPost?.likes, fetchedUser?.username] }));
-        } else {
-          setPost(prevPost => ({ ...prevPost, likes: [fetchedUser?.username] }));
+      if (data.status === 200 && commentID) {
+        setPost((prevPost) => ({
+          ...prevPost,
+          comment: prevPost.comment.map((c) =>
+            c._id === commentID
+              ? {
+                ...c,
+                likes: [...c.likes, fetchedUser.username]
+              }
+              : c
+          ),
+        }))
+      }
+      if (data.status === 200 && !commentID) {
+        if (post._id === id) {
+          if (post?.likes?.length > 0) {
+            setPost(prevPost => ({ ...prevPost, likes: [...prevPost?.likes, fetchedUser?.username] }));
+          } else {
+            setPost(prevPost => ({ ...prevPost, likes: [fetchedUser?.username] }));
+          }
         }
       }
     } catch (error) {
-      console.error("Error disliking post:", error);
+      console.error("Error liking post:", error);
     }
   }
+  const handleEdit = () => {
+    if (fetchedUser.username !== post?.authorInfo?.username) return toast.error("unauthorized action")
+    setShowEditModal(true);
+  }
 
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleNewCommentForm(e);
+    }
+  }
   return (
-    <div className='p-2 cursor-default border-2 m-2 rounded-lg dark:border-gray-400 cardinhome'>
+    <div className='p-2 cursor-default bg-[#fffef9] dark:bg-[#242526] m-2 rounded-lg dark:border-gray-400 cardinhome shadow-xl'>
+      {fetchedUser && <div className='relative'>
+        <BsThreeDotsVertical onClick={() => handlePostOptions(id)} className='absolute right-0 cursor-pointer' />
+        {selectedPostIdForOptions === id && (
+          <div className='absolute border-2 text-sm right-0 top-2 mt-2 p-1 w-[200px] shadow-xl rounded-md'>
+            <div className='flex flex-col justify-start items-start gap-2 '>
+              {(fetchedUser?.isAdmin || fetchedUser?.username === post?.authorInfo?.username) && <button onClick={() => setShowDeleteModal(true)} className='lg:hover:bg-red-700 duration-300 w-full px-2 py-1 text-left rounded-md lg:hover:text-white'>Delete Post</button>}
+              {fetchedUser?.username === post?.authorInfo?.username && <button onClick={handleEdit} className='lg:hover:bg-[#308853] px-2 py-1 rounded-md lg:hover:text-white w-full duration-300 text-left '>Edit Post</button>}
+            </div>
+          </div>
+        )}
+      </div>}
       <div className='flex gap-2 items-center'>
         <div onClick={() => handleShowUser(post?.authorInfo?.username)} className='cursor-pointer'>
           {
@@ -218,9 +321,10 @@ const SinglePostInHomePage = ({ id }) => {
           <span className='text-xs'>{(post?.comment && post?.comment[0]?.author?.authorInfo?.name && post?.comment?.length) || 0} Comments</span>
         </div>
         <div className='flex flex-col items-center'>
-          {post?.likes?.filter((username) => username === fetchedUser?.username)?.length > 0 ? <FaHeart title='You Liked this. Click to dislike' onClick={handleDislike} className=' text-red-600 cursor-pointer' /> : <FaRegHeart title='Click to Like' onClick={hanldleLike} className='cursor-pointer' />}
-          <span className='text-xs'>{post?.likes?.length || 0} Likes</span>
+          {post?.likes?.filter((username) => username === fetchedUser?.username)?.length > 0 ? <FaHeart title='You Liked this. Click to dislike' onClick={() => handleDislike()} className=' text-red-600 cursor-pointer' /> : <FaRegHeart title='Click to Like' onClick={() => hanldleLike()} className='cursor-pointer' />}
+          <span className='text-xs cursor-pointer' onClick={() => setLikersArray(post?.likes)}>{post?.likes?.length || 0} Likes</span>
         </div>
+
       </div>
       {
         fetchedUser && !fetchedUser.blocked && <div className=''>
@@ -232,10 +336,10 @@ const SinglePostInHomePage = ({ id }) => {
               value={newCommentData}
               disabled={loadingNewComment}
               maxRows={3}
-              style={{ paddingRight: "20px" }}
+              onKeyDown={handleKeyDown}
               onChange={(e) => setNewCommentData(e.target.value)}
               placeholder={`Comment as ${fetchedUser.name}`}
-              className="textarea border-2 focus:outline-none border-gray-400 focus:border-blue-700 bordered w-full"
+              className="pl-2 py-[10px] bg-slate-200 dark:bg-[#3b3b3b] pr-[44px] rounded-xl placeholder:text-[12px] text-sm focus:outline-none w-full"
 
             />
             <div className="absolute bottom-[20%]  right-2">
@@ -257,46 +361,34 @@ const SinglePostInHomePage = ({ id }) => {
       {
         post?.comment?.length > 0 && post?.comment[comment.length - 1]?.author?.authorInfo?.name && <div>
           {post?.comment?.map((c, index) => (
-            <div key={index} className=' my-1 pl-4 pr-2'>
-              {
-                c?.author?.authorInfo?.name && <>
-                  <div className='flex gap-2 items-center'>
-                    <div onClick={() => handleShowUser(c?.author?.username)} className='cursor-pointer'>
-                      {
-                        c?.author?.authorInfo?.photoURL ?
-                          <Image src={c?.author?.authorInfo?.photoURL} blurDataURL='' alt='User Profile Photo'
-                            width={64} height={0} loading='lazy'
-                            style={{
-                              width: "35px",
-                              height: "35px",
-                              borderRadius: '50%',
-                            }}
-                            className='border-gray-400 border-2'
-                          />
-                          : <div className='flex items-center justify-center rounded-full border-gray-400 border-2 w-[35px] h-[35px]'><FaUserLarge className='' /></div>
-                      }
-                    </div>
-                    <div className='pt-2 pb-1'>
-                      <p><span className=''> <span onClick={() => handleShowUser(c?.author?.username)} className='text-[14px] font-semibold cursor-pointer'>{c?.author?.authorInfo?.name}</span> </span> <span className='text-xs'>{(c.author.username === post.authorInfo.username && "Author")}</span>
-                        <span className='text-xs'> {(c?.author?.authorInfo?.isAdmin && "Admin")} </span>
-                      </p>
-                      <div className='text-xs flex gap-2 items-center'>
-                        <p className=''>@{c?.author?.username}</p>
-                        <p className='text-[10px]' title={c?.date}> {formatDateInAdmin(new Date(c?.date) || new Date())}</p>
-                      </div>
-                    </div>
-                  </div>
-                  <p className='whitespace-pre-wrap pb-1 pl-[43px] text-[14px] '>{c.comment}</p>
-                </>
-              }
+            <Comments
+              key={c._id}
+              c={c}
+              socket={socket}
+              postID={id}
+              commentId={c?._id}
+              replies={c?.replies}
+              likes={c?.likes}
+              postAuthor={post?.authorInfo?.username}
+              handleShowUser={handleShowUser}
+              setLikersArray={setLikersArray}
+              handleDislike={handleDislike}
+              hanldleLike={hanldleLike}
+            />
 
-            </div>
           ))}
         </div>
       }
-  {selectedUsernameToShowDetails && <ModalUser username={selectedUsernameToShowDetails} setterFunction={setSelectedUsernameToShowDetails} />}
+      {
+        showEditModal && fetchedUser.username === post?.authorInfo?.username && <PostEditModal setPost={setPost} setterFunction={setShowEditModal} post={post.post} id={id} />
+      }
+      {
+        showDeleteModal && <DeleteConfirmationModal id={id} isAuthorized={fetchedUser?.isAdmin || fetchedUser?.username === post?.authorInfo?.username} setterFunction={setShowDeleteModal} />
+      }
+      {likersArray && <LikersModal usernames={likersArray} setterFunction={setLikersArray} />}
+      {selectedUsernameToShowDetails && <ModalUser username={selectedUsernameToShowDetails} setterFunction={setSelectedUsernameToShowDetails} />}
       <div />
-    
+
 
     </div >
   );

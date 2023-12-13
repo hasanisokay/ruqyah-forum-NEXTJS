@@ -70,7 +70,7 @@ const AdminActivity = () => {
         };
     }, [handleScroll]);
 
-    if (error) return <div>Error loading posts</div>;
+    if (error) return <div>Error loading activity</div>;
     if (!data) return <div>
         <LoadinginAdminActivity />
     </div>
@@ -193,7 +193,7 @@ const AdminActivity = () => {
                 <LoadinginAdminActivity />
             </div>}
             {size > 0 && !isValidating && (data && (data[size - 1]?.length == undefined || data[size - 1]?.length === 0)) && <div className='py-1 text-center'>
-                No more posts
+                No more activity
             </div>}
             {/* {size > 0 && posts[posts.length - 1].length < pageSize && (
                 <div>No more posts</div>

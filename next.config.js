@@ -16,7 +16,7 @@ const nextConfig = {
         headers: [
           {
             key: "Access-Control-Allow-Origin",
-            value: "http://localhost:3001", // Adjust to match your Express server
+            value: "https://13.212.202.151:3001",
           },
         ],
       },

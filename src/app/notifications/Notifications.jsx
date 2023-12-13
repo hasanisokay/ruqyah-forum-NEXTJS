@@ -4,20 +4,17 @@ import formatRelativeDate from '@/utils/formatDate';
 import { useRouter } from 'next/navigation';
 import React, { useRef, useCallback, useContext, useState, useEffect } from 'react';
 import useSWRInfinite from 'swr/infinite';
-import { FaRegComment, FaRegHeart } from "react-icons/fa";
 import { FaUserLarge, FaHeart } from "react-icons/fa6"
 import AuthContext from '@/contexts/AuthContext';
-import truncateText from '@/utils/trancatText';
-import formatDateForUserJoined from '@/utils/formatDateForUserJoined';
-import axios from 'axios';
-import { mutate } from 'swr';
 import LoadingCards from '@/components/LoadingCards';
 import formatDateInAdmin from '@/utils/formatDateInAdmin';
+import toast from 'react-hot-toast';
+import axios from 'axios';
+
 const fetcher = async (url) => await fetch(url).then((res) => res.json());
 
-
 const Notifications = () => {
-    const { fetchedUser } = useContext(AuthContext);
+    const { fetchedUser, setAllNotifications } = useContext(AuthContext);
     const infiniteScrollRef = useRef();
     const lastNotificationRef = useRef(null);
     const router = useRouter();
@@ -27,16 +24,32 @@ const Notifications = () => {
     };
 
     const { data, error, size, setSize, isValidating } = useSWRInfinite(getKey, fetcher);
-
-    // const posts = data ? data.flat() : [];
     const [posts, setPosts] = useState(data ? data.flat() : []);
 
     useEffect(() => {
         setPosts(data?.flat())
     }, [data])
+    const clearAllNotifications = async () => {
+        if (!fetchedUser) {
+            return toast.error("Unauthorized")
+        }
+        try {
+            const { data } = await axios.post(`/api/clearnotification`, { username: fetchedUser.username })
+            if (data.status === 200) {
+                setAllNotifications([])
+                toast.success(data.message)
+                router.push("/");
+            }
+            else {
+                toast.error(data.message)
+            }
+        }
+        catch (error) {
+            console.error(error);
+        }
+    }
 
     const handleScroll = useCallback(() => {
-        // Check if the user has scrolled to the bottom
         if (
             infiniteScrollRef.current &&
             window.innerHeight + window.scrollY >= infiniteScrollRef.current.offsetTop
@@ -59,26 +72,38 @@ const Notifications = () => {
             window.removeEventListener('scroll', handleScroll);
         };
     }, [handleScroll]);
+    
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+          if (!fetchedUser) router.replace("/");
+        }
+      }, [fetchedUser, router]);
 
-    if (error) return <div>Error loading posts</div>;
     if (!data) return <div>
         <LoadingCards />
         <LoadingCards />
         <LoadingCards />
     </div>
+
+    if (error) return <div className='text-center'>Error loading notifications</div>;
+    if (posts?.length === 1) {
+        return <p className='text-center font-semibold'>No notification available</p>
+    }
     return (
         <div className='cardinhome'>
-            <h1>Notifications</h1>
-
+            <h1 className='font-semibold text-center'>Notifications</h1>
+            <div className='text-right'>
+                <button onClick={clearAllNotifications} className='py-1 px-2 text-xs'>Clear All</button>
+            </div>
             <div>
                 {posts?.map((notification, index) => (
                     <div
-                        className={`my-2 cursor-pointer px-2 py-2 ${notification.read ===false ? "bg-blue-600":""} flex items-center gap-2`}
+                        className={`my-2 cursor-pointer px-2 py-2 ${notification.read === false ? "bg-blue-600" : ""} flex items-center gap-2`}
                         key={index}
                         ref={index === posts.length - 1 ? lastNotificationRef : null}
-                        onClick={()=>router.push(`/${notification.postID}`)}
+                        onClick={() => router.push(`/${notification.postID}`)}
                     >
-                         <div>
+                        <div>
                             {
                                 notification?.commenterPhotoURL ?
                                     <Image src={notification?.commenterPhotoURL} blurDataURL='' alt='User Profile Photo'
@@ -104,7 +129,7 @@ const Notifications = () => {
                 <LoadingCards />
             </div>}
             {size > 0 && !isValidating && (data && (data[size - 1]?.length == undefined || data[size - 1]?.length === 0)) && <div className='py-1 text-center'>
-                No more posts
+                No more notifications
             </div>}
             <div ref={infiniteScrollRef} style={{ height: '10px' }} />
         </div>

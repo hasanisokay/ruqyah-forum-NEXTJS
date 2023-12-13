@@ -17,8 +17,11 @@ const NewPost = () => {
             post: newPostData,
             date: new Date(),
             author: { username: fetchedUser.username },
+            comment: [],
+            likes: [],
+            followers: []
         };
-        if(fetchedUser.isAdmin){
+        if (fetchedUser.isAdmin) {
             newPost.status = "approved"
         }
         setLoadingNewPost(true)
@@ -36,9 +39,9 @@ const NewPost = () => {
     };
     if (fetchedUser && loading === false && !fetchedUser?.blocked) {
         return (
-            <div>
+            <div className="mb-4">
                 <form
-                    onSubmit={(e)=>handleNewPostForm(e)}
+                    onSubmit={(e) => handleNewPostForm(e)}
                     className={`cardinhome ${loadingNewPost ? "opacity-40" : "opacity-100"}`}
                 >
                     <TextareaAutosize
@@ -47,9 +50,9 @@ const NewPost = () => {
                         maxRows={20}
                         onChange={(e) => setNewPostData(e.target.value)}
                         placeholder="Write your post"
-                        className="textarea border-2 focus:outline-none border-gray-400 focus:border-blue-700 bordered w-full"
+                        className="textarea placeholder-shown:text-center bg-slate-200 dark:bg-[#3b3b3b] focus:outline-none w-full"
                     />
-                    <div className="text-center mt-2">
+                    <div className="text-center">
                         <button
                             title="Post"
                             disabled={loadingNewPost}

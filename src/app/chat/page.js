@@ -1,10 +1,9 @@
-import Chat from "./Chat";
+import ChatProvider from "./ChatProvider";
 
 const chatPage = () => {
     return (
         <div>
-            Chat is coming...
-            {/* <Chat /> */}
+       <ChatProvider/>
         </div>
     );
 };

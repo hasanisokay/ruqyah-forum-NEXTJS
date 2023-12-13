@@ -12,17 +12,21 @@ import LoadingCards from '../LoadingCards';
 import truncateText from '@/utils/trancatText';
 import formatDateForUserJoined from '@/utils/formatDateForUserJoined';
 import axios from 'axios';
-import { mutate } from 'swr';
+
 import toast from 'react-hot-toast';
 import ModalUser from '../ModalUser';
+import LikersModal from '../LikersModal';
+import DeleteConfirmationModal from '../DeleteConfirmationModal';
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
 const HomePagePosts = () => {
-    const { fetchedUser } = useContext(AuthContext);
+    const { fetchedUser, showDeleteModal, setShowDeleteModal } = useContext(AuthContext);
     const infiniteScrollRef = useRef();
     const [selectedPostIdForOptions, setSelectedPostIdForOptions] = useState(null);
     const [expandedPosts, setExpandedPosts] = useState([]);
     const [selectedUsernameToShowDetails, setSelectedUsernameToShowDetails] = useState(null)
+    const [likersArray, setLikersArray] = useState(null);
+
     const router = useRouter();
     const getKey = (pageIndex, previousPageData) => {
         if (previousPageData && previousPageData.length === 0) return null;
@@ -81,7 +85,7 @@ const HomePagePosts = () => {
             setSize(size + 1)
         }
     }, [setSize, size, data]);
-    
+
     const handleShowUser = (username) => {
         setSelectedUsernameToShowDetails(username);
     }
@@ -90,6 +94,12 @@ const HomePagePosts = () => {
             document.getElementById('my_modal_5').showModal();
         }
     }, [selectedUsernameToShowDetails]);
+
+    useEffect(() => {
+        if (likersArray) {
+            document.getElementById('likerModal').click();
+        }
+    }, [likersArray]);
 
     // Attach the scroll event listener
     React.useEffect(() => {
@@ -105,20 +115,6 @@ const HomePagePosts = () => {
         <LoadingCards />
         <LoadingCards />
     </div>
-    const handleDeletePost = async (id, isAdmin) => {
-        if (!isAdmin) return;
-        const dataToSend = {
-            postID: id,
-            action: "delete",
-        }
-        const { data } = await axios.post("/api/posts/changestatus", dataToSend)
-        if (data.status === 200) {
-            toast.success(data?.message)
-        }
-        else {
-            toast.error(data?.message)
-        }
-    }
     const handlePostOptions = (id) => {
         if (!fetchedUser?.isAdmin) return;
         setSelectedPostIdForOptions(id);
@@ -177,16 +173,15 @@ const HomePagePosts = () => {
             console.error("Error disliking post:", error);
         }
     }
-
     return (
         <div>
             {posts?.map((post) => (
-                <div key={post._id} className='p-2 cursor-default border-2 m-2 border-gray-500 rounded-lg dark:border-gray-400 cardinhome '>
+                <div key={post._id} className='p-2 cursor-default bg-[#fffef9] shadow-xl dark:bg-[#242526] mx-2 mb-4 rounded-lg cardinhome '>
                     {fetchedUser?.isAdmin && <div className='relative'>
                         <BsThreeDotsVertical onClick={() => handlePostOptions(post._id)} className='absolute right-0 cursor-pointer' />
                         {selectedPostIdForOptions === post._id && (
-                            <div className='absolute lg:hover:bg-red-500 border-2 text-sm right-0 top-2 mt-2 p-1  shadow-lg rounded-md'>
-                                <button onClick={() => handleDeletePost(post._id, fetchedUser.isAdmin)}>Delete Post</button>
+                            <div className='absolute lg:hover:bg-red-500 lg:hover:text-white border-2 text-sm right-0 top-2 mt-2 p-1  shadow-lg rounded-md'>
+                                <button onClick={() => setShowDeleteModal(true)}>Delete Post</button>
                             </div>
                         )}
                     </div>}
@@ -222,10 +217,10 @@ const HomePagePosts = () => {
                     </div>
                     <p style={{ whiteSpace: "pre-wrap" }}>{expandedPosts.includes(post._id) ? post?.post : truncateText(post?.post)}
                         {!expandedPosts.includes(post._id) && post?.post?.length > 200 && (
-                            <button onClick={() => handleToggleExpand(post._id)} className='text-xs font-semibold'>... Show more</button>
+                            <button onClick={() => handleToggleExpand(post._id)} className='text-[10px] font-semibold'>... Show more</button>
                         )}
                         {expandedPosts.includes(post._id) && (
-                            <button onClick={() => handleShowLess(post._id)} className='text-xs font-semibold pl-1'>Show less </button>
+                            <button onClick={() => handleShowLess(post._id)} className='text-[10px] font-semibold pl-1'>Show less </button>
                         )}
                     </p>
                     <div className='flex items-center gap-6 mt-2'>
@@ -235,9 +230,13 @@ const HomePagePosts = () => {
                         </div>
                         <div className='flex flex-col items-center'>
                             {post?.likes?.filter((username) => username === fetchedUser?.username)?.length > 0 ? <FaHeart title='You Liked this. Click to dislike' onClick={() => handleDislike(post._id)} className=' text-red-600 cursor-pointer' /> : <FaRegHeart title='Click to Like' onClick={() => hanldleLike(post._id)} className='cursor-pointer' />}
-                            <span className='text-xs'>{post?.likes?.length || 0} Likes</span>
+                            <span className='text-xs cursor-pointer' onClick={() => setLikersArray(post?.likes)}>{post?.likes?.length || 0} Likes</span>
                         </div>
                     </div>
+                    {
+                        showDeleteModal && <DeleteConfirmationModal id={post._id} isAuthorized={fetchedUser?.isAdmin || fetchedUser?.username === post?.authorInfo?.username} setterFunction={setShowDeleteModal} />
+                    }
+                    {likersArray && <LikersModal usernames={likersArray} setterFunction={setLikersArray} />}
                     {selectedUsernameToShowDetails && <ModalUser username={selectedUsernameToShowDetails} setterFunction={setSelectedUsernameToShowDetails} />}
                 </div>
             ))}

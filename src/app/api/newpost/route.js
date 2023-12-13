@@ -25,7 +25,7 @@ export const POST = async (request) => {
     await postCollection.insertOne(body);
     return NextResponse.json({
       status: 200,
-      message: "Posted. Wait for admin approval.",
+      message: `Posted.${body.status ==="pending" ? " Wait for admin approval.":""}`,
     });
   } catch {
     return NextResponse.json({

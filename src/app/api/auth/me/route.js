@@ -7,19 +7,21 @@ import { NextResponse } from "next/server";
 export const GET = async () => {
   const cookieStore = cookies();
   const token = cookieStore.get(COOKIE_NAME)?.value.split("Bearer")[1];
-
   if (!token) {
     return NextResponse.json({ message: "Unauthorized", status: 401 });
   }
   const secret = new TextEncoder().encode(process.env.ACCESS_TOKEN_SECRET);
+  
+  const { payload } = await jwtVerify(token, secret);
   try {
-    const { payload } = await jwtVerify(token, secret);
     const { username } = payload;
     const db = await dbConnect();
     const userCollection = db?.collection("users");
     const user = await userCollection.findOne(
       { username: username },
-      { projection: { password: 0} }
+      {
+        projection: { password: 0, notifications: { $slice: -10 } },
+      }
     );
     return NextResponse.json(user);
   } catch {
