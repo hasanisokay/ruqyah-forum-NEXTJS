@@ -16,7 +16,7 @@ const nextConfig = {
         headers: [
           {
             key: "Access-Control-Allow-Origin",
-            value: "https://13.212.202.151:3001",
+            value: "http://13.212.202.151:3001",
           },
         ],
       },
