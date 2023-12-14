@@ -130,7 +130,7 @@ const Navbar = () => {
 
 
   if (loading) {
-    return <div className="h-[100px] flex md:px-10 px-4 justify-between items-center">
+    return <div className=" flex md:px-10 px-4 justify-between items-center">
       <SkeletonTheme baseColor={baseColor} highlightColor={highlightColor}>
         <p>
           <Skeleton count={1} width={150} height={30} />
@@ -146,7 +146,7 @@ const Navbar = () => {
     </div>
   }
   if (!loading) return (
-    <div className="flex md:px-10 px-4 lg:justify-between justify-between items-center font-semibold z-50" ref={navRef}>
+    <div className="flex min-h-[50px] md:px-10 px-4 lg:justify-between justify-between items-center shadow-xl font-semibold z-50" ref={navRef}>
       <Link href={"/"}><Image placeholder="blur" src={logo} alt="logo" width={150} /></Link>
 
       <div

@@ -31,12 +31,12 @@ const Chat = () => {
   const getKey = (pageIndex, previousPageData) => {
     if (previousPageData && previousPageData.length === 0) return null; // reached the end
 
-    return `${process.env.NEXT_PUBLIC_server}/api/messages?groupId=${selectedGroup}&page=${pageIndex + 1}`;
+    return `/api/messages?groupId=${selectedGroup}&page=${pageIndex + 1}`;
   };
 
   const { data, error, size, setSize, isValidating } = useSWRInfinite(getKey, fetcher);
   const [fetchedMessages, setFetchedMessages] = useState(data ? data?.flat()?.reverse() : []);
-
+console.log(data);
   useEffect(() => {
     setFetchedMessages(data?.flat().reverse())
   }, [data])
