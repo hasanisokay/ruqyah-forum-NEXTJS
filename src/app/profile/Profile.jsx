@@ -1,6 +1,7 @@
 'use client'
 import LoadingProfile from "@/components/LoadingProfile";
 import AuthContext from "@/contexts/AuthContext";
+import resizeImage from "@/utils/resizeImage";
 import axios from "axios";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -13,42 +14,48 @@ const Profile = () => {
     const search = useSearchParams();
     const from = search.get("redirectUrl") || "/login?redirectUrl=profile";
     const [showProfile, setShowProfile] = useState(false);
-    const [prfilePhoto, setProfilePhoto] = useState(null);
+    const [profilePhoto, setProfilePhoto] = useState(null);
     const [photoFileName, setPhotoFileName] = useState("");
 
     const handleSetProfilePicture = async () => {
-        const formData = new FormData();
-        formData.append("image", prfilePhoto);
+        const toastID = toast.loading("Uploading");
         try {
-            const toastID = toast.loading("Uploading");
             const response = await axios.post(
                 `https://api.imgbb.com/1/upload?key=${process.env.NEXT_PUBLIC_IMGTOKEN}`,
-                formData
+                profilePhoto
             );
             const url = response?.data?.data?.url
-
-            fetchedUser.photoURL = url;
-
-            const { data } = await axios.post("/api/auth/uploadpp", { photoURL: url, username: fetchedUser.username })
-
+            const { data } = await axios.post("/api/auth/uploadpp", { photoURL: url, username: fetchedUser?.username });
             if (data.status === 200) {
-                toast.dismiss(toastID)
                 toast.success("Uploaded")
+                fetchedUser.photoURL = url;
                 refresh()
+
             }
             if (data.status === 400) {
-                toast.dismiss(toastID)
                 toast.error("Upload Failed. Try Again")
             }
         } catch (error) {
             toast.error("Error! Try again later")
             console.error("Image upload error:", error);
         }
+        finally {
+            toast.dismiss(toastID);
+            setPhotoFileName(null);
+            setProfilePhoto(null);
+        }
     }
-    const handleFileChange = (e) => {
-        const file = e.target.files[0];
-        setProfilePhoto(file);
+    const handleFileChange = async (e) => {
+        const file = e?.target?.files[0];
+        if(!file)return;
+        // console.log('Original Image Size:', file?.size, 'bytes');
+        const resizedImage = await resizeImage(file, 500, 500);
+        // console.log('Resized Image Size:', resizedImage?.size, 'bytes');
+        const formData = new FormData();
+        formData.append('image', resizedImage);
+        setProfilePhoto(formData);
         setPhotoFileName(file?.name);
+        console.log(formData);
     };
 
     useEffect(() => {
@@ -78,7 +85,7 @@ const Profile = () => {
                         <input
                             type="file"
                             accept="image/*"
-                            onChange={handleFileChange}
+                            onChange={(e) => handleFileChange(e)}
                             className="hidden"
                             name="image"
                         />
