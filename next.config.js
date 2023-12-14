@@ -8,7 +8,7 @@ const nextConfig = {
       },
     ],
   },
-
+  basePath: "",
   async headers() {
     return [
       {
