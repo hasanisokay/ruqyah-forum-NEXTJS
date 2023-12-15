@@ -1,6 +1,4 @@
 import dbConnect from "@/services/DbConnect";
-import { SignJWT } from "jose";
-import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import bcrypt from "bcrypt";
 /**
@@ -20,9 +18,8 @@ export const POST = async (request) => {
     body.notifications = [];
     await userCollection.insertOne(body);
     await usernameCollection.insertOne({ username });
-    NextResponse.json({ status: 200, message: "User Created" });
+    return NextResponse.json({ status: 200, message: "User Created" });
   } catch {
-    NextResponse.json({ status: 404, message: "Something went wrong" });
+    return NextResponse.json({ status: 404, message: "Something went wrong" });
   }
 };
-// hasanvai
