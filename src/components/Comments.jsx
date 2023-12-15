@@ -36,11 +36,13 @@ const Comments = ({ c, postAuthor, handleShowUser, likes, socket, commentId: com
     }
     const dataToSend = {
       reply: replyText,
-      author: fetchedUser.username,
+      author: fetchedUser?.username,
       commentID,
+      commentAuthor: c?.author?.authorInfo?.name,
+      commentAuthorUsername: c?.author?.username,
       postID,
       date: new Date(),
-      authorName: fetchedUser.name
+      authorName: fetchedUser?.name
     }
     try {
       setLoadingNewReply(true);
@@ -53,9 +55,9 @@ const Comments = ({ c, postAuthor, handleShowUser, likes, socket, commentId: com
           _id: data?._id,
           likes: [],
           authorInfo: {
-            username: fetchedUser.username,
-            photoURL: fetchedUser.photoURL,
-            name: fetchedUser.name
+            username: fetchedUser?.username,
+            photoURL: fetchedUser?.photoURL,
+            name: fetchedUser?.name
           },
           postID,
           commentID
@@ -65,6 +67,7 @@ const Comments = ({ c, postAuthor, handleShowUser, likes, socket, commentId: com
           commenterName: fetchedUser.name,
           date: dataToSend.date,
           postID,
+          commentAuthorUsername: c?.author?.username,
         }
         socket.emit("newReply", dataToSendInSocket);
         socket.emit("newCommentNotification", { newCommentNotification, commentID });

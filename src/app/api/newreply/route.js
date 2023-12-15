@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 
 export const POST = async (request) => {
   const body = await request.json();
-  const { date, postID, commentID, authorName } = body;
+  const { commentAuthorUsername, date, postID, commentID, authorName } = body;
   const uniqueID = new ObjectId();
   const replyData = {
     _id: uniqueID,
@@ -26,19 +26,23 @@ export const POST = async (request) => {
       message: "You are blocked from commenting. Contact support.",
     });
   }
-
   try {
-    await postCollection.updateOne(
-      { _id: new ObjectId(postID), "comment._id": new ObjectId(commentID) },
-      { $push: { "comment.$.replies": replyData } }
-    );
     const postData = await postCollection.findOne(
       { _id: new ObjectId(postID) },
       { projection: { followers: 1, author: 1 } }
     );
+    await postCollection.updateOne(
+      { _id: new ObjectId(postID), "comment._id": new ObjectId(commentID) },
+      { $push: { "comment.$.replies": replyData } }
+    );
+
     const postAuthor = postData?.author?.username;
+    // const authorReplied = postAuthor === commentAuthorUsername;
+
+    // deleteing comment author username for sending notification to others
     const followers = postData?.followers.filter(
-      (username) => username !== body.author
+      (u) =>
+        u !== body.author && u !== commentAuthorUsername && u !== postAuthor
     );
 
     const postNotificationForOthers = {
@@ -49,6 +53,8 @@ export const POST = async (request) => {
       commenterUsername: body.author,
       read: false,
     };
+
+    // updating notifications for users
     await userCollection.updateMany(
       {
         username: { $in: followers },
@@ -73,17 +79,31 @@ export const POST = async (request) => {
       ]
     );
 
-    if (body.author !== postAuthor) {
-      const postNotification = {
-        _id: new ObjectId(),
-        message: `${authorName} replied to a comment on your post.`,
-     date,
-        postID,
-        commenterUsername: body.author,
-        read: false,
-      };
+    const postNotification = {
+      _id: new ObjectId(),
+      message: "",
+      date,
+      postID,
+      commenterUsername: body.author,
+      read: false,
+    };
+
+    if (body.author !== postAuthor && commentAuthorUsername === postAuthor) {
+      postNotification.message = `${authorName} replied to your comment.`;
       await userCollection.updateOne(
         { username: postAuthor },
+        { $push: { notifications: postNotification } }
+      );
+    }
+    else if (body.author !== postAuthor && commentAuthorUsername !== postAuthor) {
+      postNotification.message = `${authorName} replied to a comment on your post.`;
+      await userCollection.updateOne(
+        { username: postAuthor },
+        { $push: { notifications: postNotification } }
+      );
+      postNotification.message = `${authorName} replied to your comment.`;
+      await userCollection.updateOne(
+        { username: commentAuthorUsername },
         { $push: { notifications: postNotification } }
       );
     }

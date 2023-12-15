@@ -14,7 +14,6 @@ export const POST = async (request) => {
   if (result.modifiedCount === 1) {
     return NextResponse.json({ message: "Success", status: 200 });
   } else {
-    console.log(`User ${username} not found or photoURL not updated`);
     return NextResponse.json({ message: "Error", status: 400 });
   }
 };

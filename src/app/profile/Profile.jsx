@@ -55,7 +55,6 @@ const Profile = () => {
         formData.append('image', resizedImage);
         setProfilePhoto(formData);
         setPhotoFileName(file?.name);
-        console.log(formData);
     };
 
     useEffect(() => {

@@ -10,9 +10,7 @@ export const POST = async (request) => {
   const postCollection = db?.collection("posts");
   try {
     const username = body?.author?.username;
-    console.log(username);
     const previousPostCount = await postCollection.countDocuments({'author.username': username, status:"pending"})
-    console.log(previousPostCount);
     if(previousPostCount === 2 || previousPostCount > 2){
       return NextResponse.json({
         status: 401,
