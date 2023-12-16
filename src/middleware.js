@@ -8,7 +8,7 @@ export default async function middleware(request) {
   if ((pathname.startsWith("/profile") && !token) || (pathname.startsWith("/api/allnotifications") && !token) || (pathname.startsWith("/api/newpost") && !token)) {
     return NextResponse.redirect(new URL("/", request.url));
   }
-  if ((pathname === "/login" || pathname === "/signup") && token) {
+  if ((pathname === "/login" || pathname === "/identity"  || pathname === "/signup") && token) {
     return NextResponse.redirect(new URL("/", request.url));
   }
   if (pathname.startsWith("/admin")|| pathname.startsWith("/chat") || pathname.startsWith("/api/admin/declinedposts") || pathname.startsWith("/api/admin/notice") || pathname.startsWith("/api/admin/deletenotice") || pathname.startsWith("/api/posts/changestatus") || pathname.startsWith("/api/posts/pendingposts") ||pathname.startsWith("/api/admin/changeuserrole") || pathname.startsWith("/api/admin/adminactivity")) {
@@ -26,5 +26,5 @@ export default async function middleware(request) {
   }
 }
 export const config = {
-  matcher: ["/profile/:path*", "/chat", "/login", "/signup", "/admin/:path*", "/api/allnotifications", "/api/newpost","/api/admin/notice","/api/admin/declinedposts", "/api/posts/changestatus", "/api/posts/pendingposts", "/api/admin/changeuserrole", "/api/admin/adminactivity", "/api/admin/deletenotice"],
+  matcher: ["/profile/:path*", "/chat", "/login","/identity", "/signup", "/admin/:path*", "/api/allnotifications", "/api/newpost","/api/admin/notice","/api/admin/declinedposts", "/api/posts/changestatus", "/api/posts/pendingposts", "/api/admin/changeuserrole", "/api/admin/adminactivity", "/api/admin/deletenotice"],
 }; 

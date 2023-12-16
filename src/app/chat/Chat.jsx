@@ -36,7 +36,6 @@ const Chat = () => {
 
   const { data, error, size, setSize, isValidating } = useSWRInfinite(getKey, fetcher);
   const [fetchedMessages, setFetchedMessages] = useState(data ? data?.flat()?.reverse() : []);
-console.log(data);
   useEffect(() => {
     setFetchedMessages(data?.flat().reverse())
   }, [data])
@@ -137,8 +136,8 @@ console.log(data);
                         borderRadius: '50%',
                       }}
                       src={adminsData?.find((a) => a?.username === message?.user)?.photoURL || "https://i.ibb.co/4msrfNF/Screenshot-2023-12-05-112036.png"} alt='user photo' />
-                    <div className=" bg-zinc-800 text-white rounded-lg p-2">
-                      <p className='text-[12px] whitespace-pre-wrap'>{decryptMessage(message.text)}</p>
+                    <div className=" bg-zinc-800 break-words max-w-full text-white rounded-lg p-2">
+                      <p className='text-[12px]  whitespace-pre-wrap '>{decryptMessage(message.text)}</p>
                       <span className='text-[8px]'>{formatDateInAdmin(new Date(message?.timestamp))}</span>
                     </div>
                   </div>

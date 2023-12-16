@@ -115,10 +115,7 @@ const HomePagePosts = () => {
         <LoadingCards />
         <LoadingCards />
     </div>
-    const handlePostOptions = (id) => {
-        if (!fetchedUser?.isAdmin) return;
-        setSelectedPostIdForOptions(id);
-    }
+
     const handleDislike = async (id) => {
         if (!fetchedUser) {
             return toast.error("Log in to react")
@@ -178,10 +175,14 @@ const HomePagePosts = () => {
             {posts?.map((post) => (
                 <div key={post._id} className='p-2 cursor-default bg-[#fffef9] shadow-xl dark:bg-[#242526] mx-2 mb-4 rounded-lg cardinhome '>
                     {fetchedUser?.isAdmin && <div className='relative'>
-                        <BsThreeDotsVertical onClick={() => handlePostOptions(post._id)} className='absolute right-0 cursor-pointer' />
+                        <BsThreeDotsVertical onClick={() => setSelectedPostIdForOptions(post._id)} className='absolute right-0 cursor-pointer' />
                         {selectedPostIdForOptions === post._id && (
-                            <div className='absolute lg:hover:bg-red-500 lg:hover:text-white border-2 text-sm right-0 top-2 mt-2 p-1  shadow-lg rounded-md'>
-                                <button onClick={() => setShowDeleteModal(true)}>Delete Post</button>
+                            <div className='absolute text-center text-sm right-0 top-2 mt-2 p-1 w-[200px] shadow-xl rounded-md bg-white dark:bg-[#1c1c1c]'>
+                                <div className='flex flex-col gap-2'>
+                                    <button onClick={() => setShowDeleteModal(true)} className='lg:hover:bg-red-500 lg:hover:text-white'>Delete Post</button>
+                                    {fetchedUser && fetchedUser?.username === post?.authorInfo?.username && <button>Edit</button>}
+                                    {fetchedUser && <button>Report</button>}
+                                </div>
                             </div>
                         )}
                     </div>}

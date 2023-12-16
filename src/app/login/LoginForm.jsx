@@ -110,7 +110,8 @@ const LoginForm = () => {
                     Log In
                 </button>
                 <div className='my-2 dark:text-black'>
-                    <p className='text-sm'>Don't have an account? Please <button onClick={()=>router.push("/signup")} title='goto signup' className='text-blue-600 italic'>sign up</button>.</p>
+                    <p className='text-sm'>Don't have an account? Please <button onClick={()=>router.push("/signup")} title='goto signup' className='text-blue-600 italic'>Sign Up</button>.</p>
+                    <p className='text-sm mt-2'>Forgotten password? <button onClick={()=>router.push("/identity")} title='goto reset password' className='text-blue-600 italic'>Reset Password</button>.</p>
                 </div>
             </form>
         </>

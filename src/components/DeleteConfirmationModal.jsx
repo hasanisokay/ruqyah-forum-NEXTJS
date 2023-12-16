@@ -1,8 +1,11 @@
+import handleDeleteComment from "@/utils/handleDeleteComment";
 import handleDeletePost from "@/utils/handleDeletePost";
+import handleDeleteReply from "@/utils/handleDeleteReply";
 import { usePathname, useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 
-const DeleteConfirmationModal = ({ id, isAuthorized, setterFunction }) => {
+const DeleteConfirmationModal = ({ id, isAuthorized, setterFunction, commentID, setPost, setFetchedReplies, setReplyCount, replyID }) => {
+
     const router = useRouter();
     const pathname = usePathname();
 
@@ -11,14 +14,29 @@ const DeleteConfirmationModal = ({ id, isAuthorized, setterFunction }) => {
         if (!confirm) {
             return toast.error("Canceled");
         }
-        await handleDeletePost(id, isAuthorized);
-        if (pathname !== "/") {
-            router?.push("/")
+        if (replyID) {
+            const deleted = await handleDeleteReply(id, commentID, replyID);
+            if (deleted) {
+                setFetchedReplies((prev)=> prev.filter((c)=>c._id !== replyID));
+                setReplyCount((prev) => prev - 1);
+            }
+        }
+        else if (!replyID && commentID && id) {
+            const deleted = await handleDeleteComment(id, commentID)
+            if (deleted) {
+                setPost((prev) => ({ ...prev, comment: [...prev?.comment?.filter(c => c._id !== commentID)] }))
+            }
+        }
+        else if (!commentID && !replyID && id) {
+            await handleDeletePost(id, isAuthorized);
+            if (pathname !== "/") {
+                router?.push("/")
+            }
         }
     }
     return (
         <div>
-            <dialog id="deletModal" className="modal">
+            <dialog id="deleteModal" className="modal">
                 <div className="modal-box">
                     <p className="text-center font-semibold">Sure to do this?</p>
                     <div className="flex gap-2 justify-center items-center">
@@ -28,13 +46,9 @@ const DeleteConfirmationModal = ({ id, isAuthorized, setterFunction }) => {
                     </div>
                 </div>
                 <form method="dialog" className="modal-backdrop">
-                    <button></button>
+                    <button onClick={() => setterFunction(false)}></button>
                 </form>
             </dialog>
-
-
-
-
         </div>
     );
 };

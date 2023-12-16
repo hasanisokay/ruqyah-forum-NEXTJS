@@ -104,7 +104,6 @@ const SinglePostInHomePage = ({ id }) => {
 
   useEffect(() => {
     if (showEditModal) document?.getElementById('editModal')?.showModal()
-    // if (!showEditModal) document.getElementById('editModal').close()
   }, [showEditModal])
 
   if (error || data?.status === 500) return notFound();
@@ -175,10 +174,10 @@ const SinglePostInHomePage = ({ id }) => {
       setLoadingNewComment(false)
     }
   };
-  const handlePostOptions = (id) => {
-    if (!fetchedUser?.isAdmin) return;
-    setSelectedPostIdForOptions(id);
-  }
+  // const handlePostOptions = (id) => {
+  //   if (!fetchedUser?.isAdmin) return;
+  //   ;
+  // }
 
   const handleDislike = async (commentID = undefined) => {
     if (!fetchedUser) {
@@ -268,9 +267,9 @@ const SinglePostInHomePage = ({ id }) => {
   return (
     <div className='p-2 cursor-default bg-[#fffef9] dark:bg-[#242526] m-2 rounded-lg dark:border-gray-400 cardinhome shadow-xl'>
       {fetchedUser && <div className='relative'>
-        <BsThreeDotsVertical onClick={() => handlePostOptions(id)} className='absolute right-0 cursor-pointer' />
+        <BsThreeDotsVertical onClick={() => setSelectedPostIdForOptions(id)} className='absolute right-0 cursor-pointer' />
         {selectedPostIdForOptions === id && (
-          <div className='absolute border-2 text-sm right-0 top-2 mt-2 p-1 w-[200px] shadow-xl rounded-md'>
+          <div className='absolute text-sm right-0 top-2 mt-2 p-1 w-[200px] shadow-xl rounded-md bg-white dark:bg-[#1c1c1c]'>
             <div className='flex flex-col justify-start items-start gap-2 '>
               {(fetchedUser?.isAdmin || fetchedUser?.username === post?.authorInfo?.username) && <button onClick={() => setShowDeleteModal(true)} className='lg:hover:bg-red-700 duration-300 w-full px-2 py-1 text-left rounded-md lg:hover:text-white'>Delete Post</button>}
               {fetchedUser?.username === post?.authorInfo?.username && <button onClick={handleEdit} className='lg:hover:bg-[#308853] px-2 py-1 rounded-md lg:hover:text-white w-full duration-300 text-left '>Edit Post</button>}
@@ -339,7 +338,7 @@ const SinglePostInHomePage = ({ id }) => {
               onKeyDown={handleKeyDown}
               onChange={(e) => setNewCommentData(e.target.value)}
               placeholder={`Comment as ${fetchedUser.name}`}
-              className="pl-2 py-[10px] bg-slate-200 dark:bg-[#3b3b3b] pr-[44px] rounded-xl placeholder:text-[12px] text-sm focus:outline-none w-full"
+              className="pl-2 resize-none py-[10px] bg-slate-200 dark:bg-[#3b3b3b] pr-[44px] rounded-xl placeholder:text-[12px] text-sm focus:outline-none w-full"
 
             />
             <div className="absolute bottom-[20%]  right-2">
@@ -364,6 +363,7 @@ const SinglePostInHomePage = ({ id }) => {
             <Comments
               key={c._id}
               c={c}
+              setPost={setPost}
               socket={socket}
               postID={id}
               commentId={c?._id}

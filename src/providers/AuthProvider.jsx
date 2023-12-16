@@ -55,7 +55,7 @@ const AuthProvider = ({ children }) => {
     }, [loggedOut])
     useEffect(() => {
         if (showDeleteModal) {
-            document.getElementById('deletModal').showModal()
+            document.getElementById('deleteModal').showModal()
         }
     }, [showDeleteModal])
     useEffect(() => {

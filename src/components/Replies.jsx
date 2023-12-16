@@ -4,16 +4,15 @@ import formatDateInAdmin from "@/utils/formatDateInAdmin";
 import Image from "next/image";
 import { FaUserLarge } from "react-icons/fa6";
 import LoadingModalUser from "./LoadingModal";
-const Replies = ({ postID, commentID, fetchedReplies, setFetchedReplies, handleShowUser, replyCount }) => {
-    
+import ReplyText from "./ReplyText";
+const Replies = ({ postID, commentID, fetchedReplies, setFetchedReplies, setReplyCount, handleShowUser, replyCount }) => {
     const [page, setPage] = useState(1);
     const [loading, setLoading] = useState(false);
     const [hasMore, setHasMore] = useState(true);
     const fetchReplies = async () => {
-        if(replyCount ===0)return
+        if (replyCount === 0) return
         try {
             setLoading(true);
-
             const { data } = await axios.get(`/api/getreplies?commentID=${commentID}&postID=${postID}&page=${page}`);
             const newReplies = data.replies || [];
             if (newReplies.length === 0) {
@@ -53,7 +52,7 @@ const Replies = ({ postID, commentID, fetchedReplies, setFetchedReplies, handleS
                 </button>
             </div>}
             {
-                loading && <LoadingModalUser/>
+                loading && <LoadingModalUser />
             }
             {fetchedReplies.map((reply, index) => (
                 <div key={index} className="mb-[10px]">
@@ -65,7 +64,7 @@ const Replies = ({ postID, commentID, fetchedReplies, setFetchedReplies, handleS
                                         width={20} height={20} loading='lazy'
                                         className='border-gray-400 rounded-full border-2 w-[20px] h-[20px]'
                                     />
-                                    : <div className='flex items-center justify-center rounded-full border-gray-400 border-2 w-[20px] h-[20px]'><FaUserLarge className='' /></div>
+                                    : <div className='flex items-center justify-center rounded-full border-gray-400 border-2 w-[20px] h-[20px]'><FaUserLarge className='w-full h-full' /></div>
                             }
                         </div>
                         <div className='bg-gray-200 dark:bg-[#3a3b3c] px-4 py-1 rounded-xl max-w-full min-w-[200px]'>
@@ -75,7 +74,15 @@ const Replies = ({ postID, commentID, fetchedReplies, setFetchedReplies, handleS
                                 <p className=''>@{reply?.authorInfo?.username}</p>
                                 <p className='text-[10px]' title={reply?.date}> {formatDateInAdmin(new Date(reply?.date) || new Date())}</p>
                             </div>
-                            <p className='whitespace-pre-wrap text-[14px] py-[4px] '>{reply.reply}</p>
+                            <ReplyText
+                                commentID={commentID}
+                                replyID={reply._id}
+                                postID={postID}
+                                text={reply?.reply}
+                                setFetchedReplies={setFetchedReplies} 
+                                setReplyCount={setReplyCount}
+                            />
+                            {/* <p className='whitespace-pre-wrap text-[14px] py-[4px] '>{reply.reply}</p> */}
                         </div>
                     </div>
                 </div>

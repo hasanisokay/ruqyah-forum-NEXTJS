@@ -50,21 +50,23 @@ const NewPost = () => {
                         maxRows={20}
                         onChange={(e) => setNewPostData(e.target.value)}
                         placeholder="Write your post"
-                        className="textarea placeholder-shown:text-center bg-slate-200 dark:bg-[#3b3b3b] focus:outline-none w-full"
+                        className="textarea resize-none placeholder-shown:text-center bg-slate-200 dark:bg-[#3b3b3b] focus:outline-none w-full"
                     />
-                    <div className="text-center">
-                        <button
-                            title="Post"
-                            disabled={loadingNewPost}
-                            className={`forum-btn1 ${newPostData === ""
-                                ? "bg-slate-500 cursor-default"
-                                : "bg-[#308853] active:bg-[#0a4421] lg:hover:bg-[#0a4421]"
-                                }`}
-                            type="submit"
-                        >
-                            Post
-                        </button>
-                    </div>
+                    {
+                       newPostData && <div className="text-center">
+                            <button
+                                title="Post"
+                                disabled={loadingNewPost}
+                                className={`forum-btn1 ${newPostData === ""
+                                    ? "bg-slate-500 cursor-default"
+                                    : "bg-[#308853] active:bg-[#0a4421] lg:hover:bg-[#0a4421]"
+                                    }`}
+                                type="submit"
+                            >
+                                Post
+                            </button>
+                        </div>
+                    }
                 </form>
             </div>
         );

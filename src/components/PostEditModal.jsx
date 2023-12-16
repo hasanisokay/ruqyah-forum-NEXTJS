@@ -50,7 +50,7 @@ const PostEditModal = ({ setterFunction, post, id, setPost }) => {
                             maxRows={10}
                             onChange={(e) => setEditedText(e.target.value)}
                             placeholder='Edit your post'
-                            className="pl-2 py-[10px] bg-slate-200 dark:bg-[#3b3b3b] pr-[44px] rounded-md placeholder:text-sm text-sm focus:outline-none w-full"
+                            className="pl-2 resize-none py-[10px] bg-slate-200 dark:bg-[#3b3b3b] pr-[44px] rounded-md placeholder:text-sm text-sm focus:outline-none w-full"
                         />
                         <div className="text-center">
                             {editedText !== post && <button type="submit" className="text-[10px] forum-btn1 bg-[#308853]">Submit edit</button>}

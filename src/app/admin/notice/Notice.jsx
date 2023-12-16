@@ -49,7 +49,7 @@ const Notice = () => {
                     maxRows={20}
                     onChange={(e) => setNewNoticeData(e.target.value)}
                     placeholder="Write your notice"
-                    className="textarea border-2 focus:outline-none border-gray-400 focus:border-blue-700 bordered w-full"
+                    className="textarea resize-none border-2 focus:outline-none border-gray-400 focus:border-blue-700 bordered w-full"
                 />
                 <div className="text-center mt-2">
                     <button

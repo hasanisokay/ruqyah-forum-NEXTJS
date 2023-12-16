@@ -9,13 +9,15 @@ import { RiSendPlane2Fill } from "react-icons/ri";
 import TextareaAutosize from 'react-textarea-autosize';
 import axios from "axios";
 import Replies from "./Replies";
-
-const Comments = ({ c, postAuthor, handleShowUser, likes, socket, commentId: commentID, replies, setLikersArray, handleDislike, hanldleLike, postID }) => {
+import { BsDot, BsThreeDotsVertical } from "react-icons/bs";
+import DeleteConfirmationModal from "./DeleteConfirmationModal";
+const Comments = ({ c, postAuthor, handleShowUser, likes, socket, commentId: commentID, replies, setLikersArray, handleDislike, hanldleLike, postID, setPost }) => {
   const [replyText, setReplyText] = useState("");
   const [replyCount, setReplyCount] = useState(replies);
   const [fetchedReplies, setFetchedReplies] = useState([]);
   const [showReplyInput, setShowReplyInput] = useState(null);
-  const { fetchedUser } = useContext(AuthContext);
+  const { fetchedUser, showDeleteModal, setShowDeleteModal } = useContext(AuthContext);
+  const [showCommentOptions, setShowCommentOptions] = useState(false);
   const [loadingNewReply, setLoadingNewReply] = useState(false);
   const handleShowReplies = async () => {
     setShowReplyInput(!showReplyInput);
@@ -85,6 +87,24 @@ const Comments = ({ c, postAuthor, handleShowUser, likes, socket, commentId: com
     }
   }
   useEffect(() => {
+    const handleOutsideClick = (event) => {
+      if (
+        showCommentOptions &&
+        !event?.target?.closet?.(`div`)?.querySelector(`.${commentID}`)
+      ) {
+        // Clicked outside the options, hide them
+        setShowCommentOptions(false);
+      }
+    };
+
+    document.addEventListener('click', handleOutsideClick);
+
+    return () => {
+      document.removeEventListener('click', handleOutsideClick);
+    };
+  }, [showCommentOptions, commentID]);
+
+  useEffect(() => {
     if (socket) {
       socket.on('newReply', (reply) => {
         if (reply.postID === postID && reply.commentID === commentID) {
@@ -99,7 +119,7 @@ const Comments = ({ c, postAuthor, handleShowUser, likes, socket, commentId: com
         socket.off('newReply');
       }
     };
-  }, [postID, socket]);
+  }, [postID, commentID, socket]);
   return (
     <div className=' my-1 pl-4 pr-2'>
       {
@@ -124,6 +144,19 @@ const Comments = ({ c, postAuthor, handleShowUser, likes, socket, commentId: com
                 <p >@{c?.author?.username}</p>
                 <p title={c?.date}> {formatDateInAdmin(new Date(c?.date) || new Date())}</p>
               </div>
+              <div onClick={() => setShowCommentOptions(!showCommentOptions)} className="relative cursor-pointer">
+                <div className="absolute top-0 -right-4">
+                  <BsDot />
+                </div>
+              </div>
+              <div className={`relative ${commentID}`}>
+                {
+                  showCommentOptions && <div className="absolute text-sm right-0 z-10 top-2 mt-2 p-1 w-[200px] shadow-xl rounded-md bg-white dark:bg-[#1c1c1c]" >
+                    <button className="lg:hover:bg-[#308853] px-2 py-1 rounded-md lg:hover:text-white w-full duration-300 text-left">Edit</button>
+                    <button onClick={() => setShowDeleteModal(true)} className="lg:hover:bg-red-700 duration-300 w-full px-2 py-1 text-left rounded-md lg:hover:text-white">Delete</button>
+                  </div>
+                }
+              </div>
               <p className=' rounded whitespace-pre-wrap py-[4px] text-[14px] '>{c.comment}</p>
             </div>
           </div>
@@ -142,7 +175,14 @@ const Comments = ({ c, postAuthor, handleShowUser, likes, socket, commentId: com
           {/* show replies */}
           <div className="pl-[43px]">
             {
-              showReplyInput && <Replies postID={postID} replyCount={replyCount} fetchedReplies={fetchedReplies} setFetchedReplies={setFetchedReplies} commentID={commentID} handleShowUser={handleShowUser} />
+              showReplyInput && <Replies 
+              postID={postID} 
+              replyCount={replyCount} 
+              setReplyCount={setReplyCount}
+              fetchedReplies={fetchedReplies} 
+              setFetchedReplies={setFetchedReplies} 
+              commentID={commentID} 
+              handleShowUser={handleShowUser} />
             }
           </div>
           {
@@ -154,7 +194,7 @@ const Comments = ({ c, postAuthor, handleShowUser, likes, socket, commentId: com
                 value={replyText}
                 onChange={(e) => setReplyText(e.target.value)}
                 placeholder={`Reply as ${fetchedUser.name}`}
-                className='py-[6px] pl-2 bg-slate-200 dark:bg-[#3b3b3b] rounded-xl placeholder:text-[10px] text-sm pr-[44px] focus:outline-none bordered w-full'
+                className='py-[6px] resize-none pl-2 bg-slate-200 dark:bg-[#3b3b3b] rounded-xl placeholder:text-[10px] text-sm pr-[44px] focus:outline-none bordered w-full'
               />
               <div className="absolute bottom-[25%]  right-2">
                 <button
@@ -173,6 +213,9 @@ const Comments = ({ c, postAuthor, handleShowUser, likes, socket, commentId: com
             </form>
           }
         </>
+      }
+      {
+        showDeleteModal && <DeleteConfirmationModal setterFunction={setShowDeleteModal} id={postID} setPost={setPost} commentID={commentID} />
       }
     </div>
   );
