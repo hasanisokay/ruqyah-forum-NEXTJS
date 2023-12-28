@@ -33,12 +33,15 @@ export const GET = async (request) => {
     {
         $unwind: "$authorInfo"
     },
+    // replies: { $size: { $ifNull: ["$comment.replies", []] } }
     {
         $project: {
             _id: 1,
             post: 1,
             date: 1,
-            comment: 1,
+            comment: {$size: {$ifNull:['$comment', []]}},
+            photos: 1,
+            videos: 1,
             likes: 1,
             'authorInfo.name': 1,
             'authorInfo.photoURL': 1,

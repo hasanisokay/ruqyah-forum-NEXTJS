@@ -202,7 +202,7 @@ const ModalUser = ({ username, setterFunction }) => {
                     }
 
                 </div>
-                <label className="modal-backdrop" htmlFor="my_modal_5">Close</label>
+                <label className="modal-backdrop cursor-default" htmlFor="my_modal_5"></label>
             </dialog>
 
         </div>

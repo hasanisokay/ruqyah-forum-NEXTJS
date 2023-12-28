@@ -176,8 +176,8 @@ const AdminActivity = () => {
                                 <div className="modal-box">
                                     <h3 className="whitespace-pre-wrap">{postTextForModal}</h3>
                                 </div>
-                                <form method="dialog" className="modal-backdrop">
-                                    <button>close</button>
+                                <form method="dialog" className="modal-backdrop cursor-default">
+                                    <button className='cursor-default'></button>
                                 </form>
                             </dialog>
                             <p className='font-semibold'>Action Date: {formatDateInAdmin(new Date(post?.timestamp))}</p>

@@ -5,6 +5,7 @@ import Toaster from "@/components/Toaster";
 import Providers from "@/providers/Providers";
 const inter = Inter({ subsets: ["latin"] });
 
+
 export const metadata = {
   title: "Ruqyah Forum",
   description: "Forum by Ruqyah Support BD",

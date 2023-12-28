@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 
 export const POST = async (request) => {
   const body = await request.json();
-  const { comment, author, date, postID, name, postAuthorUsername } = body;
+  const { comment, author, date, postID } = body;
   const db = await dbConnect();
   try {
     const postCollection = db?.collection("posts");
@@ -19,66 +19,44 @@ export const POST = async (request) => {
         message: "You are blocked from commenting. Contact support.",
       });
     }
-    const uniqueID = new ObjectId()
-    if (postAuthorUsername === author.username) {
-      await postCollection.updateOne(
-        { _id: new ObjectId(postID) },
-        {
-          $push: {
-            comment: {
-              _id: uniqueID,
-              comment,
-              author,
-              date,
-              likes: [],
-              replies: [],
-            },
+
+    // this id is for sending to the db and front end(to send with socket)
+    const uniqueID = new ObjectId();
+
+    // adding comment and username to the followers array.
+    await postCollection.updateOne(
+      { _id: new ObjectId(postID) },
+      {
+        $push: {
+          comment: {
+            _id: uniqueID,
+            comment,
+            author,
+            date,
+            likes: [],
+            replies: [],
           },
-        }
-      );
-    } else {
-      await postCollection.updateOne(
-        { _id: new ObjectId(postID) },
-        {
-          $push: {
-            comment: {
-              _id: uniqueID,
-              comment,
-              author,
-              date,
-              likes: [],
-              replies: [],
-            },
-          },
-          $addToSet: {
-            followers: author.username,
-          },
-        }
-      );
-    }
+        },
+        $addToSet: {
+          followers: author.username,
+        },
+      }
+    );
+    // comment added and commenter to the followers list.
+
+    // notification part starts from here.
+    // first getting all the follwers of the post.
     const { followers } = await postCollection.findOne(
       { _id: new ObjectId(postID) },
       { projection: { followers: 1 } }
     );
-
-    // checking if the commenter is not the author. if not then send notifications to author.
-    if (author.username !== postAuthorUsername) {
-      const postNotification = {
-        _id: new ObjectId(),
-        message: `${name} commented on your post.`,
-        date: new Date(),
-        postID,
-        commenterUsername: author.username,
-        read: false,
-      };
-      await userCollection.updateOne(
-        { username: postAuthorUsername },
-        { $push: { notifications: postNotification } }
-      );
-    }
+    // remove comment author from the followers to send notification others.
+    const followersToGetNotification = followers.filter(
+      (user) => user !== author.username
+    );
 
     // checking if only post author commented before or there was no other comment before.
-    if (followers?.length < 1) {
+    if (followersToGetNotification?.length < 1) {
       return NextResponse.json({
         status: 200,
         _id: uniqueID,
@@ -86,40 +64,24 @@ export const POST = async (request) => {
       });
     }
 
-    const postNotificationForOthers = {
+    const newNotification = {
       _id: new ObjectId(),
-      message: `${name} commented on a post you are following.`,
-      date: new Date(),
+      type: "comment",
+      commentID: uniqueID,
+      date,
       postID,
-      commenterUsername: author.username,
+      author: author.username,
       read: false,
     };
-
-    // Update notifications for users in previousCommenters
-     await userCollection.updateMany(
+    // Update user collection with a single query
+    await userCollection.updateMany(
       {
-        username: { $in: followers },
+        username: { $in: followersToGetNotification },
       },
-      [
-        {
-          $set: {
-            notifications: {
-              $cond: {
-                if: { $eq: ["$element.postID", postID] },
-                then: "$element.notifications",
-                else: {
-                  $concatArrays: [
-                    { $ifNull: ["$element.notifications", []] },
-                    [postNotificationForOthers],
-                  ],
-                },
-              },
-            },
-          },
-        },
-      ],
+      {
+        $push: { notifications: newNotification },
+      }
     );
-
     return NextResponse.json({
       status: 200,
       _id: uniqueID,

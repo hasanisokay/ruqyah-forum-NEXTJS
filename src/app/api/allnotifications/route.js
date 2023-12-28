@@ -15,41 +15,103 @@ export const GET = async (request) => {
     const aggregationPipeline = [
       { $match: { username: username } },
       {
-        $lookup: {
-          from: "users",
-          localField: "notifications.commenterUsername",
-          foreignField: "username",
-          as: "commenterInfo",
+        $project: {
+          _id: 0,
+          notifications: 1,
         },
       },
-      {
-        $unwind: "$notifications",
-      },
+      { $unwind: "$notifications" },
       {
         $sort: { "notifications.date": -1 },
       },
       {
-        $group: {
-          _id: "$_id",
-          notifications: {
-            $push: {
-              message: "$notifications.message",
-              date: "$notifications.date",
-              postID: "$notifications.postID",
-              commenterUsername: "$notifications.commenterUsername",
-              read: "$notifications.read",
-              commenterPhotoURL: {
-                $arrayElemAt: [
-                  "$commenterInfo.photoURL",
-                  {
-                    $indexOfArray: [
-                      "$commenterInfo.username",
-                      "$notifications.commenterUsername",
-                    ],
-                  },
-                ],
+        $lookup: {
+          from: "users",
+          localField: "notifications.author",
+          foreignField: "username",
+          as: "authorData",
+        },
+      },
+      {
+        $lookup: {
+          from: "posts",
+          let: {
+            postId: "$notifications.postID",
+            commentID: "$notifications.commentID",
+          },
+          pipeline: [
+            {
+              $match: {
+                $expr: { $eq: ["$_id", { $toObjectId: "$$postId" }] },
               },
             },
+            {
+              $project: {
+                postAuthor: "$author",
+                commentAuthor: {
+                  $arrayElemAt: [
+                    {
+                      $filter: {
+                        input: "$comment",
+                        as: "comment",
+                        cond: {
+                          $eq: [
+                            "$$comment._id",
+                            { $toObjectId: "$$commentID" },
+                          ],
+                        },
+                      },
+                    },
+                    0,
+                  ],
+                },
+              },
+            },
+          ],
+          as: "postData",
+        },
+      },
+      {
+        $project: {
+          notifications: {
+            $mergeObjects: [
+              "$notifications",
+              {
+                author: {
+                  username: "$notifications.author",
+                  photoURL: { $arrayElemAt: ["$authorData.photoURL", 0] },
+                  name: { $arrayElemAt: ["$authorData.name", 0] },
+                },
+                postAuthor: {
+                  $cond: {
+                    if: { $eq: ["$postData", []] },
+                    then: null,
+                    else: "$postData.postAuthor",
+                  },
+                },
+                commentAuthor: {
+                  $cond: {
+                    if: { $eq: ["$postData", []] },
+                    then: null,
+                    else: "$postData.commentAuthor.author",
+                  },
+                },
+              },
+            ],
+          },
+        },
+      },
+      {
+        $group: {
+          _id: "$username",
+          data: { $first: "$$ROOT" },
+          notifications: { $push: "$notifications" },
+        },
+      },
+      {
+        $replaceRoot: {
+          newRoot: {
+            $mergeObjects: ["$data", { notifications: "$notifications" }],
           },
         },
       },
@@ -57,26 +119,17 @@ export const GET = async (request) => {
         $project: {
           _id: 0,
           notifications: {
-            $slice: [
-              "$notifications",
-              skip,
-              pageSize,
-            ],
+            $slice: ["$notifications", skip, pageSize],
           },
         },
       },
     ];
-    
-    
-    
-    
 
     const result = await userCollection
       .aggregate(aggregationPipeline)
       .toArray();
 
     if (result.length > 0) {
-
       return NextResponse.json(result[0]?.notifications || []);
     } else {
       return NextResponse.json({

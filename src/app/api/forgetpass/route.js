@@ -15,9 +15,9 @@ export const POST = async (request) => {
     const otp = Math.floor(100000 + Math.random() * 900000);
     const sendOTPEmail = async (email, otp) => {
       const transporter = nodemailer.createTransport({
-        service: "gmail",
-        host: "smtp.gmail.com",
-        port: 465,
+        service: process.env.EMAIL_SERVICE_NAME,
+        host: process.env.EMAIL_HOST,
+        port: process.env.EMAIL_SERVICE_HOST ,
         secure: true,
         auth: {
           user: process.env.EMAIL_ID,

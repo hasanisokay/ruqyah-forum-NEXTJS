@@ -86,3 +86,14 @@ input:-webkit-autofill:active {
 .forum-btn-sm{
   @apply px-2 py-1 rounded-md text-sm
 }
+.w-calc {
+  width: calc(50% - 2px); 
+}
+/* @media only screen and (max-width: 768px) {
+  .w-calc {
+    width: 100%;
+  }
+} */
+.width-full{
+  width: 100% !important;
+}

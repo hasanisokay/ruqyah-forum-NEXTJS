@@ -8,13 +8,11 @@ import toast from "react-hot-toast";
 
 const AuthProvider = ({ children }) => {
     const [notificationsCount, setNotificationsCount] = useState(0);
-    const [unreadNotifications, setUnreadNotifications] = useState([]);
     const [allNotifications, setAllNotifications] = useState([]);
     const [loggedOut, setLoggedOut] = useState(false);
     const [fetchedUser, setFetchedUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
-    const router = useRouter();
 
     const signIn = async (username, password) => {
         const response = await fetch(`/api/auth/login`, {
@@ -46,7 +44,6 @@ const AuthProvider = ({ children }) => {
                 setLoading(false)
                 return;
             }
-
             setLoggedOut(false);
             setFetchedUser(user);
             setLoading(false);
@@ -55,17 +52,16 @@ const AuthProvider = ({ children }) => {
     }, [loggedOut])
     useEffect(() => {
         if (showDeleteModal) {
-            document.getElementById('deleteModal').showModal()
+            document?.getElementById('deleteModal')?.showModal()
         }
     }, [showDeleteModal])
+
     useEffect(() => {
         if (fetchedUser) {
-            const unr = fetchedUser?.notifications?.filter((n) => n.read === false)
-            setUnreadNotifications(unr)
-            setNotificationsCount(unr?.length || 0)
-            setAllNotifications(fetchedUser?.notifications.reverse())
+            setNotificationsCount(fetchedUser?.unreadNotificationCount)
         }
     }, [fetchedUser])
+
     const value = {
         fetchedUser,
         setFetchedUser,
@@ -78,7 +74,7 @@ const AuthProvider = ({ children }) => {
         setAllNotifications,
         allNotifications,
         showDeleteModal,
-        setShowDeleteModal
+        setShowDeleteModal,
     };
 
     return (

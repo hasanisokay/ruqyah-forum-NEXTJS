@@ -179,8 +179,8 @@ const DeclinedPosts = () => {
                         <h3 className="font-bold text-lg">Sure to do this?</h3>
                         <button onClick={handleDeleteAll} className='forum-btn1 bg-red-600'>Yes, I want to delete all</button>
                     </div>
-                    <form method="dialog" className="modal-backdrop">
-                        <button>close</button>
+                    <form method="dialog" className="modal-backdrop cursor-default">
+                        <button className='cursor-default'></button>
                     </form>
                 </dialog>
             </div>

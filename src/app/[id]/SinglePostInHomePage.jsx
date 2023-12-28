@@ -21,6 +21,7 @@ import LikersModal from '@/components/LikersModal';
 import Comments from '@/components/Comments';
 import PostEditModal from '@/components/PostEditModal';
 import DeleteConfirmationModal from '@/components/DeleteConfirmationModal';
+import PhotosInPost from '@/components/PhotosInPost';
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
@@ -122,8 +123,6 @@ const SinglePostInHomePage = ({ id }) => {
     }
 
     const dataToSend = {
-      postAuthorUsername: post.authorInfo.username,
-      name: fetchedUser.name,
       comment: newCommentData,
       postID: id,
       date: new Date(),
@@ -133,7 +132,6 @@ const SinglePostInHomePage = ({ id }) => {
       setLoadingNewComment(true);
       const { data } = await axios.post("/api/posts/comment", dataToSend);
       if (data.status === 200) {
-        ;
         // send comment with socket
         const dataToSendInSocket = {
           comment: newCommentData,
@@ -154,7 +152,12 @@ const SinglePostInHomePage = ({ id }) => {
 
 
         const newCommentNotification = {
-          commenterUsername: fetchedUser.username,
+          author:{
+            username: fetchedUser?.username,
+            name: fetchedUser?.name,
+            photoURL: fetchedUser?.photoURL,
+            
+          },
           commenterName: fetchedUser.name,
           date: dataToSend.date,
           postID: id,
@@ -174,10 +177,6 @@ const SinglePostInHomePage = ({ id }) => {
       setLoadingNewComment(false)
     }
   };
-  // const handlePostOptions = (id) => {
-  //   if (!fetchedUser?.isAdmin) return;
-  //   ;
-  // }
 
   const handleDislike = async (commentID = undefined) => {
     if (!fetchedUser) {
@@ -264,12 +263,13 @@ const SinglePostInHomePage = ({ id }) => {
       handleNewCommentForm(e);
     }
   }
+
   return (
     <div className='p-2 cursor-default bg-[#fffef9] dark:bg-[#242526] m-2 rounded-lg dark:border-gray-400 cardinhome shadow-xl'>
       {fetchedUser && <div className='relative'>
         <BsThreeDotsVertical onClick={() => setSelectedPostIdForOptions(id)} className='absolute right-0 cursor-pointer' />
         {selectedPostIdForOptions === id && (
-          <div className='absolute text-sm right-0 top-2 mt-2 p-1 w-[200px] shadow-xl rounded-md bg-white dark:bg-[#1c1c1c]'>
+          <div className='absolute text-sm right-0 top-2 mt-2 p-1 w-[200px] z-10 shadow-xl rounded-md bg-white dark:bg-[#1c1c1c]'>
             <div className='flex flex-col justify-start items-start gap-2 '>
               {(fetchedUser?.isAdmin || fetchedUser?.username === post?.authorInfo?.username) && <button onClick={() => setShowDeleteModal(true)} className='lg:hover:bg-red-700 duration-300 w-full px-2 py-1 text-left rounded-md lg:hover:text-white'>Delete Post</button>}
               {fetchedUser?.username === post?.authorInfo?.username && <button onClick={handleEdit} className='lg:hover:bg-[#308853] px-2 py-1 rounded-md lg:hover:text-white w-full duration-300 text-left '>Edit Post</button>}
@@ -305,6 +305,12 @@ const SinglePostInHomePage = ({ id }) => {
       <div className='whitespace-pre-wrap'>
         {post.post}
       </div>
+      {
+        post?.photos && post?.photos?.length > 0 && <PhotosInPost
+          photosArray={post?.photos}
+          key={id}
+        />
+      }
       <div className='text-[10px] pt-2'>
         {
           post?.date && <p className='' title={post.date}> Posted: {formatDateInAdmin(new Date(post.date))}</p>
@@ -326,7 +332,7 @@ const SinglePostInHomePage = ({ id }) => {
 
       </div>
       {
-        fetchedUser && !fetchedUser.blocked && <div className=''>
+        fetchedUser && !fetchedUser?.blocked && <div>
           <form
             onSubmit={(e) => handleNewCommentForm(e)}
             className={`relative ${loadingNewComment ? "opacity-40" : "opacity-100"} mt-4`}
@@ -375,7 +381,6 @@ const SinglePostInHomePage = ({ id }) => {
               handleDislike={handleDislike}
               hanldleLike={hanldleLike}
             />
-
           ))}
         </div>
       }

@@ -13,13 +13,13 @@ const Replies = ({ postID, commentID, fetchedReplies, setFetchedReplies, setRepl
         if (replyCount === 0) return
         try {
             setLoading(true);
-            const { data } = await axios.get(`/api/getreplies?commentID=${commentID}&postID=${postID}&page=${page}`);
-            const newReplies = data.replies || [];
-            if (newReplies.length === 0) {
-                setHasMore(false);
-            }
             if (fetchedReplies?.length > 1 && fetchedReplies?.length < 10) {
                 return
+            }
+            const { data } = await axios.get(`/api/getreplies?commentID=${commentID}&postID=${postID}&page=${page}`);
+            const newReplies = data?.replies || [];
+            if (newReplies?.length === 0) {
+                setHasMore(false);
             }
             setFetchedReplies((prevReplies) => [...prevReplies, ...newReplies]);
         } catch (error) {
@@ -28,6 +28,7 @@ const Replies = ({ postID, commentID, fetchedReplies, setFetchedReplies, setRepl
             setLoading(false);
         }
     };
+    // TODO: fix fetching same reply twice and useCallback if needd.
     useEffect(() => {
         if (page === 1 && fetchedReplies?.length === 0) {
             fetchReplies();
@@ -79,7 +80,8 @@ const Replies = ({ postID, commentID, fetchedReplies, setFetchedReplies, setRepl
                                 replyID={reply._id}
                                 postID={postID}
                                 text={reply?.reply}
-                                setFetchedReplies={setFetchedReplies} 
+                                replyAuthor={reply?.authorInfo?.username}
+                                setFetchedReplies={setFetchedReplies}
                                 setReplyCount={setReplyCount}
                             />
                             {/* <p className='whitespace-pre-wrap text-[14px] py-[4px] '>{reply.reply}</p> */}

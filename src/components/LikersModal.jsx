@@ -57,7 +57,7 @@ const LikersModal = ({ usernames, setterFunction }) => {
                         loadingUser && <LoadingLikers />
                     }
                 </div>
-                <label className="modal-backdrop" htmlFor="likerModal" onClick={() => setterFunction(null)}>Close</label>
+                <label className="modal-backdrop cursor-default" htmlFor="likerModal" onClick={() => setterFunction(null)}></label>
             </div>
 
         </div>

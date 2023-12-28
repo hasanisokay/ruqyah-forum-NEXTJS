@@ -59,9 +59,10 @@ const ForgetPass = () => {
     const handleCheckOTPForm = async (e) => {
         e.preventDefault();
         setErrors({
-            otp: '',
             username: '',
             password: '',
+            otp: '',
+            newPassword: ''
         });
         if (otp === "") {
             setErrors((prevErrors) => ({ ...prevErrors, otp: 'OTP is required' }));
@@ -94,6 +95,12 @@ const ForgetPass = () => {
     }
     const handleNewPassword = async (e) => {
         e.preventDefault();
+        setErrors({
+            username: '',
+            password: '',
+            otp: '',
+            newPassword: ''
+        });
         if (newPasword === "" || confirmNewPasword === "") {
             return
         }
@@ -159,7 +166,7 @@ const ForgetPass = () => {
                         }`}
                     onSubmit={(e) => handleCheckOTPForm(e)}
                 >
-                    <p className="text-black">Please check your email <span className="italic">{email}</span>. We send you an OTP. It will expire within 10 minutes from now.</p>
+                    <p className="text-black">Please check your email <span className="italic">{email}</span>. Your OTP is on its way, set to expire in 10 minutes. If you can't find it, be sure to check your spam folder.  </p>
                     <label htmlFor="otp" className="block mt-4 mb-2 text-gray-600">
                         OTP
                     </label>

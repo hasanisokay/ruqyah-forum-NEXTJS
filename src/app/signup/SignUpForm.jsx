@@ -121,19 +121,19 @@ const SignUpForm = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ name, username, email, phone, password, gender, photoURL:"", joined: formatDate() }),
+        body: JSON.stringify({ name, username, email, phone, password, gender, photoURL: "", joined: formatDate() }),
       });
       const res = await signIn(username, password)
-      if (res.status===404) {
-          toast.dismiss(toastId);
-          toast.error(res.message)
+      if (res.status === 404) {
+        toast.dismiss(toastId);
+        toast.error(res.message)
       }
       else {
-          const { username, email, isAdmin} = res;
-          await createJWT({ username, email, isAdmin })
-          setFetchedUser(res)
-          toast.dismiss(toastId);
-          toast.success("Success");
+        const { username, email, isAdmin } = res;
+        await createJWT({ username, email, isAdmin })
+        setFetchedUser(res)
+        toast.dismiss(toastId);
+        toast.success("Success");
       }
 
     } catch (error) {
@@ -161,7 +161,7 @@ const SignUpForm = () => {
   }, [username]);
 
   if (isPending) {
-    return <LoadingSignUpPage/>
+    return <LoadingSignUpPage />
   }
   if (!fetchedUser && !isPending) {
     return (
@@ -170,7 +170,7 @@ const SignUpForm = () => {
         className={`lg:w-[40vw] md:w-[80vw] w-[90vw] mx-auto mt-4 p-4 shadow-md rounded-md ${theme === 'dark' ? 'bg-white' : 'bg-[#f0f1f3]'
           }`}
       >
-                        <h1 className='text-xl text-center dark:text-black font-semibold'>Sign Up</h1>
+        <h1 className='text-xl text-center dark:text-black font-semibold'>Sign Up</h1>
         <label htmlFor="name" className="block mb-2 text-gray-600">
           Name
         </label>
@@ -190,16 +190,16 @@ const SignUpForm = () => {
           type="text"
           id="username"
           value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          onChange={(e) => setUsername(e.target.value.toLowerCase())}
           className={`${inputClasses} ${username !== "" && (isUsernameAvailable ? 'focus:border-blue-500' : 'border-red-500')
             }`}
         />
         {
           usernameChecking ? <p className="text-sm text-black">Checking availability <span className="loading loading-spinner loading-xs"></span></p> : (
             !isUsernameAvailable && username.length > 3 && (
-              <p className="text-red-500 text-sm">Username not available. Try another.</p>
+              <p className="text-red-500 text-sm">{username} is not available. Try another.</p>
             ) || isUsernameAvailable && (
-              <p className="text-green-500 text-sm">Username is available.</p>
+              <p className="text-green-500 text-sm">{username} is available.</p>
             ))
         }
         {errors.username && <p className="text-red-500 text-sm">{errors.username}</p>}
@@ -276,8 +276,8 @@ const SignUpForm = () => {
           Sign Up
         </button>
         <div className='my-2 dark:text-black'>
-                    <p className='text-sm'>Already have an account? Please <button onClick={()=>push("/login")} title='goto login' className='text-blue-600 italic'>login</button>.</p>
-                </div>
+          <p className='text-sm'>Already have an account? Please <button onClick={() => push("/login")} title='goto login' className='text-blue-600 italic'>login</button>.</p>
+        </div>
       </form>
     );
   }

@@ -199,8 +199,8 @@ const PendingPost = () => {
                     <h3 className="font-bold text-lg">Sure to do this?</h3>
                     <button onClick={handleApproveAll} className='forum-btn1 bg-[#308853]'>Yes, I want to approve all</button>
                 </div>
-                <form method="dialog" className="modal-backdrop">
-                    <button>close</button>
+                <form method="dialog" className="modal-backdrop cursor-default">
+                    <button className='cursor-default'></button>
                 </form>
             </dialog>
             <dialog id="my_modal_0" className="modal">
@@ -208,8 +208,8 @@ const PendingPost = () => {
                     <h3 className="font-bold text-lg">Sure to do this?</h3>
                     <button onClick={handleDeclineAll} className='forum-btn1 bg-red-500'>Yes, I want to decline all</button>
                 </div>
-                <form method="dialog" className="modal-backdrop">
-                    <button>close</button>
+                <form method="dialog" className="modal-backdrop cursor-default">
+                    <button className='cursor-default'></button>
                 </form>
             </dialog>
 

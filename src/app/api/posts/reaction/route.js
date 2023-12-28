@@ -4,11 +4,11 @@ import { NextResponse } from "next/server";
 
 export const POST = async (request) => {
   const body = await request.json();
-  const { postID, action, actionByUsername, commentID } = body;
+  const { postID, action, actionByUsername, commentID} = body;
   const db = await dbConnect();
-
+  const postCollection = db?.collection("posts");
+  
   try {
-    const postCollection = db?.collection("posts");
     if (action === "like") {
       if (commentID) {
         const result = await postCollection.updateOne(

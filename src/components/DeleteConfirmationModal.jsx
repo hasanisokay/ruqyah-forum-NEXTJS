@@ -45,8 +45,8 @@ const DeleteConfirmationModal = ({ id, isAuthorized, setterFunction, commentID, 
 
                     </div>
                 </div>
-                <form method="dialog" className="modal-backdrop">
-                    <button onClick={() => setterFunction(false)}></button>
+                <form method="dialog" className="modal-backdrop cursor-default">
+                    <button className="cursor-default" onClick={() => setterFunction(false)}></button>
                 </form>
             </dialog>
         </div>

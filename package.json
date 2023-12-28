@@ -13,6 +13,9 @@
     "bcrypt": "^5.1.1",
     "cookie": "^0.6.0",
     "crypto-js": "^4.2.0",
+    "formidable": "^3.5.1",
+    "google-auth-library": "^9.4.1",
+    "googleapis": "^129.0.0",
     "jose": "^5.1.1",
     "mongodb": "^6.3.0",
     "next": "14.0.0",
@@ -24,9 +27,11 @@
     "react-icons": "^4.12.0",
     "react-loading-skeleton": "^3.3.1",
     "react-textarea-autosize": "^8.5.3",
+    "react-youtube": "^10.1.0",
     "server-only": "^0.0.1",
     "sharp": "^0.32.6",
     "socket.io-client": "^4.7.2",
+    "swiper": "^11.0.5",
     "swr": "^2.2.4"
   },
   "devDependencies": {
@@ -36,5 +41,12 @@
     "eslint-config-next": "14.0.0",
     "postcss": "^8",
     "tailwindcss": "^3"
-  }
+  },
+  "browserslist": [
+    "chrome 64",
+    "edge 79",
+    "firefox 67",
+    "opera 51",
+    "safari 12"
+  ]
 }

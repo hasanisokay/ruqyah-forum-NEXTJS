@@ -17,6 +17,8 @@ import toast from 'react-hot-toast';
 import ModalUser from '../ModalUser';
 import LikersModal from '../LikersModal';
 import DeleteConfirmationModal from '../DeleteConfirmationModal';
+import PhotosInPost from '../PhotosInPost';
+import VideosInPost from '../VideosInPost';
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
 const HomePagePosts = () => {
@@ -54,6 +56,7 @@ const HomePagePosts = () => {
     const handleShowLess = (postId) => {
         setExpandedPosts((prevExpandedPosts) => prevExpandedPosts.filter((id) => id !== postId));
     };
+
     useEffect(() => {
         const handleOutsideClick = (event) => {
             if (
@@ -143,12 +146,12 @@ const HomePagePosts = () => {
             console.error("Error disliking post:", error);
         }
     }
-    const hanldleLike = async (id) => {
+    const handleLike = async (id, postAuthor) => {
         if (!fetchedUser) {
             return toast.error("Log in to react")
         }
         const dataToSend = {
-            postID: id, action: "like", actionByUsername: fetchedUser?.username
+            postID: id, action: "like", actionByUsername: fetchedUser?.username, postAuthor
         }
         try {
             const { data } = await axios.post("/api/posts/reaction", dataToSend);
@@ -170,67 +173,81 @@ const HomePagePosts = () => {
             console.error("Error disliking post:", error);
         }
     }
+
     return (
         <div>
             {posts?.map((post) => (
-                <div key={post._id} className='p-2 cursor-default bg-[#fffef9] shadow-xl dark:bg-[#242526] mx-2 mb-4 rounded-lg cardinhome '>
-                    {fetchedUser?.isAdmin && <div className='relative'>
-                        <BsThreeDotsVertical onClick={() => setSelectedPostIdForOptions(post._id)} className='absolute right-0 cursor-pointer' />
-                        {selectedPostIdForOptions === post._id && (
-                            <div className='absolute text-center text-sm right-0 top-2 mt-2 p-1 w-[200px] shadow-xl rounded-md bg-white dark:bg-[#1c1c1c]'>
-                                <div className='flex flex-col gap-2'>
-                                    <button onClick={() => setShowDeleteModal(true)} className='lg:hover:bg-red-500 lg:hover:text-white'>Delete Post</button>
-                                    {fetchedUser && fetchedUser?.username === post?.authorInfo?.username && <button>Edit</button>}
-                                    {fetchedUser && <button>Report</button>}
+                <div key={post._id} className='cursor-default bg-[#fffef9] shadow-xl dark:bg-[#242526] mx-2 mb-4 rounded-lg cardinhome '>
+                    <div className='p-2'>
+                        {fetchedUser?.isAdmin && <div className='relative'>
+                            <BsThreeDotsVertical onClick={() => setSelectedPostIdForOptions(post._id)} className='absolute right-0 cursor-pointer' />
+                            {selectedPostIdForOptions === post._id && (
+                                <div className='absolute text-center text-sm right-0 top-2 mt-2 p-1 w-[200px] shadow-xl rounded-md bg-white dark:bg-[#1c1c1c]'>
+                                    <div className='flex flex-col gap-2'>
+                                        <button onClick={() => setShowDeleteModal(true)} className='lg:hover:bg-red-500 lg:hover:text-white'>Delete Post</button>
+                                        {fetchedUser && fetchedUser?.username === post?.authorInfo?.username && <button>Edit</button>}
+                                        {fetchedUser && <button>Report</button>}
+                                    </div>
                                 </div>
+                            )}
+                        </div>}
+                        <div className='flex gap-2 items-center'>
+                            <div onClick={() => handleShowUser(post?.authorInfo?.username)} className='cursor-pointer'>
+                                {
+                                    post?.authorInfo?.photoURL ?
+                                        <Image src={post?.authorInfo?.photoURL} blurDataURL='' alt='User Profile Photo'
+                                            width={64} height={0} loading='lazy'
+                                            style={{
+                                                width: "45px",
+                                                height: "45px",
+                                                borderRadius: '50%',
+                                            }}
+                                            className='border-gray-400 border-2'
+                                        />
+                                        : <div className='flex items-center justify-center rounded-full border-gray-400 border-2 w-[45px] h-[45px]'><FaUserLarge className='' /></div>
+                                }
                             </div>
-                        )}
-                    </div>}
-                    <div className='flex gap-2 items-center'>
-                        <div onClick={() => handleShowUser(post?.authorInfo?.username)} className='cursor-pointer'>
-                            {
-                                post?.authorInfo?.photoURL ?
-                                    <Image src={post?.authorInfo?.photoURL} blurDataURL='' alt='User Profile Photo'
-                                        width={64} height={0} loading='lazy'
-                                        style={{
-                                            width: "45px",
-                                            height: "45px",
-                                            borderRadius: '50%',
-                                        }}
-                                        className='border-gray-400 border-2'
-                                    />
-                                    : <div className='flex items-center justify-center rounded-full border-gray-400 border-2 w-[45px] h-[45px]'><FaUserLarge className='' /></div>
-                            }
-                        </div>
-                        <div className='py-2'>
-                            <p onClick={() => handleShowUser(post?.authorInfo?.username)} className='cursor-pointer font-semibold'>{post?.authorInfo?.name}</p>
-                            <div className='text-xs flex gap-2 items-center'>
-                                <p className=''>@{post?.authorInfo?.username}</p>
-                                <p className='' title={post?.date}> {formatRelativeDate(new Date(post?.date))}</p>
-                            </div>
-                            {
-                                fetchedUser?.isAdmin && <div>
-                                    <p className='text-[10px]'> <span>{post?.authorInfo?.isAdmin ? "Admin" : "Member"} since</span> {formatDateForUserJoined(new Date(post?.authorInfo?.joined))}</p>
+                            <div className='py-2'>
+                                <p onClick={() => handleShowUser(post?.authorInfo?.username)} className='cursor-pointer font-semibold'>{post?.authorInfo?.name}</p>
+                                <div className='text-xs flex gap-2 items-center'>
+                                    <p className=''>@{post?.authorInfo?.username}</p>
+                                    <p className='' title={post?.date}> {formatRelativeDate(new Date(post?.date))}</p>
                                 </div>
-                            }
+                                {
+                                    fetchedUser?.isAdmin && <div>
+                                        <p className='text-[10px]'> <span>{post?.authorInfo?.isAdmin ? "Admin" : "Member"} since</span> {formatDateForUserJoined(new Date(post?.authorInfo?.joined))}</p>
+                                    </div>
+                                }
+                            </div>
                         </div>
-
+                        <p className='whitespace-pre-wrap break-words'>{expandedPosts.includes(post._id) ? post?.post : truncateText(post?.post)}
+                            {!expandedPosts.includes(post._id) && post?.post?.length > 200 && (
+                                <button onClick={() => handleToggleExpand(post._id)} className='text-[10px] font-semibold'>... Show more</button>
+                            )}
+                            {expandedPosts.includes(post._id) && (
+                                <button onClick={() => handleShowLess(post._id)} className='text-[10px] font-semibold pl-1'>Show less </button>
+                            )}
+                        </p>
                     </div>
-                    <p style={{ whiteSpace: "pre-wrap" }}>{expandedPosts.includes(post._id) ? post?.post : truncateText(post?.post)}
-                        {!expandedPosts.includes(post._id) && post?.post?.length > 200 && (
-                            <button onClick={() => handleToggleExpand(post._id)} className='text-[10px] font-semibold'>... Show more</button>
-                        )}
-                        {expandedPosts.includes(post._id) && (
-                            <button onClick={() => handleShowLess(post._id)} className='text-[10px] font-semibold pl-1'>Show less </button>
-                        )}
-                    </p>
-                    <div className='flex items-center gap-6 mt-2'>
+                    <div className=''>
+                        {
+                            post?.videos && post?.videos?.length > 0 && <div>
+                                <VideosInPost videosArray={post?.videos} />
+                            </div>
+                        }
+                        {post?.photos && post?.photos?.length > 0 && <div className={`${post?.videos?.length > 0 && "lg:max-w-[50vw]"}`}>
+                            <PhotosInPost
+                                photosArray={post?.photos}
+                            />
+                        </div>}
+                    </div>
+                    <div className='flex items-center p-2 gap-6 mt-2'>
                         <div className='flex items-center flex-col cursor-pointer' onClick={() => router.push(`/${post._id}`)}>
                             <FaRegComment className='' />
-                            <span className='text-xs'>{post?.comment?.length || 0} Comments</span>
+                            <span className='text-xs'>{post?.comment || 0} Comments</span>
                         </div>
                         <div className='flex flex-col items-center'>
-                            {post?.likes?.filter((username) => username === fetchedUser?.username)?.length > 0 ? <FaHeart title='You Liked this. Click to dislike' onClick={() => handleDislike(post._id)} className=' text-red-600 cursor-pointer' /> : <FaRegHeart title='Click to Like' onClick={() => hanldleLike(post._id)} className='cursor-pointer' />}
+                            {post?.likes?.filter((username) => username === fetchedUser?.username)?.length > 0 ? <FaHeart title='You Liked this. Click to dislike' onClick={() => handleDislike(post._id)} className=' text-red-600 cursor-pointer' /> : <FaRegHeart title='Click to Like' onClick={() => handleLike(post._id, post?.authorInfo?.username)} className='cursor-pointer' />}
                             <span className='text-xs cursor-pointer' onClick={() => setLikersArray(post?.likes)}>{post?.likes?.length || 0} Likes</span>
                         </div>
                     </div>
