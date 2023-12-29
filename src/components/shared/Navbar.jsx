@@ -113,7 +113,6 @@ const Navbar = () => {
       setLoadingNotifications(true)
       const { data } = await axios.get(`/api/lasttennotification?username=${fetchedUser?.username}`)
       setAllNotifications(data)
-      console.log(data);
       setLoadingNotifications(false);
     }
     getNotifications();

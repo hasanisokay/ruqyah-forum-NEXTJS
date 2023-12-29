@@ -19,6 +19,7 @@ import LikersModal from '../LikersModal';
 import DeleteConfirmationModal from '../DeleteConfirmationModal';
 import PhotosInPost from '../PhotosInPost';
 import VideosInPost from '../video-components/VideosInPost';
+import formatDateInAdmin from '@/utils/formatDateInAdmin';
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
@@ -211,8 +212,8 @@ const HomePagePosts = () => {
                             <div className='py-2'>
                                 <p onClick={() => handleShowUser(post?.authorInfo?.username)} className='cursor-pointer font-semibold'>{post?.authorInfo?.name}</p>
                                 <div className='text-xs flex gap-2 items-center'>
-                                    <p className=''>@{post?.authorInfo?.username}</p>
-                                    <p className='' title={post?.date}> {formatRelativeDate(new Date(post?.date))}</p>
+                                    <p>@{post?.authorInfo?.username}</p>
+                                    <p className='cursor-pointer' title={formatDateInAdmin(new Date(post?.date))}> {formatRelativeDate(new Date(post?.date))}</p>
                                 </div>
                                 {
                                     fetchedUser?.isAdmin && <div>

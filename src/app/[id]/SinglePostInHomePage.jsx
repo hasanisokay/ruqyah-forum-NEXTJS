@@ -42,13 +42,13 @@ const SinglePostInHomePage = ({ id }) => {
 
   useEffect(() => {
     if (commentID?.length > 2) {
-      console.log('Scrolling to comment:', commentID);
       const targetComment = document.getElementById(`${commentID}`);
       if (targetComment) {
         try {
           targetComment.scrollIntoView({
             behavior: 'smooth',
-            block: 'start',
+            block: 'center',
+            inline: 'center'
           });
           targetComment.classList.add("highlightedClass");
           setTimeout(() => {

@@ -8,11 +8,10 @@ export const POST = async (request) => {
   const db = await dbConnect();
   const userCollection = db.collection("users");
   const hashedPassword = await bcrypt.hash(newPasword, 10);
-  const result = await userCollection.updateOne(
+  await userCollection.updateOne(
     { username: username },
     { $set: { password: hashedPassword } }
   );
-  console.log(result);
   return NextResponse.json({
     status: 200,
     message: "Success. Please remember your password for future use.",

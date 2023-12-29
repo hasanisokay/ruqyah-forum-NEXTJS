@@ -18,7 +18,7 @@ export default function formatDateInAdmin(date) {
     const formattedHours = hours % 12 || 12;
   
     // Construct the formatted string
-    const formattedDate = `${day}, ${month}, ${year}, ${formattedHours}:${minutes}:${seconds} ${ampm}`;
+    const formattedDate = `${day} ${month}, ${year}, ${formattedHours}:${minutes}:${seconds} ${ampm}`;
   
     return formattedDate;
   }
