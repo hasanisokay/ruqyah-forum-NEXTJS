@@ -27,7 +27,7 @@ const notificationMaker = (
     if (commentAuthor === loggedUser) {
       part = " your comment.";
     } else if (postAuthor === loggedUser) {
-      part = " your post.";
+      part = " a comment on your post.";
     } else {
       part = ` a ${type === "reply" ? "comment" : "post"} you are following `;
     }

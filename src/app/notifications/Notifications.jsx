@@ -81,7 +81,7 @@ const Notifications = () => {
         }
     }, [fetchedUser, router, loading]);
 
-    const handleClickOnNotification = async (id, read) => {
+    const handleClickOnNotification = async (id, read, commentID="") => {
         if (read === false) {
             const data = await axios.post("/api/readnotification", { id, username: fetchedUser.username })
             if (data.status === 200) {
@@ -94,9 +94,9 @@ const Notifications = () => {
                     })
                 })
             }
+            setNotificationsCount((prev) => prev > 1 ? prev - 1 : 0)
         }
-        setNotificationsCount((prev)=>prev > 1 ? prev - 1 : 0)
-        return router.push(`/${id}`)
+        return router.push(`/${id}?commentID=${commentID}`)
     }
     if (!data) return <div className='cardinhome'>
         <LoadingNotifications />
@@ -118,7 +118,7 @@ const Notifications = () => {
                     {posts?.map((n, index) => (
                         <li
                             key={index}
-                            onClick={() => handleClickOnNotification(n?.postID, n?.read)}
+                            onClick={() => handleClickOnNotification(n?.postID, n?.read, n?.commentID)}
                             title={`On ${formatDateInAdmin(new Date(n?.date))}`}
                             className={`p-2 font-normal  rounded-lg lg:hover:bg-slate-800 lg:hover:text-white cursor-pointer my-2 ${n.read === false ? "dark:text-white" : "text-gray-400 lg:hover:text-gray-400"
                                 }`}
@@ -137,7 +137,7 @@ const Notifications = () => {
                                 }
                                 <div className="flex flex-col">
                                     <p>
-                                        {notificationMaker(n?.author?.name, n?.type, n?.commentAuthor ? n?.commentAuthor[0]?.username : undefined, n?.postAuthor ? n?.postAuthor[0]?.username : undefined, fetchedUser?.username, n?.content)} 
+                                        {notificationMaker(n?.author?.name, n?.type, n?.commentAuthor ? n?.commentAuthor[0]?.username : undefined, n?.postAuthor ? n?.postAuthor[0]?.username : undefined, fetchedUser?.username, n?.content)}
                                     </p>
                                     <p className={`text-[10px] ${n.read === false ? "text-blue-600" : "text-gray-400"} `}>
                                         {formatRelativeDate(new Date(n.date)) + " ago"}

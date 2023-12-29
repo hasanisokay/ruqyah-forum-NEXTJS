@@ -5,7 +5,7 @@ import toast from "react-hot-toast";
 
 import TextareaAutosize from 'react-textarea-autosize';
 const PostEditModal = ({ setterFunction, post, id, setPost }) => {
-    const [editedText, setEditedText] = useState(post);
+    const [editedText, setEditedText] = useState(post.post);
     const [loadingEditedPost, setLoadingEditedPost] = useState(false);
     const handleFormSubmit = async (e) => {
         e.preventDefault()

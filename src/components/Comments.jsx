@@ -135,7 +135,7 @@ const Comments = ({ c, postAuthor, handleShowUser, likes, socket, commentId: com
     };
   }, [postID, commentID, socket]);
   return (
-    <div className=' my-1 pl-4 pr-2'>
+    <div className='duration-1000 my-1 pl-4 pr-2'>
       {
         c?.author?.authorInfo?.name && <>
           <div className='flex gap-2'>
@@ -150,7 +150,7 @@ const Comments = ({ c, postAuthor, handleShowUser, likes, socket, commentId: com
                   : <div className='flex items-center justify-center rounded-full border-gray-400 border-2 w-[35px] h-[35px]'><FaUserLarge className='' /></div>
               }
             </div>
-            <div className='bg-gray-200 dark:bg-[#3a3b3c] px-4 py-1 rounded-xl max-w-full min-w-[200px]'>
+            <div id={commentID} className='bg-gray-200 dark:bg-[#3a3b3c] px-4 py-1 rounded-xl max-w-full min-w-[200px]'>
               <p><span className=''> <span onClick={() => handleShowUser(c?.author?.username)} className='text-[14px] font-semibold cursor-pointer'>{c?.author?.authorInfo?.name}</span> </span> <span className='text-[10px]'>{(c?.author?.username === postAuthor && "Author")}</span>
                 <span className='text-[9px]'> {(c?.author?.authorInfo?.isAdmin && "Admin")} </span>
               </p>

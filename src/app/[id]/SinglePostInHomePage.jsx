@@ -8,7 +8,7 @@ import { FaRegComment, FaRegHeart } from "react-icons/fa";
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import TextareaAutosize from 'react-textarea-autosize';
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import AuthContext from '@/contexts/AuthContext';
 import formatDateForUserJoined from '@/utils/formatDateForUserJoined';
 import { RiSendPlane2Fill } from "react-icons/ri";
@@ -22,6 +22,7 @@ import Comments from '@/components/Comments';
 import PostEditModal from '@/components/PostEditModal';
 import DeleteConfirmationModal from '@/components/DeleteConfirmationModal';
 import PhotosInPost from '@/components/PhotosInPost';
+import { useSearchParams } from 'next/navigation';
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
@@ -36,6 +37,30 @@ const SinglePostInHomePage = ({ id }) => {
   const [selectedPostIdForOptions, setSelectedPostIdForOptions] = useState(null);
   const [socket, setSocket] = useState(null)
   const [showEditModal, setShowEditModal] = useState(false);
+  const searchParams = useSearchParams();
+  const commentID = searchParams.get('commentID');
+
+  useEffect(() => {
+    if (commentID?.length > 2) {
+      console.log('Scrolling to comment:', commentID);
+      const targetComment = document.getElementById(`${commentID}`);
+      if (targetComment) {
+        try {
+          targetComment.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start',
+          });
+          targetComment.classList.add("highlightedClass");
+          setTimeout(() => {
+            targetComment.classList.remove("highlightedClass");
+          }, 3000);
+        }
+        catch {
+
+        }
+      }
+    }
+  }, [commentID, post]);
 
   useEffect(() => {
     if (likersArray) {
@@ -152,18 +177,18 @@ const SinglePostInHomePage = ({ id }) => {
 
 
         const newCommentNotification = {
-          author:{
+          author: {
             username: fetchedUser?.username,
             name: fetchedUser?.name,
             photoURL: fetchedUser?.photoURL,
-            
+
           },
-          commentAuthor:[{username:fetchedUser.username}],
-          postAuthor:[{username: post?.authorInfo?.username}],
+          commentAuthor: [{ username: fetchedUser.username }],
+          postAuthor: [{ username: post?.authorInfo?.username }],
           date: dataToSend?.date,
           postID: id,
           commentID: data?._id,
-          type:"comment"
+          type: "comment"
         }
 
         socket.emit('newComment', dataToSendInSocket);
@@ -388,7 +413,7 @@ const SinglePostInHomePage = ({ id }) => {
         </div>
       }
       {
-        showEditModal && fetchedUser.username === post?.authorInfo?.username && <PostEditModal setPost={setPost} setterFunction={setShowEditModal} post={post.post} id={id} />
+        showEditModal && fetchedUser?.username === post?.authorInfo?.username && <PostEditModal setPost={setPost} setterFunction={setShowEditModal} post={post} id={id} />
       }
       {
         showDeleteModal && <DeleteConfirmationModal id={id} isAuthorized={fetchedUser?.isAdmin || fetchedUser?.username === post?.authorInfo?.username} setterFunction={setShowDeleteModal} />

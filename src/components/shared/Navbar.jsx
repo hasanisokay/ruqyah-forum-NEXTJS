@@ -53,7 +53,9 @@ const Navbar = () => {
       socket.emit('join', { username: fetchedUser?.username });
       socket.on('newCommentNotification', (newNotification) => {
         setAllNotifications((prev) => [newNotification, ...prev]);
-        setNotificationsCount((prev) => prev ?  prev + 1 : 1);
+        if(newNotification?.commentAuthor?.length > 0 && newNotification?.commentAuthor[0]?.username !== fetchedUser?.username){
+          setNotificationsCount((prev) => prev ?  prev + 1 : 1);
+        }
       });
     }
     return () => {
@@ -125,7 +127,7 @@ const Navbar = () => {
     setNavToggle((pre) => !pre)
     setShowNotificationMenu(false);
   }
-  const handleNotificationsClick = async (id, read) => {
+  const handleNotificationsClick = async (id, read, commentID="") => {
     if (!fetchedUser) {
       return toast.error("login to continue");
     }
@@ -141,10 +143,10 @@ const Navbar = () => {
           })
         );
       }
+      setNotificationsCount((prev)=>prev > 1 ? prev - 1 : 0)
     }
-    setNotificationsCount((prev)=>prev > 1 ? prev - 1 : 0)
     setShowNotificationMenu(false)
-    return router.push(`/${id}`)
+    return router.push(`/${id}?commentID=${commentID}`, { scroll: false })
   };
 
   const clickSeeAll = () => {
@@ -218,7 +220,7 @@ const Navbar = () => {
               {allNotifications &&allNotifications.length > 0 && allNotifications?.map((n, index) => (
                 <li
                   key={index}
-                  onClick={() => handleNotificationsClick(n?.postID, n?.read)}
+                  onClick={() => handleNotificationsClick(n?.postID, n?.read, n?.commentID)}
                   title={`On ${formatDateInAdmin(new Date(n?.date))}`}
                   className={`p-2 font-normal  rounded-lg lg:hover:bg-slate-800 lg:hover:text-white cursor-pointer my-2 ${n.read === false ? "dark:text-white" : "text-gray-400 lg:hover:text-gray-400"
                     }`}

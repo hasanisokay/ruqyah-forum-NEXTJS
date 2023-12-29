@@ -93,6 +93,10 @@ const SignUpForm = () => {
       setErrors((prevErrors) => ({ ...prevErrors, username: 'Username is required' }));
       return
     }
+    if (username.length < 3 ) {
+      setErrors((prevErrors) => ({ ...prevErrors, username: 'Username should be at least 3 character long' }));
+      return
+    }
     if (!isUsernameAvailable) {
       return
     }
@@ -198,7 +202,7 @@ const SignUpForm = () => {
           usernameChecking ? <p className="text-sm text-black">Checking availability <span className="loading loading-spinner loading-xs"></span></p> : (
             !isUsernameAvailable && username.length > 3 && (
               <p className="text-red-500 text-sm">{username} is not available. Try another.</p>
-            ) || isUsernameAvailable && (
+            ) || isUsernameAvailable && username?.length > 2 && (
               <p className="text-green-500 text-sm">{username} is available.</p>
             ))
         }

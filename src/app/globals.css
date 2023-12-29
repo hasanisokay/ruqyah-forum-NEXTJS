@@ -97,3 +97,6 @@ input:-webkit-autofill:active {
 .width-full{
   width: 100% !important;
 }
+.highlightedClass{
+  background-color: #888 !important;
+}
