@@ -53,7 +53,7 @@ const Navbar = () => {
       socket.emit('join', { username: fetchedUser?.username });
       socket.on('newCommentNotification', (newNotification) => {
         setAllNotifications((prev) => [newNotification, ...prev]);
-        setNotificationsCount((prev) => prev + 1);
+        setNotificationsCount((prev) => prev ?  prev + 1 : 1);
       });
     }
     return () => {
@@ -249,7 +249,7 @@ const Navbar = () => {
               {
                 allNotifications?.length < 1 ? <li className="p-2 font-normal  rounded-lg lg:hover:bg-slate-500 lg:hover:text-white cursor-pointer my-1 text-center dark:bg-slate-950">No notification available</li> : <li onClick={clickSeeAll} className="p-2 font-normal  rounded-lg lg:hover:bg-slate-800 lg:hover:text-white cursor-pointer my-1 text-center dark:bg-slate-800 dark:lg:hover:bg-slate-700">See All</li>
               }
-            </ul> : <p>No notifications</p> }
+            </ul> : <p className="text-center py-2 px-2">No notifications</p> }
         </div>
       }
 

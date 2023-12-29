@@ -18,7 +18,8 @@ import ModalUser from '../ModalUser';
 import LikersModal from '../LikersModal';
 import DeleteConfirmationModal from '../DeleteConfirmationModal';
 import PhotosInPost from '../PhotosInPost';
-import VideosInPost from '../VideosInPost';
+import VideosInPost from '../video-components/VideosInPost';
+
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
 const HomePagePosts = () => {

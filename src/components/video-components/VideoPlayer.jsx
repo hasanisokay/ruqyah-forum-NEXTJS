@@ -1,7 +1,6 @@
-// VideoPlayer.js
-import React from 'react';
+'use cilent'
 
-const VideoPlayer = ({ embedUrl, thumbnailUrl, onClick }) => {
+const VideoPlayer = ({ embedUrl, thumbnailUrl}) => {
   return (
     <div
       style={{

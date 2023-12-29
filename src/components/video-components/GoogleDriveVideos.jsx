@@ -1,5 +1,6 @@
+'use cilent'
 
-import VideoPlayer from './VideoPlayer';
+import VideoPlayer from "./VideoPlayer";
 
 const GoogleDriveVideo = ({ videoUrl }) => {
   // Extract the file ID from the Google Drive URL

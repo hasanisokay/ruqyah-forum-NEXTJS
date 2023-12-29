@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
+'use cilent'
+import { useState, useEffect, useRef } from 'react';
 
 const YouTubeVideo = ({ videoUrl }) => {
   const [videoId, setVideoId] = useState(null);

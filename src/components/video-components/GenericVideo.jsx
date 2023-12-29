@@ -1,6 +1,5 @@
-// GenericVideo.js
+'use cilent'
 import React from 'react';
-import VideoPlayer from './VideoPlayer';
 
 const GenericVideo = ({ videoUrl }) => {
   return  <video controls width="100%" height="360">

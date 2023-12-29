@@ -1,7 +1,7 @@
+'use cilent'
 import GenericVideo from "./GenericVideo";
 import GoogleDriveVideo from "./GoogleDriveVideos";
-import YouTubeVideo from "./YoutubeVideos";
-
+import YouTubeVideo from "./YouTubeVideos";
 
 const VideosInPost = ({ videosArray }) => {
   return (
