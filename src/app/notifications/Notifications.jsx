@@ -18,7 +18,6 @@ const fetcher = async (url) => await fetch(url).then((res) => res.json());
 const Notifications = () => {
     const { fetchedUser, setAllNotifications, setNotificationsCount, loading } = useContext(AuthContext);
     const infiniteScrollRef = useRef();
-    const lastNotificationRef = useRef(null);
     const router = useRouter();
     const getKey = (pageIndex, previousPageData) => {
         if (previousPageData && previousPageData.length === 0) return null;
@@ -96,6 +95,7 @@ const Notifications = () => {
                 })
             }
         }
+        setNotificationsCount((prev)=>prev > 1 ? prev - 1 : 0)
         return router.push(`/${id}`)
     }
     if (!data) return <div className='cardinhome'>
@@ -137,7 +137,7 @@ const Notifications = () => {
                                 }
                                 <div className="flex flex-col">
                                     <p>
-                                        {notificationMaker(n?.author?.name, n?.type, n?.commentAuthor?.username, n?.postAuthor?.username, fetchedUser?.username, n?.content)}
+                                        {notificationMaker(n?.author?.name, n?.type, n?.commentAuthor ? n?.commentAuthor[0]?.username : undefined, n?.postAuthor ? n?.postAuthor[0]?.username : undefined, fetchedUser?.username, n?.content)} 
                                     </p>
                                     <p className={`text-[10px] ${n.read === false ? "text-blue-600" : "text-gray-400"} `}>
                                         {formatRelativeDate(new Date(n.date)) + " ago"}

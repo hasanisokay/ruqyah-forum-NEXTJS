@@ -1,3 +1,4 @@
+'use client'
 import AuthContext from "@/contexts/AuthContext";
 import formatDateForUserJoined from "@/utils/formatDateForUserJoined";
 import formatDateInAdmin from "@/utils/formatDateInAdmin";
@@ -7,7 +8,6 @@ import { useRouter } from "next/navigation";
 import { useContext, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { FaHeart, FaRegComment, FaRegHeart, FaUserLarge } from "react-icons/fa6";
-import LoadingCards from "./LoadingCards";
 import LoadingModalUser from "./LoadingModal";
 import LoadingModalData from "./LoadingModalData";
 import axios from "axios";

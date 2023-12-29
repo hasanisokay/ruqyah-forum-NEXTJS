@@ -1,3 +1,4 @@
+'use client'
 import handleDeleteComment from "@/utils/handleDeleteComment";
 import handleDeletePost from "@/utils/handleDeletePost";
 import handleDeleteReply from "@/utils/handleDeleteReply";

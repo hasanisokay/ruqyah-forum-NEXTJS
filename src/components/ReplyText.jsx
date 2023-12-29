@@ -1,3 +1,4 @@
+'use client'
 import { BsDot } from "react-icons/bs";
 import DeleteConfirmationModal from "./DeleteConfirmationModal";
 import { useContext, useEffect, useState } from "react";

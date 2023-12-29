@@ -142,6 +142,7 @@ const Navbar = () => {
         );
       }
     }
+    setNotificationsCount((prev)=>prev > 1 ? prev - 1 : 0)
     setShowNotificationMenu(false)
     return router.push(`/${id}`)
   };

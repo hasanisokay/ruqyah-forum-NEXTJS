@@ -1,3 +1,4 @@
+'use client'
 import formatDateInAdmin from "@/utils/formatDateInAdmin";
 import Image from "next/image";
 import { FaHeart, FaRegHeart, FaUserLarge } from "react-icons/fa6";
@@ -62,11 +63,18 @@ const Comments = ({ c, postAuthor, handleShowUser, likes, socket, commentId: com
           commentID
         }
         const newCommentNotification = {
-          commenterUsername: fetchedUser.username,
-          commenterName: fetchedUser.name,
-          date: dataToSend.date,
+          author: {
+            username: fetchedUser?.username,
+            name: fetchedUser?.name,
+            photoURL: fetchedUser?.photoURL,
+
+          },
+          commentAuthor: [{ username: fetchedUser.username }],
+          postAuthor: [{ username: postAuthor }],
+          date: dataToSend?.date,
           postID,
-          commentAuthorUsername: c?.author?.username,
+          commentID,
+          type: "reply"
         }
         socket.emit("newReply", dataToSendInSocket);
         socket.emit("newCommentNotification", { newCommentNotification, commentID });
@@ -86,12 +94,12 @@ const Comments = ({ c, postAuthor, handleShowUser, likes, socket, commentId: com
 
   useEffect(() => {
     if (showCommentEditModal) {
-        document?.getElementById('commentEditModal')?.showModal()
+      document?.getElementById('commentEditModal')?.showModal()
     }
-    if(!showCommentEditModal){
-        document?.getElementById('commentEditModal')?.close()
+    if (!showCommentEditModal) {
+      document?.getElementById('commentEditModal')?.close()
     }
-}, [showCommentEditModal])
+  }, [showCommentEditModal])
 
   useEffect(() => {
     const handleOutsideClick = (event) => {
@@ -158,7 +166,7 @@ const Comments = ({ c, postAuthor, handleShowUser, likes, socket, commentId: com
               <div className={`relative ${commentID}`}>
                 {
                   showCommentOptions && <div className="absolute text-sm right-0 z-10 top-2 mt-2 p-1 w-[200px] shadow-xl rounded-md bg-white dark:bg-[#1c1c1c]" >
-                    {fetchedUser && fetchedUser?.username === c?.author?.username && <button onClick={()=>setShowCommentEditModal(true)} className="lg:hover:bg-[#308853] px-2 py-1 rounded-md lg:hover:text-white w-full duration-300 text-left">Edit</button>}
+                    {fetchedUser && fetchedUser?.username === c?.author?.username && <button onClick={() => setShowCommentEditModal(true)} className="lg:hover:bg-[#308853] px-2 py-1 rounded-md lg:hover:text-white w-full duration-300 text-left">Edit</button>}
                     {fetchedUser && (fetchedUser?.isAdmin || fetchedUser?.username === c?.author?.username) && <button onClick={() => setShowDeleteModal(true)} className="lg:hover:bg-red-700 duration-300 w-full px-2 py-1 text-left rounded-md lg:hover:text-white">Delete</button>}
                   </div>
                 }
@@ -169,8 +177,8 @@ const Comments = ({ c, postAuthor, handleShowUser, likes, socket, commentId: com
 
           {/* comment reply and like section */}
           <div className="flex items-center gap-6 pt-[1px] text-xs pb-1 pl-[43px] text-[14px]">
-            <div onClick={()=>setShowReplyInput(!showReplyInput)} className='flex items-center cursor-pointer flex-col' >
-              <FaReply  className="rotate-180" />
+            <div onClick={() => setShowReplyInput(!showReplyInput)} className='flex items-center cursor-pointer flex-col' >
+              <FaReply className="rotate-180" />
               <span className='text-[10px]'>{replyCount || 0} Replies</span>
             </div>
             <div className='flex flex-col items-center'>

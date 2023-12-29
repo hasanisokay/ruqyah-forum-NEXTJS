@@ -158,9 +158,12 @@ const SinglePostInHomePage = ({ id }) => {
             photoURL: fetchedUser?.photoURL,
             
           },
-          commenterName: fetchedUser.name,
-          date: dataToSend.date,
+          commentAuthor:[{username:fetchedUser.username}],
+          postAuthor:[{username: post?.authorInfo?.username}],
+          date: dataToSend?.date,
           postID: id,
+          commentID: data?._id,
+          type:"comment"
         }
 
         socket.emit('newComment', dataToSendInSocket);

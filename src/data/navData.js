@@ -7,6 +7,10 @@ const commonNavData = [
       path: "/notice",
       title: "Notice",
     },
+    {
+      path: "/about",
+      title: "About",
+    },
   ];
   
   export const afterLoginNavData = [

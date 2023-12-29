@@ -8,6 +8,10 @@ const notificationMaker = (
 ) => {
   let notificaion;
   let part = "";
+  let deleted = "";
+  if (!commentAuthor) {
+    deleted = " (deleted)";
+  }
   if (type === "comment") {
     notificaion = `${name} commented on `;
   } else if (type === `reply`) {
@@ -19,7 +23,7 @@ const notificationMaker = (
   } else if (type === `like`) {
     notificaion = `${name} liked your ${content} `;
   }
-  if (type === "reply" || type ==="comment") {
+  if (type === "reply" || type === "comment") {
     if (commentAuthor === loggedUser) {
       part = " your comment.";
     } else if (postAuthor === loggedUser) {
@@ -28,7 +32,8 @@ const notificationMaker = (
       part = ` a ${type === "reply" ? "comment" : "post"} you are following `;
     }
   }
-  return notificaion + part;
+
+  return notificaion + part + deleted;
 };
 
 export default notificationMaker;

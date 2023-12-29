@@ -17,6 +17,7 @@ export const GET = async (request) => {
           },
         },
         { $unwind: "$notifications" },
+        { $sort: { "notifications.date": -1 } },
         {
           $lookup: {
             from: "users",
