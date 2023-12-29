@@ -20,6 +20,7 @@ import DeleteConfirmationModal from '../DeleteConfirmationModal';
 import PhotosInPost from '../PhotosInPost';
 import VideosInPost from '../video-components/VideosInPost';
 import formatDateInAdmin from '@/utils/formatDateInAdmin';
+import Link from 'next/link';
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
@@ -213,7 +214,7 @@ const HomePagePosts = () => {
                                 <p onClick={() => handleShowUser(post?.authorInfo?.username)} className='cursor-pointer font-semibold'>{post?.authorInfo?.name}</p>
                                 <div className='text-xs flex gap-2 items-center'>
                                     <p>@{post?.authorInfo?.username}</p>
-                                    <p className='cursor-pointer' title={formatDateInAdmin(new Date(post?.date))}> {formatRelativeDate(new Date(post?.date))}</p>
+                                    <p title={formatDateInAdmin(new Date(post?.date))}> <Link className='hover:underline' href={`/${post?._id}`}>{formatRelativeDate(new Date(post?.date))}</Link></p>
                                 </div>
                                 {
                                     fetchedUser?.isAdmin && <div>
@@ -244,9 +245,11 @@ const HomePagePosts = () => {
                         </div>}
                     </div>
                     <div className='flex items-center p-2 gap-6 mt-2'>
-                        <div className='flex items-center flex-col cursor-pointer' onClick={() => router.push(`/${post._id}`)}>
-                            <FaRegComment className='' />
-                            <span className='text-xs'>{post?.comment || 0} Comments</span>
+                        <div>
+                            <Link href={`/${post?._id}`} className='flex items-center flex-col'>
+                                <FaRegComment className='' />
+                                <span className='text-xs'>{post?.comment || 0} Comments</span>
+                            </Link>
                         </div>
                         <div className='flex flex-col items-center'>
                             {post?.likes?.filter((username) => username === fetchedUser?.username)?.length > 0 ? <FaHeart title='You Liked this. Click to dislike' onClick={() => handleDislike(post._id)} className=' text-red-600 cursor-pointer' /> : <FaRegHeart title='Click to Like' onClick={() => handleLike(post._id, post?.authorInfo?.username)} className='cursor-pointer' />}
