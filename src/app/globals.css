@@ -80,6 +80,9 @@ input:-webkit-autofill:active {
 .forum-btn1{
   @apply  text-white px-4 py-1 rounded-lg cursor-pointer
 }
+.forum-btn2{
+  @apply lg:hover:text-white duration-300 px-4 py-1 rounded-lg cursor-pointer
+}
 .cardinhome{
   @apply lg:w-[50vw] lg:max-w-[800px] md:w-[90vw] md:max-w-[500px] w-[95vw] mx-auto 
 }

@@ -1,7 +1,6 @@
 'use client'
 import formatRelativeDate from '@/utils/formatDate';
 import { BsThreeDotsVertical } from "react-icons/bs";
-import { useRouter } from 'next/navigation';
 import React, { useRef, useCallback, useContext, useState, useEffect } from 'react';
 import useSWRInfinite from 'swr/infinite';
 import { FaRegComment, FaRegHeart } from "react-icons/fa";
@@ -12,7 +11,6 @@ import LoadingCards from '../LoadingCards';
 import truncateText from '@/utils/trancatText';
 import formatDateForUserJoined from '@/utils/formatDateForUserJoined';
 import axios from 'axios';
-
 import toast from 'react-hot-toast';
 import ModalUser from '../ModalUser';
 import LikersModal from '../LikersModal';
@@ -21,6 +19,7 @@ import PhotosInPost from '../PhotosInPost';
 import VideosInPost from '../video-components/VideosInPost';
 import formatDateInAdmin from '@/utils/formatDateInAdmin';
 import Link from 'next/link';
+import copyToClipboard from '@/utils/copyToClipboard';
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
@@ -31,8 +30,6 @@ const HomePagePosts = () => {
     const [expandedPosts, setExpandedPosts] = useState([]);
     const [selectedUsernameToShowDetails, setSelectedUsernameToShowDetails] = useState(null)
     const [likersArray, setLikersArray] = useState(null);
-
-    const router = useRouter();
     const getKey = (pageIndex, previousPageData) => {
         if (previousPageData && previousPageData.length === 0) return null;
         return `/api/posts?page=${pageIndex + 1}`;
@@ -185,11 +182,12 @@ const HomePagePosts = () => {
                         {fetchedUser?.isAdmin && <div className='relative'>
                             <BsThreeDotsVertical onClick={() => setSelectedPostIdForOptions(post._id)} className='absolute right-0 cursor-pointer' />
                             {selectedPostIdForOptions === post._id && (
-                                <div className='absolute text-center text-sm right-0 top-2 mt-2 p-1 w-[200px] shadow-xl rounded-md bg-white dark:bg-[#1c1c1c]'>
-                                    <div className='flex flex-col gap-2'>
-                                        <button onClick={() => setShowDeleteModal(true)} className='lg:hover:bg-red-500 lg:hover:text-white'>Delete Post</button>
-                                        {fetchedUser && fetchedUser?.username === post?.authorInfo?.username && <button>Edit</button>}
-                                        {fetchedUser && <button>Report</button>}
+                                <div className='absolute text-center text-sm right-0 top-2 mt-2 p-1 max-w-[200px] min-w-[150px] shadow-xl rounded-md  bg-[#f3f2f0] dark:bg-[#1c1c1c]'>
+                                    <div className='flex flex-col gap-2 dark:text-white text-black '>
+                                        <button onClick={() => setShowDeleteModal(true)} className='lg:hover:bg-red-500 forum-btn2'>Delete Post</button>
+                                        {fetchedUser && fetchedUser?.username === post?.authorInfo?.username && <button className='forum-btn2 lg:hover:bg-slate-500'>Edit</button>}
+                                        {fetchedUser && <button className='forum-btn2 lg:hover:bg-slate-500'>Report</button>}
+                                        <button className='forum-btn2 lg:hover:bg-slate-500' onClick={()=>copyToClipboard(`https://forum.ruqyahbd.org/${post._id}`)}>Copy link</button>
                                     </div>
                                 </div>
                             )}

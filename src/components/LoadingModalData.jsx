@@ -10,7 +10,7 @@ const LoadingModalData = () => {
         <div className=" p-2 m-2">
             <SkeletonTheme baseColor={baseColor} highlightColor={highlightColor}>
                 <div className="flex items-center justify-center">
-                    <Skeleton count={1} width={40} height={40} />
+                    <Skeleton count={1} width={200} height={200} />
                 </div>
                 <div className="mt-4">
                     <Skeleton count={3} height={9} width={200}/>

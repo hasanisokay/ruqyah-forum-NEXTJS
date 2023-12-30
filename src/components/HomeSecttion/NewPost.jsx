@@ -48,7 +48,7 @@ const NewPost = () => {
             const uploading = toast.loading("Uploading...")
             for (const [index, file] of mediaFiles.entries()) {
                 setCurrntUploadingImageIndex(index);
-                if (file.type.startsWith("image/")) {
+                if (file?.type?.startsWith("image/")) {
                     try {
                         const resizedImage = await resizeImage(file, 1200, 800, "ruqyahbd-forum");
                         const url = await imageUpload(resizedImage, config)
@@ -61,7 +61,7 @@ const NewPost = () => {
                     catch (err) {
                         console.error(err);
                     }
-                } else if (!file.type.startsWith("image/")) {
+                } else if (!file?.type?.startsWith("image/")) {
                     return toast.error("Upload image file only")
                 }
             };
@@ -185,9 +185,9 @@ const NewPost = () => {
                                                             <button type="button" title="remove" disabled={loadingNewPost} className="font-semibold absolute -top-1 right-0 text-sm z-30" onClick={() => handleRemoveFile(file, index)}>x</button>
                                                         </div>
                                                         <div className="relative">
-                                                            {file.type.startsWith("image/") ? (
+                                                            {file?.type?.startsWith("image/") ? (
                                                                 <Image width={80} height={40} className={`${currntUploadingImageIndex === index && "opacity-20"} ${completedImageUploadIndexs.includes(index) ? "opcity-100" : "opacity-50"} h-auto w-auto max-w-[100px] max-h-[100px]`} src={URL.createObjectURL(file)} alt={`Image ${index}`} />
-                                                            ) : file.type.startsWith("video/") ? (
+                                                            ) : file?.type?.startsWith("video/") ? (
                                                                 <video width="280" height="200" controls>
                                                                     <source src={URL.createObjectURL(file)} type={file.type} />
                                                                     Your browser does not support the video tag.

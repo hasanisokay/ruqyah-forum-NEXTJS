@@ -102,26 +102,28 @@ const ModalUser = ({ username, setterFunction }) => {
                     {
                         loadingUser ? <LoadingModalData /> : <div>
                             <div className="flex items-center justify-center">
-                                {user.photoURL ? <Image className="max-w-[60px] max-h-[60px]" width={60} height={60} src={user?.photoURL} alt="user photo" /> : <span>User has no profile picture.</span>}
+                                {user.photoURL ? <Image className="max-w-[200px] max-h-[200px]" width={200} height={200} src={user?.photoURL} alt="user photo" /> : <span>User has no profile picture.</span>}
                             </div>
-                            <p><span>{user?.name}</span></p>
-                            <p className="text-xs">@{user?.username}</p>
-                            <p className="text-xs"><span>{user?.isAdmin ? "Admin" : "Member"} since</span> {formatDateForUserJoined(new Date(user?.joined || new Date()))}</p>
-                            <p className="text-xs">Gender: {user?.gender}</p>
+                            <div className="flex justify-start items-center flex-col mt-4">
+                                <p className="font-semibold"><span>{user?.name}</span></p>
+                                <p className="text-xs">@{user?.username}</p>
+                                <p className="text-xs"><span>{user?.isAdmin ? "Admin" : "Member"} since</span> {formatDateForUserJoined(new Date(user?.joined || new Date()))}</p>
+                                <p className="text-xs">Gender: {user?.gender}</p>
+                            </div>
                             {fetchedUser?.isAdmin && <div className="flex gap-2 items-center justify-center mt-2">
                                 {
-                                    user?.blocked ? <span className="forum-btn-sm bg-[#308853] cursor-pointer tex-white" onClick={() => handleAdminAction(user?.username, "block")}>Unblock</span> : <span className="forum-btn-sm bg-red-700 cursor-pointer text-white" onClick={() => handleAdminAction(user?.username, "block")}>Block</span>
+                                    user?.blocked ? <span className="forum-btn-sm bg-[#308853] cursor-pointer tex-white" onClick={() => handleAdminAction(user?.username, "block", fetchedUser?.username)}>Unblock</span> : <span className="forum-btn-sm bg-red-700 cursor-pointer text-white" onClick={() => handleAdminAction(user?.username, "block", fetchedUser?.username)}>Block</span>
                                 }
                                 {/* <span className="forum-btn-sm bg-red-700 cursor-pointer" onClick={() => handleAdminAction(user?.username, "make-admin")}>Make Admin</span> */}
                                 {/* <span className="forum-btn-sm bg-red-700 cursor-pointer" onClick={() => handleAdminAction(user?.username, "delete")}>Delete User</span> */}
                             </div>}
                             <div>
                                 <p className="text-sm text-center">Posts By {user?.name}</p>
-                                <p className="text-xs">Total: {user?.postCounts?.total}</p>
-                                {!user?.isAdmin && <div className="text-xs">
-                                    <p>Pending: {user?.postCounts?.pending}</p>
-                                    <p>Approved: {user?.postCounts?.approved}</p>
-                                    <p>Declined: {user?.postCounts?.declined}</p>
+                                <p className="text-xs">Total: {user?.postCounts?.total || 0}</p>
+                                {!user?.isAdmin && user?.postCounts?.total > 0 && <div className="text-xs">
+                                    <p>Pending: {user?.postCounts?.pending || 0}</p>
+                                    <p>Approved: {user?.postCounts?.approved || 0}</p>
+                                    <p>Declined: {user?.postCounts?.declined || 0}</p>
                                 </div>}
                             </div>
                             {

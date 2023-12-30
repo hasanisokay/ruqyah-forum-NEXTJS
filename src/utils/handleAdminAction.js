@@ -2,6 +2,7 @@ import axios from "axios";
 import toast from "react-hot-toast";
 
 const handleAdminAction = async (username, action, adminUsername) => {
+    console.log(username, action,adminUsername);
     if(!adminUsername){
         return toast.error("Unauthorized")
     }

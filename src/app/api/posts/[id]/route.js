@@ -58,6 +58,7 @@ export const GET = async (request) => {
           post: { $first: "$post" },
           date: { $first: "$date" },
           photos: {$first: "$photos"},
+          videos: {$first: "$videos"},
           comment: {
             $push: {
               author: {
@@ -95,6 +96,7 @@ export const GET = async (request) => {
           date: 1,
           comment: 1,
           photos: 1,
+          videos:1,
           likes: 1,
           approveDate: 1,
           authorInfo: {

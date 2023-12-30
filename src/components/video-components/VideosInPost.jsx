@@ -5,7 +5,7 @@ import YouTubeVideo from "./YouTubeVideos";
 
 const VideosInPost = ({ videosArray }) => {
   return (
-    <div className="max-w-[100vw]">
+    <div className="max-w-[100vw] min-w-[300px] lg:min-h-[300px]">
       {videosArray.map((videoUrl, index) => (
         <div key={index} >
           {videoUrl.includes('youtube.com') ? (
