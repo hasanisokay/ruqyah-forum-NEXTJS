@@ -3,12 +3,14 @@ import handleDeleteComment from "@/utils/handleDeleteComment";
 import handleDeletePost from "@/utils/handleDeletePost";
 import handleDeleteReply from "@/utils/handleDeleteReply";
 import { usePathname, useRouter } from "next/navigation";
+import { useEffect } from "react";
 import toast from "react-hot-toast";
 
 const DeleteConfirmationModal = ({ id, isAuthorized, setterFunction, commentID, setPost, setFetchedReplies, setReplyCount, replyID }) => {
 
     const router = useRouter();
     const pathname = usePathname();
+
 
     const setConfirm = async (confirm) => {
         setterFunction(false);
@@ -18,7 +20,7 @@ const DeleteConfirmationModal = ({ id, isAuthorized, setterFunction, commentID, 
         if (replyID) {
             const deleted = await handleDeleteReply(id, commentID, replyID);
             if (deleted) {
-                setFetchedReplies((prev)=> prev.filter((c)=>c._id !== replyID));
+                setFetchedReplies((prev) => prev.filter((c) => c._id !== replyID));
                 setReplyCount((prev) => prev - 1);
             }
         }
@@ -35,6 +37,18 @@ const DeleteConfirmationModal = ({ id, isAuthorized, setterFunction, commentID, 
             }
         }
     }
+    useEffect(() => {
+        const handleKeyDown = (event) => {
+            if (event.key === "Escape" || event.keyCode === 27) {
+                setterFunction(false);
+            }
+        };
+        document.addEventListener("keydown", handleKeyDown);
+        return () => {
+            document.removeEventListener("keydown", handleKeyDown);
+        };
+    }, [setterFunction]);
+
     return (
         <div>
             <dialog id="deleteModal" className="modal">

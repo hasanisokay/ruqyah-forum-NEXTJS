@@ -60,7 +60,6 @@ export const GET = async (request) => {
                 message: "Replies not found",
             });
         }
-
         return NextResponse.json({
             status: 200,
             replies,

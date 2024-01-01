@@ -7,33 +7,32 @@ const notificationMaker = (
   content
 ) => {
   let notificaion;
-  let part = "";
   let deleted = "";
-  if (!commentAuthor) {
+  if ((type==="comment" || type ==="reply") && !commentAuthor) {
     deleted = " (deleted)";
   }
   if (type === "comment") {
-    notificaion = `${name} commented on `;
+    if (loggedUser === postAuthor) {
+      notificaion = `${name} commented on your post. `;
+    } else {
+      notificaion = `${name} commented on a post you are following. `;
+    }
   } else if (type === `reply`) {
-    notificaion = `${name} replied to`;
+    if (loggedUser === commentAuthor) {
+      notificaion = `${name} replied to your comment.`;
+    } else if (loggedUser === postAuthor) {
+      notificaion = `${name} replied to a comment your post. `;
+    } else {
+      notificaion = `${name} replied to a comment you are following.`;
+    }
   } else if (type === `report`) {
-    notificaion = `${name} reported`;
+    notificaion = `${name} reported a ${content}`;
   } else if (type === `approve`) {
     notificaion = `Your post is approved.`;
   } else if (type === `like`) {
-    notificaion = `${name} liked your ${content} `;
+    notificaion = `${name} liked your ${content || ""} `;
   }
-  if (type === "reply" || type === "comment") {
-    if (commentAuthor === loggedUser) {
-      part = " your comment.";
-    } else if (postAuthor === loggedUser) {
-      part = " a comment on your post.";
-    } else {
-      part = ` a ${type === "reply" ? "comment" : "post"} you are following `;
-    }
-  }
-
-  return notificaion + part + deleted;
+  return notificaion + deleted;
 };
 
 export default notificationMaker;

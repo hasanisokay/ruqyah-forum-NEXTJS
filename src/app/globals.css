@@ -81,7 +81,7 @@ input:-webkit-autofill:active {
   @apply  text-white px-4 py-1 rounded-lg cursor-pointer
 }
 .forum-btn2{
-  @apply lg:hover:text-white duration-300 px-4 py-1 rounded-lg cursor-pointer
+  @apply lg:hover:text-white duration-300 px-4 py-1 rounded-lg cursor-pointer w-full
 }
 .cardinhome{
   @apply lg:w-[50vw] lg:max-w-[800px] md:w-[90vw] md:max-w-[500px] w-[95vw] mx-auto 
@@ -97,6 +97,9 @@ input:-webkit-autofill:active {
     width: 100%;
   }
 } */
+.statsHeaderTitle{
+  @apply text-center font-semibold text-xl
+}
 .width-full{
   width: 100% !important;
 }

@@ -19,7 +19,7 @@ const CommentEditModal = ({ commentID, comment, postID, setterFunction, setPost 
         return () => {
             document.removeEventListener("keydown", handleKeyDown);
         };
-    }, []);
+    }, [setterFunction]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();

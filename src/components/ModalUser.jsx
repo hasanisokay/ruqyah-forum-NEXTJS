@@ -91,8 +91,8 @@ const ModalUser = ({ username, setterFunction }) => {
 
     return (
         <div>
-            <dialog id="my_modal_5" className=" modal modal-bottom sm:modal-middle">
-                <input type="checkbox" id="my_modal_5" className="modal-toggle" />
+            <dialog id="userModal" className=" modal modal-bottom sm:modal-middle">
+                <input type="checkbox" id="userModal" className="modal-toggle" />
                 <div className="modal-box scrollforchat">
                     <div className="modal-action">
                         <form method="dialog">
@@ -204,7 +204,7 @@ const ModalUser = ({ username, setterFunction }) => {
                     }
 
                 </div>
-                <label className="modal-backdrop cursor-default" htmlFor="my_modal_5"></label>
+                <label className="modal-backdrop cursor-default" htmlFor="userModal"></label>
             </dialog>
 
         </div>

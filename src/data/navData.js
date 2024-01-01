@@ -8,8 +8,8 @@ const commonNavData = [
       title: "Notice",
     },
     {
-      path: "/about",
-      title: "About",
+      path: "/stats",
+      title: "Stats",
     },
   ];
   

@@ -5,9 +5,9 @@ import LoadingAdmin from './LoadingAdmin';
 import SearchUserForm from '@/components/SearchUserForm';
 import toast from 'react-hot-toast';
 import formatDateInAdmin from '@/utils/formatDateInAdmin';
-import axios from 'axios';
 import AuthContext from '@/contexts/AuthContext';
 import handleAdminAction from '@/utils/handleAdminAction';
+import getStats from '@/utils/getStats';
 const Dashboard = () => {
     const [postData, setPostData] = useState(null);
     const { fetchedUser } = useContext(AuthContext);
@@ -25,7 +25,7 @@ const Dashboard = () => {
             }
             toast.success("Success to retrieve user data.")
             setRetrievedUser(userData)
-            document.getElementById('my_modal_5').showModal();
+            document.getElementById('userModal').showModal();
         } catch (error) {
             console.error(error);
         }
@@ -34,10 +34,9 @@ const Dashboard = () => {
         const fetchData = async () => {
             try {
                 setLoadingData(true)
-                const response = await fetch('/api/getstat');
-                const jsonData = await response.json();
+                const data = await getStats();
                 setLoadingData(false)
-                setPostData(jsonData);
+                setPostData(data);
             } catch (error) {
                 console.error('Error fetching data:', error);
             }
@@ -67,11 +66,11 @@ const Dashboard = () => {
                 <SearchUserForm onSearch={(username) => handleSearch(username)} />
             </div>
 
-            <dialog id="my_modal_5" className="modal modal-bottom sm:modal-middle">
+            <dialog id="userModal" className="modal modal-bottom sm:modal-middle">
                 <div className="modal-box">
                     {<div>
                         <div className='flex items-center justify-center'>
-                            {retrievedUser?.photoURL? <Image src={retrievedUser?.photoURL} alt='User pp' width={150} height={150} /> : "User has no profile photo" }
+                            {retrievedUser?.photoURL ? <Image src={retrievedUser?.photoURL} alt='User pp' width={150} height={150} /> : "User has no profile photo"}
                         </div>
                         <p>Name: {retrievedUser?.name}</p>
                         <p>Username: {retrievedUser?.username}</p>

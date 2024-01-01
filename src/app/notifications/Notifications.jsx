@@ -81,7 +81,7 @@ const Notifications = () => {
         }
     }, [fetchedUser, router, loading]);
 
-    const handleClickOnNotification = async (id, read, commentID="") => {
+    const handleClickOnNotification = async (id, read, commentID=null,replyID=null ) => {
         if (read === false) {
             const data = await axios.post("/api/readnotification", { id, username: fetchedUser.username })
             if (data.status === 200) {
@@ -96,7 +96,15 @@ const Notifications = () => {
             }
             setNotificationsCount((prev) => prev > 1 ? prev - 1 : 0)
         }
-        return router.push(`/${id}?commentID=${commentID}`)
+        if(replyID){
+            return router.push(`/${id}?commentID=${commentID}&replyID=${replyID}`, { scroll: false }) 
+          }
+          else if(commentID){
+            return router.push(`/${id}?commentID=${commentID}`, { scroll: false })
+          }
+          else{
+            router.push(`/${id}`,)
+          }
     }
     if (!data) return <div className='cardinhome'>
         <LoadingNotifications />
@@ -118,7 +126,7 @@ const Notifications = () => {
                     {posts?.map((n, index) => (
                         <li
                             key={index}
-                            onClick={() => handleClickOnNotification(n?.postID, n?.read, n?.commentID)}
+                            onClick={() => handleClickOnNotification(n?.postID, n?.read, n?.commentID,  n?.replyID)}
                             title={`On ${formatDateInAdmin(new Date(n?.date))}`}
                             className={`p-2 font-normal  rounded-lg lg:hover:bg-slate-800 lg:hover:text-white cursor-pointer my-2 ${n.read === false ? "dark:text-white" : "text-gray-400 lg:hover:text-gray-400"
                                 }`}

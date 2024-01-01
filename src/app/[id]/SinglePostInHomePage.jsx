@@ -25,25 +25,29 @@ import PhotosInPost from '@/components/PhotosInPost';
 import { useSearchParams } from 'next/navigation';
 import copyToClipboard from '@/utils/copyToClipboard';
 import VideosInPost from '@/components/video-components/VideosInPost';
+import ReportModal from '@/components/ReportModal';
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
 const SinglePostInHomePage = ({ id }) => {
   const [likersArray, setLikersArray] = useState(null);
-  const { fetchedUser, showDeleteModal, setShowDeleteModal } = useContext(AuthContext);
+  const { fetchedUser, showDeleteModal, setShowDeleteModal, showReportModal, setShowReportModal, isReportingPost, setIsReportingPost } = useContext(AuthContext);
+  const [socket, setSocket] = useState(null)
   const { data, error, isLoading } = useSWR(`/api/posts/${id}`, fetcher);
   const [newCommentData, setNewCommentData] = useState("");
   const [loadingNewComment, setLoadingNewComment] = useState(false);
   const [selectedUsernameToShowDetails, setSelectedUsernameToShowDetails] = useState(null)
   const [post, setPost] = useState(data ? data[0] : []);
   const [selectedPostIdForOptions, setSelectedPostIdForOptions] = useState(null);
-  const [socket, setSocket] = useState(null)
+  // const [socket, setSocket] = useState(null)
   const [showEditModal, setShowEditModal] = useState(false);
+  const [scrolledToComment, setScrolledToComment] = useState(false);
+
   const searchParams = useSearchParams();
   const commentID = searchParams.get('commentID');
 
   useEffect(() => {
-    if (commentID?.length > 2) {
+    if (commentID?.length > 2 && !scrolledToComment && post) {
       const targetComment = document.getElementById(`${commentID}`);
       if (targetComment) {
         try {
@@ -55,6 +59,7 @@ const SinglePostInHomePage = ({ id }) => {
           targetComment.classList.add("highlightedClass");
           setTimeout(() => {
             targetComment.classList.remove("highlightedClass");
+            setScrolledToComment(true);
           }, 3000);
         }
         catch {
@@ -62,7 +67,20 @@ const SinglePostInHomePage = ({ id }) => {
         }
       }
     }
-  }, [commentID, post]);
+  }, [commentID, scrolledToComment, post]);
+
+
+  useEffect(() => {
+    (async () => {
+      if (fetchedUser) {
+        const userSocket = await io(`${process.env.NEXT_PUBLIC_server}/?userId=${fetchedUser?.username}`);
+        setSocket(userSocket);
+      } else {
+        const anonymousSocket = await io(process.env.NEXT_PUBLIC_server);
+        setSocket(anonymousSocket);
+      }
+    })();
+  }, [fetchedUser]);
 
   useEffect(() => {
     if (likersArray) {
@@ -71,14 +89,10 @@ const SinglePostInHomePage = ({ id }) => {
   }, [likersArray]);
 
   useEffect(() => {
-    (async () => {
-      // setSocket(await io(process.env.NEXT_PUBLIC_server))
-
-      const userSocket = await io(process.env.NEXT_PUBLIC_server);
-      setSocket(userSocket);
-      userSocket.emit('joinRoom', { roomId: id });
-    })()
-  }, [id])
+    if (socket) {
+      socket.emit('joinRoom', { roomId: id });
+    }
+  }, [id, socket])
 
   useEffect(() => {
     if (socket) {
@@ -95,7 +109,7 @@ const SinglePostInHomePage = ({ id }) => {
     return () => {
       if (socket) {
         socket.emit('leaveRoom', { roomId: id });
-        socket.disconnect();
+        socket.off("newComment")
       }
     };
   }, [id, socket]);
@@ -126,10 +140,10 @@ const SinglePostInHomePage = ({ id }) => {
 
   useEffect(() => {
     if (selectedUsernameToShowDetails) {
-      document.getElementById('my_modal_5').showModal();
+      document.getElementById('userModal').showModal();
     }
   }, [selectedUsernameToShowDetails]);
-console.log(post);
+
   useEffect(() => {
     if (showEditModal) document?.getElementById('editModal')?.showModal()
   }, [showEditModal])
@@ -179,6 +193,7 @@ console.log(post);
 
 
         const newCommentNotification = {
+          _id: data?._id,
           author: {
             username: fetchedUser?.username,
             name: fetchedUser?.name,
@@ -190,11 +205,13 @@ console.log(post);
           date: dataToSend?.date,
           postID: id,
           commentID: data?._id,
-          type: "comment"
+          type: "comment",
+          read: false
         }
-
-        socket.emit('newComment', dataToSendInSocket);
-        socket.emit("newCommentNotification", { newCommentNotification });
+        if (socket) {
+          socket.emit('newComment', dataToSendInSocket);
+          socket.emit("newCommentNotification", { newCommentNotification });
+        }
       }
       if (data.status === 500) {
         toast.error(data?.message || "error")
@@ -286,6 +303,10 @@ console.log(post);
     if (fetchedUser.username !== post?.authorInfo?.username) return toast.error("unauthorized action")
     setShowEditModal(true);
   }
+  const handleClickReport = async () => {
+    setShowReportModal(true);
+    setIsReportingPost(true);
+  }
 
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -296,7 +317,7 @@ console.log(post);
 
   return (
     <div className='p-2 cursor-default bg-[#fffef9] dark:bg-[#242526] m-2 rounded-lg dark:border-gray-400 cardinhome shadow-xl'>
-      {fetchedUser && <div className='relative'>
+      <div className='relative'>
         <BsThreeDotsVertical onClick={() => setSelectedPostIdForOptions(id)} className='absolute right-0 cursor-pointer' />
         {selectedPostIdForOptions === id && (
           <div className='absolute text-sm right-0 top-2 mt-2 p-1 max-w-[200px] z-10 shadow-xl rounded-md bg-[#f3f2f0] dark:bg-[#1c1c1c]'>
@@ -304,10 +325,11 @@ console.log(post);
               {(fetchedUser?.isAdmin || fetchedUser?.username === post?.authorInfo?.username) && <button onClick={() => setShowDeleteModal(true)} className='lg:hover:bg-red-700 forum-btn2'>Delete Post</button>}
               {fetchedUser?.username === post?.authorInfo?.username && <button onClick={handleEdit} className='forum-btn2 lg:hover:bg-slate-500 w-full'>Edit Post</button>}
               <button className='forum-btn2 lg:hover:bg-slate-500 w-full' onClick={() => copyToClipboard(`https://forum.ruqyahbd.org/${id}`)}>Copy link</button>
+              {fetchedUser && <button onClick={handleClickReport} className='forum-btn2 lg:hover:bg-slate-500 w-full'>Report</button>}
             </div>
           </div>
         )}
-      </div>}
+      </div>
       <div className='flex gap-2 items-center'>
         <div onClick={() => handleShowUser(post?.authorInfo?.username)} className='cursor-pointer'>
           {
@@ -407,7 +429,7 @@ console.log(post);
         post?.comment?.length > 0 && post?.comment[comment.length - 1]?.author?.authorInfo?.name && <div>
           {post?.comment?.map((c, index) => (
             <Comments
-              key={c._id}
+              key={index}
               c={c}
               setPost={setPost}
               socket={socket}
@@ -425,6 +447,9 @@ console.log(post);
         </div>
       }
       {
+        showReportModal && isReportingPost && <ReportModal postID={id} key={id} type={"post"} />
+      }
+      {
         showEditModal && fetchedUser?.username === post?.authorInfo?.username && <PostEditModal setPost={setPost} setterFunction={setShowEditModal} post={post} />
       }
       {
@@ -433,10 +458,7 @@ console.log(post);
       {likersArray && <LikersModal usernames={likersArray} setterFunction={setLikersArray} />}
       {selectedUsernameToShowDetails && <ModalUser username={selectedUsernameToShowDetails} setterFunction={setSelectedUsernameToShowDetails} />}
       <div />
-
-
     </div >
   );
 };
-
 export default SinglePostInHomePage;

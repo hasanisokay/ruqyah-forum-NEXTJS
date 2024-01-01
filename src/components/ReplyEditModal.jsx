@@ -17,7 +17,7 @@ const ReplyEditModal = ({ commentID, replyID, reply, postID, setterFunction, set
         return () => {
             document.removeEventListener("keydown", handleKeyDown);
         };
-    }, []);
+    }, [setterFunction]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();

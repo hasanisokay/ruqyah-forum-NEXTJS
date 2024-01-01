@@ -8,7 +8,6 @@ import useTheme from "@/hooks/useTheme";
 import { useContext, useEffect, useRef, useState, useTransition } from "react";
 import AuthContext from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
-import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
 import 'react-loading-skeleton/dist/skeleton.css'
 import { FaBell, FaUserLarge } from "react-icons/fa6";
 import axios from "axios";
@@ -17,7 +16,6 @@ import formatRelativeDate from "@/utils/formatDate";
 import formatDateInAdmin from "@/utils/formatDateInAdmin";
 import { io } from "socket.io-client";
 import notificationMaker from "@/utils/notificationMaker";
-import LoadingLikers from "../LoadingLikers";
 import LoadingNotificaions from "../LoadingNotificaions";
 import LoadingNavbar from "../LoadingNavbar";
 
@@ -29,42 +27,58 @@ const Navbar = () => {
   const { fetchedUser, loading, logOut, loggedOut, notificationsCount, allNotifications, setAllNotifications, setNotificationsCount } = useContext(AuthContext);
   const [navData, setNavData] = useState()
   const router = useRouter();
-  const [socket, setSocket] = useState(null)
   const [loadingNotifications, setLoadingNotifications] = useState(false);
   const [isPending, startTransition] = useTransition()
   const navRef = useRef(null);
-
+  const [socket, setSocket] = useState(null)
   useEffect(() => {
     setNavData(fetchedUser ? afterLoginNavData : beforeLoginNavData)
   }, [fetchedUser, loggedOut])
 
   useEffect(() => {
+    if (socket && fetchedUser && fetchedUser?.isAdmin) {
+      socket.on('newReport', (newNotification) => {
+        console.log(newNotification);
+        setAllNotifications((prev) => [newNotification, ...prev]);
+        setNotificationsCount((prev) => prev ? prev + 1 : 1)
+      });
+    }
+    return () => {
+      if (socket) {
+        return socket?.off("newReport")
+      }
+    }
+  }, [socket, fetchedUser, setAllNotifications, setNotificationsCount])
+
+  useEffect(() => {
     (async () => {
-      // setSocket(await io(process.env.NEXT_PUBLIC_server))
       if (fetchedUser) {
-        const userSocket = await io(process.env.NEXT_PUBLIC_server);
+        const userSocket = await io(`${process.env.NEXT_PUBLIC_server}/?userId=${fetchedUser?.username}`);
         setSocket(userSocket);
       }
-    })()
-  }, [fetchedUser])
+    })();
+  }, [fetchedUser]);
 
   useEffect(() => {
     if (socket && fetchedUser) {
       socket.emit('join', { username: fetchedUser?.username });
       socket.on('newCommentNotification', (newNotification) => {
-        setAllNotifications((prev) => [newNotification, ...prev]);
-        if(newNotification?.commentAuthor?.length > 0 && newNotification?.commentAuthor[0]?.username !== fetchedUser?.username){
-          setNotificationsCount((prev) => prev ?  prev + 1 : 1);
+        console.log("new notificaiotn from socket", newNotification);
+        if (allNotifications?.length > 0) {
+          setAllNotifications((prev) => [newNotification, ...prev]);
+        }
+        else {
+          setAllNotifications([newNotification])
+        }
+        if (newNotification?.commentAuthor?.length > 0 && newNotification?.commentAuthor[0]?.username !== fetchedUser?.username) {
+          setNotificationsCount((prev) => prev ? prev + 1 : 1);
         }
       });
     }
     return () => {
-      if (socket && fetchedUser) {
-        socket.emit('leave', { username: fetchedUser?.username });
-        socket.disconnect();
-      }
-    };
-  }, [fetchedUser, setAllNotifications, setNotificationsCount, socket]);
+      return socket?.off("newCommentNotification")
+    }
+  }, [fetchedUser, setAllNotifications, setNotificationsCount, socket, allNotifications]);
 
   useEffect(() => {
     if (fetchedUser) {
@@ -114,6 +128,10 @@ const Navbar = () => {
       const { data } = await axios.get(`/api/lasttennotification?username=${fetchedUser?.username}`)
       setAllNotifications(data)
       setLoadingNotifications(false);
+      const unreadCount = data?.filter((n) => n?.read === false)?.length || 0
+      if (unreadCount > 0) {
+        setNotificationsCount(unreadCount)
+      }
     }
     getNotifications();
   }, [showNotificationMenu, fetchedUser, setAllNotifications])
@@ -126,13 +144,15 @@ const Navbar = () => {
     setNavToggle((pre) => !pre)
     setShowNotificationMenu(false);
   }
-  const handleNotificationsClick = async (id, read, commentID="") => {
+  const handleNotificationsClick = async (id, read, commentID = null, replyID = null) => {
     if (!fetchedUser) {
       return toast.error("login to continue");
     }
     if (read === false) {
       const data = await axios.post("/api/readnotification", { id, username: fetchedUser.username })
       if (data.status === 200) {
+        const totalNotificationFromPostID = allNotifications?.filter((n) => n?.postID === id && n?.read === false)?.length || 1;
+        console.log(totalNotificationFromPostID);
         setAllNotifications(
           allNotifications?.map((notification) => {
             if (notification?.postID === id) {
@@ -141,11 +161,19 @@ const Navbar = () => {
             return notification;
           })
         );
+        setNotificationsCount((prev) => prev > 1 ? prev - totalNotificationFromPostID : 0)
       }
-      setNotificationsCount((prev)=>prev > 1 ? prev - 1 : 0)
     }
     setShowNotificationMenu(false)
-    return router.push(`/${id}?commentID=${commentID}`, { scroll: false })
+    if (replyID) {
+      return router.push(`/${id}?commentID=${commentID}&replyID=${replyID}`, { scroll: false })
+    }
+    else if (commentID) {
+      return router.push(`/${id}?commentID=${commentID}`, { scroll: false })
+    }
+    else {
+      router.push(`/${id}`,)
+    }
   };
 
   const clickSeeAll = () => {
@@ -216,10 +244,10 @@ const Navbar = () => {
           {loadingNotifications ?
             <LoadingNotificaions />
             : allNotifications.length > 0 ? <ul>
-              {allNotifications &&allNotifications.length > 0 && allNotifications?.map((n, index) => (
+              {allNotifications && allNotifications.length > 0 && allNotifications?.map((n, index) => (
                 <li
                   key={index}
-                  onClick={() => handleNotificationsClick(n?.postID, n?.read, n?.commentID)}
+                  onClick={() => handleNotificationsClick(n?.postID, n?.read, n?.commentID, n?.replyID)}
                   title={`On ${formatDateInAdmin(new Date(n?.date))}`}
                   className={`p-2 font-normal  rounded-lg lg:hover:bg-slate-800 lg:hover:text-white cursor-pointer my-2 ${n.read === false ? "dark:text-white" : "text-gray-400 lg:hover:text-gray-400"
                     }`}
@@ -251,7 +279,7 @@ const Navbar = () => {
               {
                 allNotifications?.length < 1 ? <li className="p-2 font-normal  rounded-lg lg:hover:bg-slate-500 lg:hover:text-white cursor-pointer my-1 text-center dark:bg-slate-950">No notification available</li> : <li onClick={clickSeeAll} className="p-2 font-normal  rounded-lg lg:hover:bg-slate-800 lg:hover:text-white cursor-pointer my-1 text-center dark:bg-slate-800 dark:lg:hover:bg-slate-700">See All</li>
               }
-            </ul> : <p className="text-center py-2 px-2">No notifications</p> }
+            </ul> : <p className="text-center py-2 px-2">No notifications</p>}
         </div>
       }
 

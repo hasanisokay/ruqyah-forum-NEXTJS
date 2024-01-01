@@ -9,6 +9,7 @@ const nextConfig = {
     ],
   },
   basePath: "",
+  // reactStrictMode: false,
   async headers() {
     return [
       {

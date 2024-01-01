@@ -11,6 +11,7 @@ import useSWRInfinite from 'swr/infinite';
 import { RiSendPlane2Fill } from "react-icons/ri";
 import LoadingModalUser from '@/components/LoadingModal';
 import { useRouter } from 'next/navigation';
+import getAdmins from '@/utils/getAdmins';
 const Loader = () => <div className="text-center text-gray-500 py-2">Loading...</div>;
 
 const fetcher = async (url) => {
@@ -49,12 +50,12 @@ const Chat = () => {
     return () => {
       newSocket.disconnect();
     };
-  }, [selectedGroup]);
+  }, [selectedGroup, data, setSize]);
+  
   useEffect(() => {
     (async () => {
       setLoadingChatData(true);
-      const admin = await fetch("api/admin/chatdata")
-      const data = await admin.json()
+      const data = await getAdmins();
       setAdminsData(data)
       setLoadingChatData(false);
     })()

@@ -13,16 +13,15 @@ import Replies from "./Replies";
 import { BsDot } from "react-icons/bs";
 import DeleteConfirmationModal from "./DeleteConfirmationModal";
 import CommentEditModal from "./CommentEditModal";
+import ReportModal from "./ReportModal";
 const Comments = ({ c, postAuthor, handleShowUser, likes, socket, commentId: commentID, replies, setLikersArray, handleDislike, hanldleLike, postID, setPost }) => {
   const [replyText, setReplyText] = useState("");
   const [replyCount, setReplyCount] = useState(replies);
-  const [fetchedReplies, setFetchedReplies] = useState([]);
   const [showReplyInput, setShowReplyInput] = useState(null);
-  const { fetchedUser, showDeleteModal, setShowDeleteModal } = useContext(AuthContext);
+  const { fetchedUser, showDeleteModal, setShowDeleteModal, showReportModal, setShowReportModal, reportingCommentId, setReportingCommentId, reportingReplyId } = useContext(AuthContext);
   const [showCommentOptions, setShowCommentOptions] = useState(false);
   const [showCommentEditModal, setShowCommentEditModal] = useState(false);
   const [loadingNewReply, setLoadingNewReply] = useState(false);
-
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -76,8 +75,10 @@ const Comments = ({ c, postAuthor, handleShowUser, likes, socket, commentId: com
           commentID,
           type: "reply"
         }
-        socket.emit("newReply", dataToSendInSocket);
-        socket.emit("newCommentNotification", { newCommentNotification, commentID });
+        if (socket) {
+          socket.emit("newReply", dataToSendInSocket);
+          socket.emit("newCommentNotification", { newCommentNotification, commentID });
+        }
       }
       else {
         toast.error(data?.message)
@@ -118,22 +119,13 @@ const Comments = ({ c, postAuthor, handleShowUser, likes, socket, commentId: com
     };
   }, [showCommentOptions, commentID]);
 
-  useEffect(() => {
-    if (socket) {
-      socket.on('newReply', (reply) => {
-        if (reply.postID === postID && reply.commentID === commentID) {
-          delete reply.commentID
-          setFetchedReplies((prevReplies) => [...prevReplies, reply]);
-          setReplyCount((prev) => prev + 1);
-        }
-      });
-    }
-    return () => {
-      if (socket) {
-        socket.off('newReply');
-      }
-    };
-  }, [postID, commentID, socket]);
+
+
+
+  const handleReport = (id) => {
+    setReportingCommentId(id);
+    setShowReportModal(true);
+  }
   return (
     <div className='duration-1000 my-1 pl-4 pr-2'>
       {
@@ -165,9 +157,10 @@ const Comments = ({ c, postAuthor, handleShowUser, likes, socket, commentId: com
               </div>}
               <div className={`relative ${commentID}`}>
                 {
-                  showCommentOptions && <div className="absolute text-sm right-0 z-10 top-2 mt-2 p-1 w-[200px] shadow-xl rounded-md bg-white dark:bg-[#1c1c1c]" >
-                    {fetchedUser && fetchedUser?.username === c?.author?.username && <button onClick={() => setShowCommentEditModal(true)} className="lg:hover:bg-[#308853] px-2 py-1 rounded-md lg:hover:text-white w-full duration-300 text-left">Edit</button>}
-                    {fetchedUser && (fetchedUser?.isAdmin || fetchedUser?.username === c?.author?.username) && <button onClick={() => setShowDeleteModal(true)} className="lg:hover:bg-red-700 duration-300 w-full px-2 py-1 text-left rounded-md lg:hover:text-white">Delete</button>}
+                  showCommentOptions && fetchedUser && <div className="absolute text-sm right-0 z-10 top-2 mt-2 p-1 max-w-[200px] shadow-xl rounded-md bg-white dark:bg-[#1c1c1c]" >
+                    {fetchedUser && fetchedUser?.username === c?.author?.username && <button onClick={() => setShowCommentEditModal(true)} className=" forum-btn2 lg:hover:bg-slate-500 w-full">Edit</button>}
+                    <button onClick={() => handleReport(commentID)} className="forum-btn2 lg:hover:bg-slate-500 w-full my-1">Report</button>
+                    {fetchedUser && (fetchedUser?.isAdmin || fetchedUser?.username === c?.author?.username) && <button onClick={() => setShowDeleteModal(true)} className="lg:hover:bg-red-700 forum-btn2 w-full lg:hover:text-white">Delete</button>}
                   </div>
                 }
               </div>
@@ -193,10 +186,10 @@ const Comments = ({ c, postAuthor, handleShowUser, likes, socket, commentId: com
                 postID={postID}
                 replyCount={replyCount}
                 setReplyCount={setReplyCount}
-                fetchedReplies={fetchedReplies}
-                setFetchedReplies={setFetchedReplies}
                 commentID={commentID}
-                handleShowUser={handleShowUser} />
+                handleShowUser={handleShowUser}
+                socket={socket}
+              />
             }
           </div>
           {
@@ -227,6 +220,9 @@ const Comments = ({ c, postAuthor, handleShowUser, likes, socket, commentId: com
             </form>
           }
         </>
+      }
+      {
+        showReportModal && reportingCommentId && !reportingReplyId && <ReportModal postID={postID} key={reportingCommentId} commentID={reportingCommentId} type={"comment"} />
       }
       {
         showDeleteModal && <DeleteConfirmationModal setterFunction={setShowDeleteModal} id={postID} setPost={setPost} commentID={commentID} />

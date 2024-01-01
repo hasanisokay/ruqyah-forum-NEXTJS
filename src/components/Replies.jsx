@@ -1,23 +1,59 @@
 'use client'
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import axios from "axios";
 import formatDateInAdmin from "@/utils/formatDateInAdmin";
 import Image from "next/image";
 import { FaUserLarge } from "react-icons/fa6";
 import LoadingModalUser from "./LoadingModal";
 import ReplyText from "./ReplyText";
-const Replies = ({ postID, commentID, fetchedReplies, setFetchedReplies, setReplyCount, handleShowUser, replyCount }) => {
-    const [page, setPage] = useState(1);
+import { useSearchParams } from "next/navigation";
+
+const Replies = ({ postID, commentID, setReplyCount, handleShowUser, replyCount, socket }) => {
+    const pageRef = useRef(1);
     const [loading, setLoading] = useState(false);
     const [hasMore, setHasMore] = useState(true);
-    const fetchReplies = async () => {
-        if (replyCount === 0) return
+    const [fetchedReplies, setFetchedReplies] = useState([]);
+    const [scrolledToReply, setScrolledToReply] = useState(false);
+    const searchParams = useSearchParams();
+    const replyIDFromParams = searchParams.get('replyID');
+    useEffect(() => {
+        if (replyIDFromParams?.length > 2 && fetchedReplies?.length > 0 && !scrolledToReply) {
+            const targetReply = document.getElementById(`${replyIDFromParams}`);
+            if (targetReply) {
+                try {
+                    targetReply.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center',
+                        inline: 'center'
+                    });
+                    targetReply.classList.add("highlightedClass");
+                    setTimeout(() => {
+                        targetReply.classList.remove("highlightedClass");
+                        setScrolledToReply(true);
+                    }, 3000);
+                }
+                catch {
+
+                }
+            }
+        }
+    }, [replyIDFromParams, fetchedReplies]);
+
+
+
+
+    const handleLoadMore = () => {
+        pageRef.current += 1;
+    };
+
+    const fetchReplies = useCallback(async () => {
+        if (replyCount === 0) return;
+        if (fetchedReplies?.length > 1 && fetchedReplies?.length < 10) return;
+
+        if (fetchedReplies?.length === replyCount) return;
         try {
             setLoading(true);
-            if (fetchedReplies?.length > 1 && fetchedReplies?.length < 10) {
-                return
-            }
-            const { data } = await axios.get(`/api/getreplies?commentID=${commentID}&postID=${postID}&page=${page}`);
+            const { data } = await axios.get(`/api/getreplies?commentID=${commentID}&postID=${postID}&page=${pageRef.current}`);
             const newReplies = data?.replies || [];
             if (newReplies?.length === 0) {
                 setHasMore(false);
@@ -28,22 +64,31 @@ const Replies = ({ postID, commentID, fetchedReplies, setFetchedReplies, setRepl
         } finally {
             setLoading(false);
         }
-    };
-    // TODO: fix fetching same reply twice and useCallback if needd.
-    useEffect(() => {
-        if (page === 1 && fetchedReplies?.length === 0) {
-            fetchReplies();
-        }
     }, []);
-    useEffect(() => {
-        if (fetchedReplies?.length !== 0 && page > 1) {
-            fetchReplies();
-        }
-    }, [page]);
 
-    const handleLoadMore = () => {
-        setPage((prevPage) => prevPage + 1);
-    };
+    useEffect(() => {
+        (async () => {
+            await fetchReplies();
+        })()
+    }, [fetchReplies]);
+
+    useEffect(() => {
+        if (socket) {
+            socket.on('newReply', (reply) => {
+                if (reply.postID === postID && reply.commentID === commentID) {
+                    delete reply.commentID
+                    setFetchedReplies((prevReplies) => [...prevReplies, reply]);
+                    setReplyCount((prev) => prev + 1);
+                }
+            });
+        }
+        return () => {
+            if (socket) {
+                socket.off('newReply');
+            }
+        };
+    }, [postID, commentID, socket, setReplyCount]);
+
 
     return (
         <div>
@@ -69,7 +114,7 @@ const Replies = ({ postID, commentID, fetchedReplies, setFetchedReplies, setRepl
                                     : <div className='flex items-center justify-center rounded-full border-gray-400 border-2 w-[20px] h-[20px]'><FaUserLarge className='w-full h-full' /></div>
                             }
                         </div>
-                        <div className='bg-gray-200 dark:bg-[#3a3b3c] px-4 py-1 rounded-xl max-w-full min-w-[200px]'>
+                        <div id={reply?._id} className='bg-gray-200 dark:bg-[#3a3b3c] px-4 py-1 rounded-xl max-w-full min-w-[200px]'>
                             <p><span className=''> <span onClick={() => handleShowUser(reply?.authorInfo?.username)} className='text-[14px] font-semibold cursor-pointer'>{reply?.authorInfo?.name}</span> </span>
                             </p>
                             <div className='text-xs flex gap-2 items-center'>
@@ -77,8 +122,9 @@ const Replies = ({ postID, commentID, fetchedReplies, setFetchedReplies, setRepl
                                 <p className='text-[10px]' title={reply?.date}> {formatDateInAdmin(new Date(reply?.date) || new Date())}</p>
                             </div>
                             <ReplyText
+                                key={reply?._id}
                                 commentID={commentID}
-                                replyID={reply._id}
+                                replyID={reply?._id}
                                 postID={postID}
                                 text={reply?.reply}
                                 replyAuthor={reply?.authorInfo?.username}

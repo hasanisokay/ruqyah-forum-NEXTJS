@@ -38,7 +38,7 @@ export const POST = async (request) => {
           },
         },
         $addToSet: {
-          followers: author.username,
+          followers: author?.username,
         },
       }
     );
@@ -51,7 +51,7 @@ export const POST = async (request) => {
       { projection: { followers: 1 } }
     );
     // remove comment author from the followers to send notification others.
-    const followersToGetNotification = followers.filter(
+    const followersToGetNotification = followers?.filter(
       (user) => user !== author.username
     );
 
