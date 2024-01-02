@@ -226,7 +226,7 @@ const NewPost = () => {
                                 </div>
 
                                 {newPostData && (
-                                    <div className="text-center">
+                                    <div className="text-center mt-4">
                                         <button
                                             title="Post"
                                             disabled={loadingNewPost}
