@@ -30,6 +30,9 @@ const notificationMaker = (
   } else if (type === `approve`) {
     notificaion = `Your post is approved.`;
   } else if (type === `like`) {
+  } else if (type === `decline`) {
+    notificaion = `Your post is declined. It may violated our rules.`;
+  } else if (type === `like`) {
     notificaion = `${name} liked your ${content || ""} `;
   }
   return notificaion + deleted;
