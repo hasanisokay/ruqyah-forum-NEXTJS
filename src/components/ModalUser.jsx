@@ -112,7 +112,7 @@ const ModalUser = ({ username, setterFunction }) => {
                             </div>
                             {fetchedUser?.isAdmin && <div className="flex gap-2 items-center justify-center mt-2">
                                 {
-                                    user?.blocked ? <span className="forum-btn-sm bg-[#308853] cursor-pointer tex-white" onClick={() => handleAdminAction(user?.username, "block", fetchedUser?.username)}>Unblock</span> : <span className="forum-btn-sm bg-red-700 cursor-pointer text-white" onClick={() => handleAdminAction(user?.username, "block", fetchedUser?.username)}>Block</span>
+                                    user?.blocked ? <span className="forum-btn-sm bg-[#308853] cursor-pointer tex-white" onClick={() => handleAdminAction(user?.username, "unblock", fetchedUser?.username)}>Unblock</span> : <span className="forum-btn-sm bg-red-700 cursor-pointer text-white" onClick={() => handleAdminAction(user?.username, "block", fetchedUser?.username)}>Block</span>
                                 }
                                 {/* <span className="forum-btn-sm bg-red-700 cursor-pointer" onClick={() => handleAdminAction(user?.username, "make-admin")}>Make Admin</span> */}
                                 {/* <span className="forum-btn-sm bg-red-700 cursor-pointer" onClick={() => handleAdminAction(user?.username, "delete")}>Delete User</span> */}

@@ -32,6 +32,7 @@ const HomePagePosts = () => {
     const [selectedUsernameToShowDetails, setSelectedUsernameToShowDetails] = useState(null)
     const [likersArray, setLikersArray] = useState(null);
     const [postIdToReport, setPostIdToReport] = useState(null);
+    const [postIdToDelete, setPostIdToDelete] = useState(null)
     const getKey = (pageIndex, previousPageData) => {
         if (previousPageData && previousPageData.length === 0) return null;
         return `/api/posts?page=${pageIndex + 1}`;
@@ -180,7 +181,10 @@ const HomePagePosts = () => {
             console.error("Error disliking post:", error);
         }
     }
-
+    const handleDelete = (id) => {
+        setPostIdToDelete(id);
+        setShowDeleteModal(true)
+    }
     return (
         <div>
             {posts?.map((post) => (
@@ -189,11 +193,11 @@ const HomePagePosts = () => {
                         <div className='relative'>
                             <BsThreeDotsVertical onClick={() => setSelectedPostIdForOptions(post?._id)} className='absolute right-0 cursor-pointer' />
                             {selectedPostIdForOptions === post?._id && (
-                                <div className='absolute text-center text-sm right-0 top-2 mt-2 p-1 max-w-[200px] min-w-[150px] shadow-xl rounded-md  bg-[#f3f2f0] dark:bg-[#1c1c1c]'>
+                                <div className='z-10 absolute text-center text-sm right-0 top-2 mt-2 p-1 max-w-[200px] min-w-[150px] shadow-xl rounded-md  bg-[#f3f2f0] dark:bg-[#1c1c1c]'>
                                     <div className='flex flex-col gap-2 dark:text-white text-black '>
                                         <button className='forum-btn2 lg:hover:bg-slate-500' onClick={() => copyToClipboard(`https://forum.ruqyahbd.org/${post._id}`)}>Copy link</button>
                                         {fetchedUser && <button onClick={() => handleReport(post?._id)} className='forum-btn2 lg:hover:bg-slate-500'>Report</button>}
-                                        {(post?.authorInfo?.username === fetchedUser?.username || fetchedUser?.isAdmin) && <button onClick={() => setShowDeleteModal(true)} className='lg:hover:bg-red-500 forum-btn2'>Delete Post</button>}
+                                        {(post?.authorInfo?.username === fetchedUser?.username || fetchedUser?.isAdmin) && <button onClick={() => handleDelete(post?._id)} className='lg:hover:bg-red-500 forum-btn2'>Delete</button>}
 
                                     </div>
                                 </div>
@@ -262,7 +266,7 @@ const HomePagePosts = () => {
                         </div>
                     </div>
                     {
-                        showDeleteModal && <DeleteConfirmationModal id={post._id} isAuthorized={fetchedUser?.isAdmin || fetchedUser?.username === post?.authorInfo?.username} setterFunction={setShowDeleteModal} />
+                        showDeleteModal && <DeleteConfirmationModal id={postIdToDelete} isAuthorized={fetchedUser?.isAdmin || fetchedUser?.username === post?.authorInfo?.username} setterFunction={setShowDeleteModal} />
                     }
                     {likersArray && <LikersModal usernames={likersArray} setterFunction={setLikersArray} />}
                     {selectedUsernameToShowDetails && <ModalUser username={selectedUsernameToShowDetails} setterFunction={setSelectedUsernameToShowDetails} />}
@@ -281,7 +285,7 @@ const HomePagePosts = () => {
             {/* Infinite scrolling trigger */}
             <div ref={infiniteScrollRef} style={{ height: '10px' }} />
             {
-                showReportModal && <ReportModal  postID={postIdToReport} key={postIdToReport} type={"post"} />
+                showReportModal && <ReportModal postID={postIdToReport} key={postIdToReport} type={"post"} />
             }
         </div>
     );

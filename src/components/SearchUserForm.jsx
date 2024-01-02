@@ -26,7 +26,7 @@ const SearchUserForm = ({ onSearch }) => {
                 <input
                     type="text"
                     id="username"
-                    className="input input-bordered "
+                    className="input input-bordered focus:outline-none"
                     placeholder="Enter username"
                     value={username}
                     onChange={handleInputChange}

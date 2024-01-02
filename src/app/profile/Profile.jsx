@@ -49,7 +49,7 @@ const Profile = () => {
         const file = e?.target?.files[0];
         if(!file)return;
         // console.log('Original Image Size:', file?.size, 'bytes');
-        const resizedImage = await resizeImage(file, 500, 500);
+        const resizedImage = await resizeImage(file, 500, 500, "ruqyahbd");
         // console.log('Resized Image Size:', resizedImage?.size, 'bytes');
         const formData = new FormData();
         formData.append('image', resizedImage);

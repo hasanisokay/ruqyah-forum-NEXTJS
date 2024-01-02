@@ -13,6 +13,7 @@ import AuthContext from '@/contexts/AuthContext';
 import React, { useRef, useCallback, useContext, useState, useEffect } from 'react';
 import { mutate } from 'swr';
 import formatDateInAdmin from '@/utils/formatDateInAdmin';
+import PhotosInPost from '@/components/PhotosInPost';
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
@@ -104,8 +105,8 @@ const DeclinedPosts = () => {
             toast.error("Internal Server Error. Please try again")
         }
     }
-    const handleApprovePost = async (id, updateActivityLogID) => {
-        const dataToSend = { actionBy: fetchedUser?.name, postAuthorUsername: username, postID: id, action: "approve", updateActivityLogID }
+    const handleApprovePost = async (id, username) => {
+        const dataToSend = { actionBy: fetchedUser?.name, postAuthorUsername: username, postID: id, action: "approve", updateActivityLogID:true }
         const toastID = toast.loading("Approving...")
         const { data } = await axios.post("/api/posts/changestatus", dataToSend)
         toast.dismiss(toastID)
@@ -146,7 +147,7 @@ const DeclinedPosts = () => {
         : sortedPosts;
     return (
         <div>
-            <div className="my-4 flex items-center justify-center">
+            <div className="my-4 flex flex-col md:flex-row gap-2 items-center justify-center">
                 <label htmlFor="sortOrder" className="mr-2">
                     Sort By:
                 </label>
@@ -162,7 +163,7 @@ const DeclinedPosts = () => {
                 <form onSubmit={() => setSearchTerm(searchText)}>
                     <input
                         type="text"
-                        className='border-2 rounded-lg'
+                        className='rounded-lg focus:outline-none'
                         placeholder="Search by username"
                         value={searchText}
                         onChange={(e) => setSearchText(e.target.value)}
@@ -186,12 +187,12 @@ const DeclinedPosts = () => {
             </div>
             <div>
                 {posts?.map((post) => (
-                    <div key={post._id} className='p-2 cursor-default border-2 m-2 rounded-lg dark:border-gray-400 cardinhome'>
+                    <div key={post?._id} className='p-2 cursor-default border-2 m-2 rounded-lg dark:border-gray-400 cardinhome'>
                         <div className='flex gap-2 items-center'>
                             <div>
                                 {
-                                    post?.authorInfo.photoURL ?
-                                        <Image src={post?.authorInfo.photoURL} blurDataURL='' alt='User Profile Photo'
+                                    post?.authorInfo?.photoURL ?
+                                        <Image src={post?.authorInfo?.photoURL} blurDataURL='' alt='User Profile Photo'
                                             width={64} height={0} loading='lazy'
                                             style={{
                                                 width: "45px",
@@ -204,29 +205,32 @@ const DeclinedPosts = () => {
                                 }
                             </div>
                             <div className='py-2'>
-                                <p className='font-semibold'>{post?.authorInfo.name}</p>
+                                <p className='font-semibold'>{post?.authorInfo?.name}</p>
                                 <div className='text-xs flex gap-2 items-center'>
-                                    <p className=''>@{post?.authorInfo.username}</p>
-                                    <p className='' title={post.date}>Post Date: {formatDateInAdmin(new Date(post.date))}</p>
+                                    <p className=''>@{post?.authorInfo?.username}</p>
+                                    <p className='' title={post?.date}>Post Date: {formatDateInAdmin(new Date(post?.date))}</p>
                                 </div>
                                 <p className='text-xs'> Declined By: {post?.declinedBy || "n/a"}</p>
                                 <p className='text-xs'> Declined Date: {formatDateInAdmin(new Date(post?.declineDate))}</p>
                             </div>
                         </div>
-                        <p style={{ whiteSpace: "pre-wrap" }}>{expandedPosts.includes(post._id) ? post?.post : truncateText(post?.post)}
+                        <p style={{ whiteSpace: "pre-wrap" }}>{expandedPosts.includes(post?._id) ? post?.post : truncateText(post?.post)}
                             {!expandedPosts.includes(post._id) && post?.post?.length > 200 && (
-                                <button onClick={() => handleToggleExpand(post._id)} className='text-xs font-semibold'>... Show more</button>
+                                <button onClick={() => handleToggleExpand(post?._id)} className='text-xs font-semibold'>... Show more</button>
                             )}
                             {expandedPosts.includes(post._id) && (
-                                <button onClick={() => handleShowLess(post._id)} className='text-xs font-semibold pl-1'>Show less </button>
+                                <button onClick={() => handleShowLess(post?._id)} className='text-xs font-semibold pl-1'>Show less </button>
                             )}
                         </p>
+                        {
+                            post?.photos && < PhotosInPost photosArray={post?.photos}/>
+                        }
                         <div className='flex items-center gap-6 mt-2'>
                             <div className='flex items-center flex-col cursor-pointer' >
-                                <span onClick={() => handleApprovePost( post._id, post?.author?.username)} className='forum-btn1 bg-[#308853] lg:hover:bg-[#0f361f]'> Approve</span>
+                                <span onClick={() => handleApprovePost( post?._id, post?.authorInfo?.username)} className='forum-btn1 bg-[#308853] lg:hover:bg-[#0f361f]'> Approve</span>
                             </div>
                             <div className='flex flex-col items-center'>
-                                <span onClick={() => handleDeletePermanently(post._id, post?.author?.username)} className='forum-btn1 bg-red-600 lg:hover:bg-red-900'> Delete Permanently</span>
+                                <span onClick={() => handleDeletePermanently(post?._id, post?.authorInof?.username)} className='forum-btn1 bg-red-600 lg:hover:bg-red-900'> Delete Permanently</span>
                             </div>
                         </div>
                     </div>

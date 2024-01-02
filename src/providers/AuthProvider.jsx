@@ -42,28 +42,31 @@ const AuthProvider = ({ children }) => {
 
     useEffect(() => {
         (async () => {
-          if (fetchedUser) {
-            const userSocket = await io(`${process.env.NEXT_PUBLIC_server}/?userId=${fetchedUser?.username}`);
-            setSocket(userSocket);
-          } else {
-            const anonymousSocket = await io(process.env.NEXT_PUBLIC_server);
-            setSocket(anonymousSocket);
-          }
+            if (fetchedUser) {
+                const userSocket = await io(`${process.env.NEXT_PUBLIC_server}/?userId=${fetchedUser?.username}`);
+                setSocket(userSocket);
+            } else {
+                const anonymousSocket = await io(process.env.NEXT_PUBLIC_server);
+                setSocket(anonymousSocket);
+            }
         })();
-      }, [fetchedUser]);
+    }, [fetchedUser]);
 
     useEffect(() => {
         const fetchUser = async () => {
             setLoading(true);
             const { user } = await getUser();
-            if (user.status === 401) {
+            if (user.status === 200) {
+                setLoggedOut(false);
+                setFetchedUser(user.user);
+                setLoading(false);
+            }
+
+            else {
                 setFetchedUser(null)
                 setLoading(false)
                 return;
             }
-            setLoggedOut(false);
-            setFetchedUser(user);
-            setLoading(false);
         }
         fetchUser()
     }, [loggedOut])
@@ -109,7 +112,7 @@ const AuthProvider = ({ children }) => {
         setIsReportingPost,
         reportingCommentId,
         setReportingCommentId,
-        reportingReplyId, 
+        reportingReplyId,
         setReportingReplyId,
         socket
     };

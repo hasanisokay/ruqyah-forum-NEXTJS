@@ -7,11 +7,8 @@ import { useEffect } from "react";
 import toast from "react-hot-toast";
 
 const DeleteConfirmationModal = ({ id, isAuthorized, setterFunction, commentID, setPost, setFetchedReplies, setReplyCount, replyID }) => {
-
     const router = useRouter();
     const pathname = usePathname();
-
-
     const setConfirm = async (confirm) => {
         setterFunction(false);
         if (!confirm) {

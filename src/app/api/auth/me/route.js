@@ -46,7 +46,7 @@ export const GET = async () => {
         },
       ])
       .toArray();
-    return NextResponse.json(user[0]);
+    return NextResponse.json({user:user[0], status:200});
   } catch {
     return NextResponse.json({ message: "Validation Error", status: 401 });
   }

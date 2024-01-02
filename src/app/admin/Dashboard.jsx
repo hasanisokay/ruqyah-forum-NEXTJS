@@ -18,9 +18,9 @@ const Dashboard = () => {
         try {
             const toastID = toast.loading("Getting user information")
             const response = await fetch(`/api/admin/searchUser?username=${username}`);
-            const userData = await response.json();
+            const userData = await response?.json();
             toast.dismiss(toastID)
-            if (userData.status === 404 || userData.status === 500) {
+            if (userData.status === 404 || userData.status === 500 || !userData) {
                 return toast.error(userData.message)
             }
             toast.success("Success to retrieve user data.")
@@ -81,7 +81,7 @@ const Dashboard = () => {
                             !retrievedUser?.isAdmin && <button onClick={() => handleAdminAction(retrievedUser.username, "make-admin", fetchedUser.username)} className='forum-btn1 bg-[#308853] mr-2' >Make Admin</button>
                         }
                         {
-                            !retrievedUser?.blocked ? <button onClick={() => handleAdminAction(retrievedUser.username, "block", fetchedUser.username)} className='forum-btn1 bg-red-600'>Block</button> : <button onClick={() => handleAdminAction(retrievedUser.username, "unblock")} className='forum-btn1 bg-[#308853]'>Unblock</button>
+                            !retrievedUser?.blocked ? <button onClick={() => handleAdminAction(retrievedUser.username, "block", fetchedUser.username)} className='forum-btn1 bg-red-600'>Block</button> : <button onClick={() => handleAdminAction(retrievedUser?.username, "unblock", fetchedUser?.username)} className='forum-btn1 bg-[#308853]'>Unblock</button>
                         }
                         <p>Gender: {retrievedUser?.gender}</p>
                         <p>Joined: {formatDateInAdmin(new Date(retrievedUser?.joined))}</p>

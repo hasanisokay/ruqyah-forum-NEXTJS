@@ -48,6 +48,7 @@ export const GET = async (request) => {
                 $project: {
                     post: 1,
                     date: 1,
+                    photos:1,
                     status: 1,
                     author: {
                         username: "$authorInfo.username",

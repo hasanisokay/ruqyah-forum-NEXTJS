@@ -37,6 +37,7 @@ export const GET = async (request) => {
                     _id: 1,
                     post: 1,
                     date: 1,
+                    photos:1,
                     status: 1,
                     declineDate: 1,
                     declinedBy: 1,

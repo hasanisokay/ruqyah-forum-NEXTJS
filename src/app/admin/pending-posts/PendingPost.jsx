@@ -14,6 +14,7 @@ import toast from 'react-hot-toast';
 import { mutate } from 'swr';
 import formatDateInAdmin from '@/utils/formatDateInAdmin';
 import formatDateForUserJoined from '@/utils/formatDateForUserJoined';
+import PhotosInPost from '@/components/PhotosInPost';
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
 const PendingPost = () => {
@@ -62,6 +63,7 @@ const PendingPost = () => {
             }
         });
     };
+
     const handleShowLess = (postId) => {
         setExpandedPosts((prevExpandedPosts) => prevExpandedPosts.filter((id) => id !== postId));
     };
@@ -105,7 +107,8 @@ const PendingPost = () => {
         }
     }
     const handleApprovePost = async (id, username) => {
-        const dataToSend = { actionBy: fetchedUser.username, postAuthorUsername: username, postID: id, action: "approve" }
+        if(!fetchedUser) return
+        const dataToSend = { actionBy: fetchedUser?.username, postAuthorUsername: username, postID: id, action: "approve" }
         const toastID = toast.loading("Approving...")
         const { data } = await axios.post("/api/posts/changestatus", dataToSend)
         toast.dismiss(toastID)
@@ -115,7 +118,7 @@ const PendingPost = () => {
             setPosts((prevPosts) => prevPosts.filter((post) => post._id !== id));
         }
         else {
-            toast.error("Internal Server Error. Please try again")
+            toast.error( data?.message ||"Internal Server Error. Please try again")
         }
     }
     const handleApproveAll = async () => {
@@ -158,7 +161,7 @@ const PendingPost = () => {
         : sortedPosts;
     return (
         <div>
-            <div className="my-4 flex items-center justify-center">
+            <div className="my-4 gap-2 flex md:flex-row flex-col items-center justify-center">
                 <label htmlFor="sortOrder" className="mr-2">
                     Sort By:
                 </label>
@@ -174,7 +177,7 @@ const PendingPost = () => {
                 <form onSubmit={() => setSearchTerm(searchText)}>
                     <input
                         type="text"
-                        className='border-2 rounded-lg'
+                        className='focus:outline-none rounded-lg'
                         placeholder="Search by username"
                         value={searchText}
                         onChange={(e) => setSearchText(e.target.value)}
@@ -249,6 +252,9 @@ const PendingPost = () => {
                             <button onClick={() => handleShowLess(post._id)} className='text-xs font-semibold pl-1'>Show less </button>
                         )}
                     </p>
+                    {
+                        post?.photos && <PhotosInPost photosArray={post?.photos} />
+                    }
                     <div className='flex items-center gap-6 mt-2'>
                         <div className='flex items-center flex-col cursor-pointer' >
                             <span onClick={() => handleApprovePost(post._id, post.author.username)} className='btn btn-xs text-white bg-[#308853] lg:hover:bg-[#0f361f]'> Approve</span>
