@@ -11,25 +11,21 @@ const OnlineUsersCounter = ({setLoggedInUsersCount, setAnonymousUsersCount}) => 
       socket.on('userConnected', async ({ loggedInUsersCount, anonymousUsersCount }) => {
         setLoggedInUsersCount(loggedInUsersCount);
         setAnonymousUsersCount(anonymousUsersCount);
-        console.log({ loggedInUsersCount, anonymousUsersCount });
       });
 
       socket.on('userDisconnected', async ({ loggedInUsersCount, anonymousUsersCount }) => {
         setLoggedInUsersCount(loggedInUsersCount);
         setAnonymousUsersCount(anonymousUsersCount);
-        console.log({ loggedInUsersCount, anonymousUsersCount });
       });
 
       socket.on('anonymousUserConnected', async ({ loggedInUsersCount, anonymousUsersCount }) => {
         setLoggedInUsersCount(loggedInUsersCount);
         setAnonymousUsersCount(anonymousUsersCount);
-        console.log({ loggedInUsersCount, anonymousUsersCount });
       });
 
       socket.on('anonymousUserDisconnected', async ({ loggedInUsersCount, anonymousUsersCount }) => {
         setLoggedInUsersCount(loggedInUsersCount);
         setAnonymousUsersCount(anonymousUsersCount);
-        console.log({ loggedInUsersCount, anonymousUsersCount });
       });
     }
     return ()=>{

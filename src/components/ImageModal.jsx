@@ -78,13 +78,14 @@ const ImageModal = ({ activeIndex, photosArray, setterFunction }) => {
                         {/* w-[300px] h-[300px] md:w-[600px]  lg:w-[800px] md:h-[400px] */}
                         {photosArray?.map((url, index) => <SwiperSlide
                             key={index} >
-                            <div className='relative h-auto w-auto max-w-[100vw] min-h-[400px] max-h-[100vh]'>
+                            <div className='relative h-auto w-auto max-w-[100vw] min-h-[400px] max-h-[90vh]'>
                                 <div className='z-10 absolute top-2 right-2 bg-black bg-opacity-40 hover:bg-opacity-100' title='click to download this image'>
                                     <IoMdDownload className='text-white w-4 h-6 cursor-pointer' onClick={() => handleDownloadImage(url)} />
                                 </div>
                                 <Image
                                     sizes="100vw"
                                     fill
+                                    quality={100}
                                     style={{ objectFit: "contain" }}
                                     src={url}
                                     alt={`Image ${index + 1}`}

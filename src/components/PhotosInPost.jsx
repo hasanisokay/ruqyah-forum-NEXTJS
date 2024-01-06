@@ -39,9 +39,10 @@ const PhotosInPost = ({ photosArray }) => {
                     onClick={() => handleImageClick(index)}
                     style={{ objectFit: "cover" }}
                     fill
+                    quality={50}
                     sizes="100vw"
                     blurDataURL={`http://localhost:3000/_next/image?${url}?w=20&h=20`}
-                    loading="lazy"
+                    priority={true}
                     className={`${showSeeMore && index === 2 && "opacity-80"}  w-full h-full`}
                     src={url}
                     alt="attatched image"

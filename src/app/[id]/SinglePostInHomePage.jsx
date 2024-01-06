@@ -2,7 +2,6 @@
 import formatDateInAdmin from '@/utils/formatDateInAdmin';
 import Image from 'next/image';
 import { io } from 'socket.io-client';
-import useSWR from 'swr';
 import { FaUserLarge, FaHeart } from "react-icons/fa6";
 import { FaRegComment, FaRegHeart } from "react-icons/fa";
 import axios from 'axios';
@@ -27,17 +26,17 @@ import copyToClipboard from '@/utils/copyToClipboard';
 import VideosInPost from '@/components/video-components/VideosInPost';
 import ReportModal from '@/components/ReportModal';
 
-const fetcher = (url) => fetch(url).then((res) => res.json());
 
-const SinglePostInHomePage = ({ id }) => {
+const SinglePostInHomePage = ({ fetchedPost}) => {
+  const id = fetchedPost?._id;
   const [likersArray, setLikersArray] = useState(null);
   const { fetchedUser, showDeleteModal, setShowDeleteModal, showReportModal, setShowReportModal, isReportingPost, setIsReportingPost } = useContext(AuthContext);
   const [socket, setSocket] = useState(null)
-  const { data, error, isLoading } = useSWR(`/api/posts/${id}`, fetcher);
+
   const [newCommentData, setNewCommentData] = useState("");
   const [loadingNewComment, setLoadingNewComment] = useState(false);
   const [selectedUsernameToShowDetails, setSelectedUsernameToShowDetails] = useState(null)
-  const [post, setPost] = useState(data ? data[0] : []);
+  const [post, setPost] = useState(fetchedPost);
   const [selectedPostIdForOptions, setSelectedPostIdForOptions] = useState(null);
   // const [socket, setSocket] = useState(null)
   const [showEditModal, setShowEditModal] = useState(false);
@@ -114,11 +113,6 @@ const SinglePostInHomePage = ({ id }) => {
     };
   }, [id, socket]);
 
-  useEffect(() => {
-    if (data) {
-      setPost(data[0])
-    }
-  }, [data])
 
   useEffect(() => {
     const handleOutsideClick = (event) => {
@@ -148,8 +142,7 @@ const SinglePostInHomePage = ({ id }) => {
     if (showEditModal) document?.getElementById('editModal')?.showModal()
   }, [showEditModal])
 
-  if (error || data?.status === 500) return notFound();
-  if (!post || isLoading) return <LoadingCards />;
+  if (!post) return <LoadingCards />;
 
   const handleShowUser = (username) => {
     setSelectedUsernameToShowDetails(username);

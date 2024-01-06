@@ -1,22 +1,31 @@
+import getPost from "@/utils/getPost";
 import SinglePostInHomePage from "./SinglePostInHomePage";
-let id = "";
-export const metadata = {
-  title: "Post - Ruqyah Forum",
-  description:
-    "Explore a post on Ruqyah Forum. Engage with the community, share your thoughts, and stay informed on spiritual well-being topics.",
-  keywords: ["post", "Ruqyah Forum", "community", "spiritual well-being"],
-  author: "Ruqyah Support BD",
-  image: "https://i.ibb.co/wh2mk56/Whats-App-Image-2023-12-16-at-20-32-41.jpg",
-  url: `https://www.forum.ruqyahbd.org/${id}`,
-};
-const singlePost = ({ params }) => {
-  const postID = params.id;
-  id = postID;
+import { notFound } from "next/navigation";
+
+export async function generateMetadata({ params }) {
+  const postID = params?.id;
+  let id = postID;
+  const post = await getPost(id);
+  return {
+    title: (post?.authorInfo?.name || "Not Found") + " - " + "Ruqyah Forum",
+    description:
+      "Explore a post on Ruqyah Forum. Engage with the community, share your thoughts, and stay informed on spiritual well-being topics.",
+    keywords: ["post", "Ruqyah Forum", "community", "spiritual well-being"],
+    author: "Ruqyah Support BD",
+    image:
+      "https://i.ibb.co/wh2mk56/Whats-App-Image-2023-12-16-at-20-32-41.jpg",
+    url: `https://www.forum.ruqyahbd.org/${id}`,
+  };
+}
+
+export default async function singlePost({ params }) {
+  const postID = params?.id;
+  let id = postID;
+  const post = await getPost(id);
+  if (post?.status === 500 || post?.status === 400 || post?.status === 404 || !post || post?.error) return notFound();
   return (
     <div>
-      <SinglePostInHomePage id={postID} />
+      <SinglePostInHomePage fetchedPost={post} />
     </div>
   );
-};
-
-export default singlePost;
+}

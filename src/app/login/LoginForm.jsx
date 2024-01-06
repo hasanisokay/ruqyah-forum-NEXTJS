@@ -17,7 +17,7 @@ const LoginForm = () => {
     const { theme } = useTheme();
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
-    const inputClasses = `w-full p-2 border rounded-md focus:outline-none focus:border-blue-500 ${theme === 'dark' ? 'bg-black' : 'bg-white'
+    const inputClasses = `w-full p-2 border rounded-md focus:outline-none border-none focus:border-none ${theme === 'dark' ? 'bg-[#3d404a]' : 'bg-white'
         } `;
     const [errors, setErrors] = useState({
         username: '',
@@ -46,7 +46,7 @@ const LoginForm = () => {
                 toast.error(res.message)
             }
             else {
-                const { username, email, isAdmin} = res;
+                const { username, email, isAdmin } = res;
                 await createJWT({ username, email, isAdmin })
                 setFetchedUser(res)
                 toast.dismiss(toastId);
@@ -73,10 +73,11 @@ const LoginForm = () => {
         <>
             <form
                 onSubmit={handleSubmit}
-                className={`lg:w-[40vw] md:w-[80vw] w-[90vw] mx-auto mt-4 p-4 shadow-md rounded-md ${theme === 'dark' ? 'bg-white' : 'bg-[#f0f1f3]'} ${disableForm ? "opacity-50" : "opacity-100"}`}
+                className={`lg:w-[40vw] md:w-[80vw] w-[90vw] mx-auto mt-4 p-4 shadow-md rounded-md ${theme === 'dark' ? 'bg-[#282a37]' : 'bg-[#f0f1f3]'} ${disableForm ? "opacity-50" : "opacity-100"}`}
             >
-                <h1 className='text-xl text-center dark:text-black font-semibold'>Login</h1>
-                <label htmlFor="username" className="block mt-4 mb-2 text-gray-600">
+                <h1 className='text-xl text-center font-semibold'>Welcome Back!</h1>
+                <p className='text-center text-xs mt-2'>Login to your account</p>
+                <label htmlFor="username" className="block mt-4 mb-2 dark:text-[#999da7] ">
                     Username
                 </label>
                 <input
@@ -90,7 +91,7 @@ const LoginForm = () => {
                 {errors.username && <p className="text-red-500 text-sm">{errors.username}</p>}
 
 
-                <label htmlFor="password" className="block mt-4 mb-2 text-gray-600">
+                <label htmlFor="password" className="block mt-4 mb-2 dark:text-[#999da7]">
                     Password
                 </label>
                 <input
@@ -109,9 +110,9 @@ const LoginForm = () => {
                 >
                     Log In
                 </button>
-                <div className='my-2 dark:text-black'>
-                    <p className='text-sm'>Don't have an account? Please <button onClick={()=>router.push("/signup")} title='goto signup' className='text-blue-600 italic'>Sign Up</button>.</p>
-                    <p className='text-sm mt-2'>Forgotten password? <button onClick={()=>router.push("/identity")} title='goto reset password' className='text-blue-600 italic'>Reset Password</button>.</p>
+                <div className='my-2  dark:text-[#999da7]'>
+                    <p className='text-sm'>Don't have an account? Please <button onClick={() => router.push("/signup")} title='goto signup' className='text-blue-600'>Sign Up</button>.</p>
+                    <p className='text-sm mt-2'>Forgotten password? <button onClick={() => router.push("/identity")} title='goto reset password' className='text-blue-600'>Reset Password</button>.</p>
                 </div>
             </form>
         </>

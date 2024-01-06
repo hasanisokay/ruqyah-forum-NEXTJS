@@ -146,7 +146,7 @@ const SignUpForm = () => {
     }
   };
 
-  const inputClasses = `w-full p-2 border rounded-md focus:outline-none focus:border-blue-500 ${theme === 'dark' ? 'bg-black' : 'bg-white'
+  const inputClasses = `w-full p-2 border rounded-md focus:outline-none border-none focus:border-none ${theme === 'dark' ? 'bg-[#3d404a]' : 'bg-white'
     } `;
   useEffect(() => {
     const checkAvailability = async () => {
@@ -171,11 +171,11 @@ const SignUpForm = () => {
     return (
       <form
         onSubmit={handleSubmit}
-        className={`lg:w-[40vw] md:w-[80vw] w-[90vw] mx-auto mt-4 p-4 shadow-md rounded-md ${theme === 'dark' ? 'bg-white' : 'bg-[#f0f1f3]'
-          }`}
+        className={`lg:w-[40vw] md:w-[80vw] w-[90vw] mx-auto mt-4 p-4 shadow-md rounded-md ${theme === 'dark' ? 'bg-[#282a37]' : 'bg-[#f0f1f3]'}`}
       >
-        <h1 className='text-xl text-center dark:text-black font-semibold'>Sign Up</h1>
-        <label htmlFor="name" className="block mb-2 text-gray-600">
+        <h1 className='text-xl text-center font-semibold'>Create New Account</h1>
+        <p className='text-center text-xs mt-2'>Begin Your Sign-Up Process</p>
+        <label htmlFor="name" className="block mt-4 mb-2 dark:text-[#999da7]">
           Name
         </label>
         <input
@@ -187,7 +187,7 @@ const SignUpForm = () => {
         />
         {errors.name && <p className="text-red-500 text-sm">{errors.name}</p>}
         {!errors.name && name != "" && name.length < 3 && <p className="text-red-500 text-sm">{"Name should be at least 3 character long"}</p>}
-        <label htmlFor="username" className="block mt-4 mb-2 text-gray-600">
+        <label htmlFor="username" className="block mt-4 mb-2 dark:text-[#999da7]">
           Username
         </label>
         <input
@@ -208,7 +208,7 @@ const SignUpForm = () => {
         }
         {errors.username && <p className="text-red-500 text-sm">{errors.username}</p>}
 
-        <label htmlFor="email" className="block mt-4 mb-2 text-gray-600">
+        <label htmlFor="email" className="block mt-4 mb-2 dark:text-[#999da7]">
           Email
         </label>
         <input
@@ -220,7 +220,7 @@ const SignUpForm = () => {
         />
         {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
 
-        <label htmlFor="phone" className="block mt-4 mb-2 text-gray-600">
+        <label htmlFor="phone" className="block mt-4 mb-2 dark:text-[#999da7]">
           Phone
         </label>
         <input
@@ -232,7 +232,7 @@ const SignUpForm = () => {
         />
         {errors.phone && <p className="text-red-500 text-sm">{errors.phone}</p>}
 
-        <label htmlFor="gender" className="block mt-4 mb-2 text-gray-600">
+        <label htmlFor="gender" className="block mt-4 mb-2 dark:text-[#999da7]">
           Gender
         </label>
         <select
@@ -247,7 +247,7 @@ const SignUpForm = () => {
         </select>
         {errors.gender && <p className="text-red-500 text-sm">{errors.gender}</p>}
 
-        <label htmlFor="password" className="block mt-4 mb-2 text-gray-600">
+        <label htmlFor="password" className="block mt-4 mb-2 dark:text-[#999da7]">
           Password
         </label>
         <input
@@ -259,7 +259,7 @@ const SignUpForm = () => {
         />
         {errors.password && <p className="text-red-500 text-sm">{errors.password}</p>}
 
-        <label htmlFor="retypePassword" className="block mt-4 mb-2 text-gray-600">
+        <label htmlFor="retypePassword" className="block mt-4 mb-2 dark:text-[#999da7]">
           Retype Password
         </label>
         <input
@@ -279,8 +279,8 @@ const SignUpForm = () => {
         >
           Sign Up
         </button>
-        <div className='my-2 dark:text-black'>
-          <p className='text-sm'>Already have an account? Please <button onClick={() => push("/login")} title='goto login' className='text-blue-600 italic'>login</button>.</p>
+        <div className='my-2 dark:text-[#999da7]'>
+          <p className='text-sm'>Already have an account? Please <button onClick={() => push("/login")} title='goto login' className='text-blue-600'>login</button>.</p>
         </div>
       </form>
     );

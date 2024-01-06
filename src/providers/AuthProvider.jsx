@@ -39,17 +39,37 @@ const AuthProvider = ({ children }) => {
         setLoggedOut(true)
         setLoading(false);
     }
-
     useEffect(() => {
-        (async () => {
-            if (fetchedUser) {
-                const userSocket = await io(`${process.env.NEXT_PUBLIC_server}/?userId=${fetchedUser?.username}`);
-                setSocket(userSocket);
-            } else {
-                const anonymousSocket = await io(process.env.NEXT_PUBLIC_server);
-                setSocket(anonymousSocket);
+        const handleSocketConnection = async () => {
+            try {
+                if (fetchedUser) {
+                    const userSocket = await io(`${process.env.NEXT_PUBLIC_server}/?userId=${fetchedUser?.username}`);
+                    setSocket(userSocket);
+
+                    // Handle socket disconnection
+                    // userSocket.on('disconnect', () => {
+                    //     console.log('disconnected');
+                    // });
+                } else {
+                    const anonymousSocket = await io(process.env.NEXT_PUBLIC_server);
+                    setSocket(anonymousSocket);
+
+                    // anonymousSocket.on('disconnect', () => {
+                    //     console.log('Socket disconnected');
+                    // });
+                }
+            } catch (error) {
+                console.error('Socket connection error:', error);
             }
-        })();
+        };
+
+        handleSocketConnection();
+
+        return () => {
+            if (socket) {
+                socket.disconnect();
+            }
+        };
     }, [fetchedUser]);
 
     useEffect(() => {
