@@ -133,7 +133,7 @@ const Notifications = () => {
                         > <div className="flex gap-[6px] items-center">
                                 {n?.author?.photoURL ?
                                     <Image src={n?.author?.photoURL} blurDataURL='' alt={`profile photo of ${n?.author?.name}`}
-                                        width={30} height={0} loading='lazy'
+                                        width={30} height={0} priority={true}
                                         style={{
                                             width: "30px",
                                             height: "30px",

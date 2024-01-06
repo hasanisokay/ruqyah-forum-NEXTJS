@@ -4,7 +4,6 @@ const RootLoading = () => {
   return (
     <div>
       <LoadingCards></LoadingCards>
-      <LoadingCards></LoadingCards>
     </div>
   );
 };

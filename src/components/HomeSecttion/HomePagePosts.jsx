@@ -119,8 +119,6 @@ const HomePagePosts = () => {
     if (error) return <div>Error loading posts</div>;
     if (!data) return <div>
         <LoadingCards />
-        <LoadingCards />
-        <LoadingCards />
     </div>
 
     const handleDislike = async (id) => {
@@ -188,7 +186,7 @@ const HomePagePosts = () => {
     return (
         <div>
             {posts?.map((post) => (
-                <div key={post._id} className='cursor-default bg-[#fffef9] shadow-xl dark:bg-[#242526] mx-2 mb-4 rounded-lg cardinhome '>
+                <div key={post._id} className='cursor-default bg-[#fffef9] shadow-xl dark:bg-[#242526] mx-2 mb-4 rounded-lg cardinhome min-h-[10vh]'>
                     <div className='p-2'>
                         <div className='relative'>
                             <BsThreeDotsVertical onClick={() => setSelectedPostIdForOptions(post?._id)} className='absolute right-0 cursor-pointer' />
@@ -207,14 +205,13 @@ const HomePagePosts = () => {
                             <div onClick={() => handleShowUser(post?.authorInfo?.username)} className='cursor-pointer'>
                                 {
                                     post?.authorInfo?.photoURL ?
-                                        <Image src={post?.authorInfo?.photoURL} blurDataURL='' alt='User Profile Photo'
-                                            width={64} height={0} loading='lazy'
-                                            style={{
-                                                width: "45px",
-                                                height: "45px",
-                                                borderRadius: '50%',
-                                            }}
-                                            className='border-gray-400 border-2'
+                                        <Image src={post?.authorInfo?.photoURL} alt='User Profile Photo'
+                                            width={30} 
+                                            height={30} 
+                                            priority={true}
+                                            quality={100}
+                                            className='w-[45px] h-[45px] rounded-full border-gray-400 border-2'
+                                            sizes="10vw"
                                         />
                                         : <div className='flex items-center justify-center rounded-full border-gray-400 border-2 w-[45px] h-[45px]'><FaUserLarge className='' /></div>
                                 }
@@ -247,7 +244,7 @@ const HomePagePosts = () => {
                                 <VideosInPost videosArray={post?.videos} />
                             </div>
                         }
-                        {post?.photos && post?.photos?.length > 0 && <div className={`${post?.videos?.length > 0 && "lg:max-w-[50vw]"}`}>
+                        {post?.photos && post?.photos?.length > 0 && <div className={`${post?.videos?.length > 0 && ""}`}>
                             <PhotosInPost
                                 photosArray={post?.photos}
                             />

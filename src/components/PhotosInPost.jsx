@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import ImageModal from "./ImageModal";
 
 const PhotosInPost = ({ photosArray }) => {
+
     const [showSeeMore, setShowSeeMore] = useState(false);
     const [photos, setPhotos] = useState([]);
     const [showImageModal, setShowImageModal] = useState(false);
@@ -32,18 +33,17 @@ const PhotosInPost = ({ photosArray }) => {
         setClickedImageIndex(index)
     }
     return (
-        <div className={`flex  gap-1 items-center justify-center bg-gray-600 flex-wrap ${photosArray?.length === 1 && " md:h-[400px] h-[300px]"}`}>
-            {photos?.map((url, index) => <div className={`${(index === 0 && photos?.length === 3) ? "w-full h-[400px]" : (photos.length !== 1 && "w-calc")} relative ${(index !== 0 && photos?.length === 3) ? "h-[200px]" : "h-[200px]"} ${photosArray?.length === 1 && "w-full md:h-[400px] h-[300px]"} shadow-2xl  bg-gray-600`}
-                key={index}>
+        <div className={`flex  gap-1 items-center justify-center flex-wrap ${photosArray?.length === 1 && " md:h-[400px] h-[300px]"}`}>
+        {photos?.map((url, index) => <div className={`${(index === 0 && photos?.length === 3) ? "w-full h-[400px]" : (photos.length !== 1 && "w-calc")} relative ${(index !== 0 && photos?.length === 3) ? "h-[200px]" : "h-[200px]"} ${photosArray?.length === 1 && "w-full md:h-[400px] h-[250px]"}`}
+            key={index}>
                 <Image
                     onClick={() => handleImageClick(index)}
-                    style={{ objectFit: "cover" }}
-                    fill
-                    quality={50}
-                    sizes="100vw"
+                    fill={true}
+                    placeholder="blur"
                     blurDataURL={`http://localhost:3000/_next/image?${url}?w=20&h=20`}
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     priority={true}
-                    className={`${showSeeMore && index === 2 && "opacity-80"}  w-full h-full`}
+                    className={`lg:w-[50vw] lg:max-w-[800px] md:w-[90vw] md:max-w-[500px] w-[95vw] object-cover ${showSeeMore && index === 2 && "opacity-80"}`}
                     src={url}
                     alt="attatched image"
                 />

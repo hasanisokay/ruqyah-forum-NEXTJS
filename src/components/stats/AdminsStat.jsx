@@ -64,7 +64,7 @@ const AdminsStat = () => {
             // }}
             >
                 {
-                    !loadingAdminsData && adminsData?.map((admin, index) => <div key={admin?._id}>
+                    !loadingAdminsData && adminsData && adminsData?.map((admin, index) => <div key={admin?._id}>
                         <SwiperSlide>
                             <div className="relative w-[250px] h-[200px]">
                                 {<Image fill className="w-full h-full" sizes="100vw" width={0} height={0} src={admin?.photoURL || "https://i.ibb.co/4msrfNF/Screenshot-2023-12-05-112036.png"} alt="users dp" />

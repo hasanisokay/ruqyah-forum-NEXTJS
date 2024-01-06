@@ -108,7 +108,7 @@ const Replies = ({ postID, commentID, setReplyCount, handleShowUser, replyCount,
                             {
                                 reply?.authorInfo?.photoURL ?
                                     <Image src={reply.authorInfo?.photoURL} blurDataURL='' alt='User Profile Photo'
-                                        width={20} height={20} loading='lazy'
+                                        width={20} height={20} priority={true}
                                         className='border-gray-400 rounded-full border-2 w-[20px] h-[20px]'
                                     />
                                     : <div className='flex items-center justify-center rounded-full border-gray-400 border-2 w-[20px] h-[20px]'><FaUserLarge className='w-full h-full' /></div>

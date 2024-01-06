@@ -72,7 +72,6 @@ const ImageModal = ({ activeIndex, photosArray, setterFunction }) => {
                         }}
                         onSlideChange={handleSlideChange}
                         onAfterInit={handleSlideChange}
-                        lazy={true}
                         modules={[Pagination]}
                     >
                         {/* w-[300px] h-[300px] md:w-[600px]  lg:w-[800px] md:h-[400px] */}

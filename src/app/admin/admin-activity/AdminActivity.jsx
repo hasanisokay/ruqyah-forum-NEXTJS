@@ -144,7 +144,7 @@ const AdminActivity = () => {
                             {
                                 post?.authorInfo.photoURL ?
                                     <Image src={post?.authorInfo.photoURL} blurDataURL='' alt='User Profile Photo'
-                                        width={64} height={0} loading='lazy'
+                                        width={64} height={0} priority={true}
                                         style={{
                                             width: "45px",
                                             height: "45px",

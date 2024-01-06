@@ -13,7 +13,7 @@ const router =  useRouter();
                     {
                         fetchedUser?.photoURL ?
                             <Image src={fetchedUser?.photoURL} blurDataURL='' alt='User Profile Photo'
-                                width={64} height={60} loading='lazy'
+                                width={64} height={60} priority={true}
                                 style={{
                                     width: "45px",
                                     height: "45px",

@@ -1,10 +1,9 @@
-import { Inter } from "next/font/google";
 import "./globals.css";
-
 import Navbar from "@/components/shared/Navbar";
 import Toaster from "@/components/Toaster";
 import Providers from "@/providers/Providers";
-const inter = Inter({ subsets: ["latin"] });
+import { SegoeUIHistoric } from "@/utils/localFont";
+
 
 export const metadata = {
   title: "Ruqyah Forum",
@@ -21,10 +20,18 @@ export const metadata = {
   image: "https://i.ibb.co/wh2mk56/Whats-App-Image-2023-12-16-at-20-32-41.jpg",
   url: "https://www.forum.ruqyahbd.org",
 };
+// const montserrat = Montserrat({
+//   subsets:['latin'],
+//   weight:['100','200','300','400','500','600'],
+//   variable:'--font-montserrat',
+//   display: 'swap',
+//   preload: true
+// })
+
 const RootLayout = ({ children }) => {
   return (
     <html lang="en" data-theme={"dark"} className="transition-all">
-      <body className={inter.className}>
+      <body className={SegoeUIHistoric}>
         <Providers>
           <Navbar></Navbar>
           <main className="mt-5">{children}</main>

@@ -129,7 +129,8 @@ const Chat = () => {
 
                   </div>
                   <div className={`${fetchedUser?.username === message?.user ? "flex-row-reverse lg:pl-[70px] pl-[50px]" : "flex-row pr-[40px] lg:pr-[70px]"} flex gap-2`}>
-                    <Image width={30} height={30} loading='lazy'
+                    <Image width={30} height={30} 
+                    priority={true}
                       title={adminsData?.find((a) => a?.username === message?.user)?.name || "unknown"}
                       style={{
                         width: "30px",

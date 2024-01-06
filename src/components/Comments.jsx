@@ -135,7 +135,7 @@ const Comments = ({ c, postAuthor, handleShowUser, likes, socket, commentId: com
               {
                 c?.author?.authorInfo?.photoURL ?
                   <Image src={c?.author?.authorInfo?.photoURL} blurDataURL='' alt='User Profile Photo'
-                    width={35} height={35} loading='lazy'
+                    width={35} height={35} priority={true}
 
                     className='border-gray-400 border-2 w-[35px] h-[35px] rounded-full'
                   />
