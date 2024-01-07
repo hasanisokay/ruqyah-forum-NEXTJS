@@ -13,11 +13,9 @@ export async function generateMetadata({ params }) {
     keywords: ["post", "Ruqyah Forum", "community", "spiritual well-being"],
     author: "Ruqyah Support BD",
     url: `https://www.forum.ruqyahbd.org/${id}`,
-    openGraph:{
-      image: [...post?.photos, "https://i.ibb.co/wh2mk56/Whats-App-Image-2023-12-16-at-20-32-41.jpg"] || 
-      "https://i.ibb.co/wh2mk56/Whats-App-Image-2023-12-16-at-20-32-41.jpg",
-    }
-  };
+    image: [...post?.photos, "https://i.ibb.co/wh2mk56/Whats-App-Image-2023-12-16-at-20-32-41.jpg"] || 
+    "https://i.ibb.co/wh2mk56/Whats-App-Image-2023-12-16-at-20-32-41.jpg",
+};
 }
 
 export default async function singlePost({ params }) {
