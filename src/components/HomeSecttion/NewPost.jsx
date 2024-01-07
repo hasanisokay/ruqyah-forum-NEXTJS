@@ -1,6 +1,5 @@
 "use client"
 import { useContext, useEffect, useRef, useState } from "react";
-import AuthContext from "@/contexts/AuthContext";
 import axios from "axios";
 import toast from "react-hot-toast";
 import TextareaAutosize from 'react-textarea-autosize';
@@ -8,8 +7,10 @@ import { FaPhotoFilm, FaVideo } from "react-icons/fa6";
 import Image from "next/image";
 import resizeImage from "@/utils/resizeImage";
 import imageUpload from "@/utils/imageUpload";
+import AuthContext from "@/contexts/AuthContext";
+
 const NewPost = () => {
-    const { fetchedUser, loading } = useContext(AuthContext);
+
     const [newPostData, setNewPostData] = useState("");
     const [mediaFiles, setMediaFiles] = useState([]);
     const [loadingNewPost, setLoadingNewPost] = useState(false);
@@ -22,6 +23,32 @@ const NewPost = () => {
     const [uploadedImageUrls, setUploadedImageUrls] = useState([])
     const [showVideoUploadArea, setShowVideoUploadArea] = useState(false);
     const [videoLink, setVideoLink] = useState("")
+    const { fetchedUser, loading } = useContext(AuthContext);
+
+    useEffect(() => {
+        const handleOutsideClick = (event) => {
+            const modal = document.getElementById('newPostModal')
+            if (showNewPostModal && event?.target?.contains(modal)) {
+                setShowNewPostModal(false);
+                document.getElementById('newPostModal').close();
+            }
+        }
+        document.addEventListener("click", handleOutsideClick)
+        return () => {
+            document.removeEventListener("click", handleOutsideClick)
+        }
+    }, [showNewPostModal])
+    useEffect(() => {
+        if (showNewPostModal) {
+            document.getElementById('newPostModal').showModal()
+        }
+        if (!showNewPostModal) {
+            document.getElementById('newPostModal')?.close();
+        }
+    }, [showNewPostModal])
+
+
+
     const handleNewPostForm = async (e) => {
         e.preventDefault();
         if (newPostData === "") {
@@ -70,7 +97,7 @@ const NewPost = () => {
         if (fetchedUser?.isAdmin) {
             newPost.status = "approved"
         }
-        if(fetchedUser?.isAdmin && videoLink){
+        if (fetchedUser?.isAdmin && videoLink) {
             newPost.videos.push(videoLink)
         }
         const toastId = toast.loading("Posting...");
@@ -110,29 +137,6 @@ const NewPost = () => {
         const files = e.target.files;
         setMediaFiles((prevMediaFiles) => [...prevMediaFiles, ...Array.from(files)]);
     };
-    useEffect(() => {
-        const handleOutsideClick = (event) => {
-            const modal = document.getElementById('newPostModal')
-            if (showNewPostModal && event?.target?.contains(modal)) {
-                setShowNewPostModal(false);
-                document.getElementById('newPostModal').close();
-            }
-        }
-        document.addEventListener("click", handleOutsideClick)
-        return () => {
-            document.removeEventListener("click", handleOutsideClick)
-        }
-    }, [showNewPostModal])
-    useEffect(() => {
-        if (showNewPostModal) {
-            document.getElementById('newPostModal').showModal()
-        }
-        if (!showNewPostModal) {
-            document.getElementById('newPostModal')?.close();
-        }
-    }, [showNewPostModal])
-
-
     if (fetchedUser && loading === false && !fetchedUser?.blocked) {
         return (
             <div className="mb-4">

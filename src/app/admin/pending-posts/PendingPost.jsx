@@ -2,7 +2,7 @@
 'use client'
 import formatRelativeDate from '@/utils/formatDate';
 import { useRouter } from 'next/navigation';
-import React, { useRef, useCallback, useContext, useState, useEffect } from 'react';
+import { useRef, useCallback, useContext, useState, useEffect } from 'react';
 import useSWRInfinite from 'swr/infinite';
 import Image from 'next/image'
 import { FaUserLarge } from "react-icons/fa6"
@@ -81,7 +81,7 @@ const PendingPost = () => {
     }, [setSize, size, data]);
 
     // Attach the scroll event listener
-    React.useEffect(() => {
+    useEffect(() => {
         window.addEventListener('scroll', handleScroll);
         return () => {
             window.removeEventListener('scroll', handleScroll);

@@ -1,4 +1,3 @@
-import React from 'react';
 import LoadinginAdminActivity from './LoadingAdminActivity';
 
 const loadingAdminActivity = () => {

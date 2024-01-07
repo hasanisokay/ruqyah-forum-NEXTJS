@@ -3,14 +3,12 @@
 import useSWRInfinite from 'swr/infinite';
 import Image from 'next/image';
 import { FaUserLarge } from 'react-icons/fa6';
-import formatRelativeDate from '@/utils/formatDate';
-
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import truncateText from '@/utils/trancatText';
 import LoadinginPenginPosts from '../pending-posts/LoadingPendingPost';
 import AuthContext from '@/contexts/AuthContext';
-import React, { useRef, useCallback, useContext, useState, useEffect } from 'react';
+import { useRef, useCallback, useContext, useState, useEffect } from 'react';
 import { mutate } from 'swr';
 import formatDateInAdmin from '@/utils/formatDateInAdmin';
 import PhotosInPost from '@/components/PhotosInPost';
@@ -81,7 +79,7 @@ const DeclinedPosts = () => {
     }, [setSize, size, data]);
 
     // Attach the scroll event listener
-    React.useEffect(() => {
+    useEffect(() => {
         window.addEventListener('scroll', handleScroll);
         return () => {
             window.removeEventListener('scroll', handleScroll);

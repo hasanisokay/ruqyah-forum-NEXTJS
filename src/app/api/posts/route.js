@@ -38,7 +38,6 @@ export const GET = async (request) => {
         {
           $unwind: "$authorInfo",
         },
-        // replies: { $size: { $ifNull: ["$comment.replies", []] } }
         {
           $project: {
             _id: 1,
@@ -58,7 +57,8 @@ export const GET = async (request) => {
       ])
       .toArray();
     return NextResponse.json(result);
-  } catch {
+  } catch(err) {
+    console.log(err);
     return NextResponse.json({ status: 404, message: "Error on server" });
   }
 

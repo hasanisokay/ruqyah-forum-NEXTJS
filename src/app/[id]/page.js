@@ -12,9 +12,11 @@ export async function generateMetadata({ params }) {
       post?.post || "Explore a post on Ruqyah Forum. Engage with the community, share your thoughts, and stay informed on spiritual well-being topics.",
     keywords: ["post", "Ruqyah Forum", "community", "spiritual well-being"],
     author: "Ruqyah Support BD",
-    image:
-      "https://i.ibb.co/wh2mk56/Whats-App-Image-2023-12-16-at-20-32-41.jpg",
     url: `https://www.forum.ruqyahbd.org/${id}`,
+    openGraph:{
+      image: [...post?.photos, "https://i.ibb.co/wh2mk56/Whats-App-Image-2023-12-16-at-20-32-41.jpg"] || 
+      "https://i.ibb.co/wh2mk56/Whats-App-Image-2023-12-16-at-20-32-41.jpg",
+    }
   };
 }
 

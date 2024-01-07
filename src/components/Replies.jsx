@@ -1,6 +1,5 @@
 'use client'
 import { useState, useEffect, useCallback, useRef } from "react";
-import axios from "axios";
 import formatDateInAdmin from "@/utils/formatDateInAdmin";
 import Image from "next/image";
 import { FaUserLarge } from "react-icons/fa6";
@@ -53,7 +52,9 @@ const Replies = ({ postID, commentID, setReplyCount, handleShowUser, replyCount,
         if (fetchedReplies?.length === replyCount) return;
         try {
             setLoading(true);
-            const { data } = await axios.get(`/api/getreplies?commentID=${commentID}&postID=${postID}&page=${pageRef.current}`);
+            const url = `/api/getreplies?commentID=${commentID}&postID=${postID}&page=${pageRef.current}`;
+            const response = await fetch(url);
+            const data = await response.json();
             const newReplies = data?.replies || [];
             if (newReplies?.length === 0) {
                 setHasMore(false);

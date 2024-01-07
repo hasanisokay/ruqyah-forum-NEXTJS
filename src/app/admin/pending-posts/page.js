@@ -1,4 +1,4 @@
-import React from "react";
+
 import PendingPost from "./PendingPost";
 
 const pendingPosts = () => {

@@ -27,7 +27,9 @@ const PublicNotice = () => {
                 setLoadingNotice(true);
                 const response = await fetch("/api/getnotice");
                 const jsonData = await response.json();
+               if(jsonData?.length > 0){
                 setData(jsonData);
+               }
                 setLoadingNotice(false);
             } catch (error) {
                 console.error("Error fetching data:", error);

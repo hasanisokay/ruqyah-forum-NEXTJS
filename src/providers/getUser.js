@@ -1,7 +1,8 @@
-import axios from "axios";
+
 const getUser = async () => {
     try {
-        const { data } = await axios.get("http://localhost:3000/api/auth/me")
+        const response = await fetch("http://localhost:3000/api/auth/me")
+        const data = await response.json();
         return {
             user: data,
         }

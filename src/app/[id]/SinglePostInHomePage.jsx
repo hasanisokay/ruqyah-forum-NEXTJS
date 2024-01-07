@@ -7,12 +7,11 @@ import { FaRegComment, FaRegHeart } from "react-icons/fa";
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import TextareaAutosize from 'react-textarea-autosize';
-import { useContext, useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import AuthContext from '@/contexts/AuthContext';
 import formatDateForUserJoined from '@/utils/formatDateForUserJoined';
 import { RiSendPlane2Fill } from "react-icons/ri";
 import { comment } from 'postcss';
-import { notFound } from 'next/navigation'
 import LoadingCards from '@/components/LoadingCards';
 import ModalUser from '@/components/ModalUser';
 import { BsThreeDotsVertical } from 'react-icons/bs';
@@ -32,13 +31,11 @@ const SinglePostInHomePage = ({ fetchedPost}) => {
   const [likersArray, setLikersArray] = useState(null);
   const { fetchedUser, showDeleteModal, setShowDeleteModal, showReportModal, setShowReportModal, isReportingPost, setIsReportingPost } = useContext(AuthContext);
   const [socket, setSocket] = useState(null)
-
   const [newCommentData, setNewCommentData] = useState("");
   const [loadingNewComment, setLoadingNewComment] = useState(false);
   const [selectedUsernameToShowDetails, setSelectedUsernameToShowDetails] = useState(null)
   const [post, setPost] = useState(fetchedPost);
   const [selectedPostIdForOptions, setSelectedPostIdForOptions] = useState(null);
-  // const [socket, setSocket] = useState(null)
   const [showEditModal, setShowEditModal] = useState(false);
   const [scrolledToComment, setScrolledToComment] = useState(false);
 

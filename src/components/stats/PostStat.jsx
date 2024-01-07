@@ -1,7 +1,7 @@
 'use client'
 
 import getStats from '@/utils/getStats';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import OnlineUsersCounter from './OnlineUsersCounter';
 
 const PostStat = () => {

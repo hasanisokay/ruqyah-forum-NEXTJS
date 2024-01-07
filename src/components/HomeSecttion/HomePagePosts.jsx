@@ -1,7 +1,7 @@
 'use client'
 import formatRelativeDate from '@/utils/formatDate';
 import { BsThreeDotsVertical } from "react-icons/bs";
-import React, { useRef, useCallback, useContext, useState, useEffect } from 'react';
+import { useRef, useContext, useState, useEffect } from 'react';
 import { FaRegComment, FaRegHeart } from "react-icons/fa";
 import Image from 'next/image'
 import { FaUserLarge, FaHeart } from "react-icons/fa6"
@@ -75,7 +75,6 @@ const HomePagePosts = ({ tenPostsArray }) => {
         })()
     }, [size])
 
-    console.log(loadingPosts, noMorePosts, size);
 
     const handleToggleExpand = (postId) => {
         setExpandedPosts((prevExpandedPosts) => {
@@ -214,9 +213,10 @@ const HomePagePosts = ({ tenPostsArray }) => {
                             <div onClick={() => handleShowUser(post?.authorInfo?.username)} className='cursor-pointer'>
                                 {
                                     post?.authorInfo?.photoURL ?
-                                        <Image src={post?.authorInfo?.photoURL} alt='User Profile Photo'
-                                            width={30}
-                                            height={30}
+                                        <Image src={post?.authorInfo?.photoURL} alt='Users Profile Photo'
+                                            width={41}
+                                            placeholder='empty'
+                                            height={41}
                                             priority={true}
                                             quality={100}
                                             className='w-[45px] h-[45px] rounded-full border-gray-400 border-2'

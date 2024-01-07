@@ -8,16 +8,19 @@ const HomePage = async () => {
   return (
     <div>
       <NewPost />
-      {posts?.status === 400 || posts?.status === 404 ? (
-        <div className="cardinhome">
-          <p className="text-center">
-            {posts?.message}. Please reload the page. If this presists reach us at{" "}
-            <code className="font-semibold">ruqyahbdforum@gmail.com</code>
-          </p>
-        </div>
-      ) : (
-        <HomePagePosts tenPostsArray={posts} />
-      )}
+      <div>
+        {posts?.status === 400 || posts?.status === 404 ? (
+          <div className="cardinhome">
+            <p className="text-center">
+              {posts?.message}. Please reload the page. If this presists reach
+              us at{" "}
+              <code className="font-semibold">ruqyahbdforum@gmail.com</code>
+            </p>
+          </div>
+        ) : (
+          <HomePagePosts tenPostsArray={posts} />
+        )}
+      </div>
     </div>
   );
 };

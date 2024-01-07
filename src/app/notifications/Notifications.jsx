@@ -2,7 +2,7 @@
 import Image from 'next/image';
 import formatRelativeDate from '@/utils/formatDate';
 import { useRouter } from 'next/navigation';
-import React, { useRef, useCallback, useContext, useState, useEffect } from 'react';
+import { useRef, useCallback, useContext, useState, useEffect } from 'react';
 import useSWRInfinite from 'swr/infinite';
 import { FaUserLarge, FaHeart } from "react-icons/fa6"
 import AuthContext from '@/contexts/AuthContext';
@@ -68,7 +68,7 @@ const Notifications = () => {
     }, [setSize, size, data]);
 
 
-    React.useEffect(() => {
+    useEffect(() => {
         window.addEventListener('scroll', handleScroll);
         return () => {
             window.removeEventListener('scroll', handleScroll);

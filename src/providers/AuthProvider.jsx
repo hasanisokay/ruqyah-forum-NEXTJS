@@ -1,3 +1,4 @@
+'use client'
 import AuthContext from "@/contexts/AuthContext";
 import axios from "axios";
 import { io } from "socket.io-client";
@@ -19,26 +20,8 @@ const AuthProvider = ({ children }) => {
     const [reportingReplyId, setReportingReplyId] = useState(null);
     const [socket, setSocket] = useState(null)
 
-    const signIn = async (username, password) => {
-        const response = await fetch(`/api/auth/login`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ username, password }),
-        });
 
-        const data = await response.json();
-        return data;
-    }
-    const logOut = async () => {
-        setLoading(true);
-        const { data } = await axios.get("/api/auth/logout")
-        setFetchedUser(null)
-        toast.success(data.message)
-        setLoggedOut(true)
-        setLoading(false);
-    }
+
     useEffect(() => {
         const handleSocketConnection = async () => {
             try {
@@ -90,6 +73,7 @@ const AuthProvider = ({ children }) => {
         }
         fetchUser()
     }, [loggedOut])
+
     useEffect(() => {
         if (showDeleteModal) {
             document?.getElementById('deleteModal')?.showModal()
@@ -112,6 +96,33 @@ const AuthProvider = ({ children }) => {
             setNotificationsCount(fetchedUser?.unreadNotificationCount)
         }
     }, [fetchedUser])
+
+
+
+    const signIn = async (username, password) => {
+        const response = await fetch(`/api/auth/login`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ username, password }),
+        });
+
+        const data = await response.json();
+        return data;
+    }
+    const logOut = async () => {
+        setLoading(true);
+
+        const response = await fetch("/api/auth/logout");
+        const data = await response.json();
+
+        setFetchedUser(null)
+        toast.success(data.message)
+        setLoggedOut(true)
+        setLoading(false);
+    }
+
 
     const value = {
         fetchedUser,

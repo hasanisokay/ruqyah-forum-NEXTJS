@@ -30,7 +30,7 @@ const Notice = () => {
 
         }
         else if (data?.status === 401) {
-            toast.success(data.message)
+            toast.error(data.message)
         }
         setLoadingNewNotice(false)
     };

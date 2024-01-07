@@ -1,6 +1,6 @@
-import React from 'react';
-import LoadingAdmin from './LoadingAdmin';
+'use client'
 
+import LoadingAdmin from './LoadingAdmin';
 const loadingAdminDashboard = () => {
     return (
         <div>

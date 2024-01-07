@@ -5,15 +5,20 @@ import { NextResponse } from "next/server";
 export const GET = async (request) => {
   const parts = request.nextUrl.pathname.split("/");
   const id = parts[parts.length - 1];
-  // console.log("id from back",id);
+
   if (!id || id.length !== 24) {
     return NextResponse.json({ error: "Post ID is required", status: 400 });
   }
+  const db = await dbConnect();
+
+  if (!db)
+    return NextResponse.json({
+      status: 400,
+      message: "Database connection error",
+    });
 
   try {
-    const db = await dbConnect();
     const postCollection = db?.collection("posts");
-
     const post = await postCollection
       ?.aggregate([
         {

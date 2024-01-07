@@ -1,6 +1,3 @@
-'use cilent'
-import React from 'react';
-
 const GenericVideo = ({ videoUrl }) => {
   return  <video controls width="100%" height="360">
   <source src={videoUrl} type="video/mp4"  />

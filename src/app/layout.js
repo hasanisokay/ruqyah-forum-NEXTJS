@@ -4,7 +4,6 @@ import Toaster from "@/components/Toaster";
 import Providers from "@/providers/Providers";
 import { SegoeUIHistoric } from "@/utils/localFont";
 
-
 export const metadata = {
   title: "Ruqyah Forum",
   description:
@@ -19,14 +18,8 @@ export const metadata = {
   ],
   image: "https://i.ibb.co/wh2mk56/Whats-App-Image-2023-12-16-at-20-32-41.jpg",
   url: "https://www.forum.ruqyahbd.org",
+
 };
-// const montserrat = Montserrat({
-//   subsets:['latin'],
-//   weight:['100','200','300','400','500','600'],
-//   variable:'--font-montserrat',
-//   display: 'swap',
-//   preload: true
-// })
 
 const RootLayout = ({ children }) => {
   return (
