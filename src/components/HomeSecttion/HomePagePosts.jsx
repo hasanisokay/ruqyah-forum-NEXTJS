@@ -2,7 +2,6 @@
 import formatRelativeDate from '@/utils/formatDate';
 import { BsThreeDotsVertical } from "react-icons/bs";
 import React, { useRef, useCallback, useContext, useState, useEffect } from 'react';
-import useSWRInfinite from 'swr/infinite';
 import { FaRegComment, FaRegHeart } from "react-icons/fa";
 import Image from 'next/image'
 import { FaUserLarge, FaHeart } from "react-icons/fa6"
@@ -21,10 +20,9 @@ import formatDateInAdmin from '@/utils/formatDateInAdmin';
 import Link from 'next/link';
 import copyToClipboard from '@/utils/copyToClipboard';
 import ReportModal from '../ReportModal';
+import getPosts from '@/utils/getPosts';
 
-const fetcher = (url) => fetch(url).then((res) => res.json());
-
-const HomePagePosts = () => {
+const HomePagePosts = ({ tenPostsArray }) => {
     const { fetchedUser, showDeleteModal, setShowDeleteModal, showReportModal, setShowReportModal } = useContext(AuthContext);
     const infiniteScrollRef = useRef();
     const [selectedPostIdForOptions, setSelectedPostIdForOptions] = useState(null);
@@ -33,18 +31,52 @@ const HomePagePosts = () => {
     const [likersArray, setLikersArray] = useState(null);
     const [postIdToReport, setPostIdToReport] = useState(null);
     const [postIdToDelete, setPostIdToDelete] = useState(null)
-    const getKey = (pageIndex, previousPageData) => {
-        if (previousPageData && previousPageData.length === 0) return null;
-        return `/api/posts?page=${pageIndex + 1}`;
-    };
+    const [size, setSize] = useState(1)
+    const [posts, setPosts] = useState(tenPostsArray);
+    const [loadingPosts, setLoadingPosts] = useState(false);
+    const [noMorePosts, setNoMorePosts] = useState(false);
+    const [error, setError] = useState(false);
 
-    const { data, error, size, setSize, isValidating } = useSWRInfinite(getKey, fetcher);
 
-    // const posts = data ? data.flat() : [];
-    const [posts, setPosts] = useState(data ? data.flat() : []);
     useEffect(() => {
-        setPosts(data?.flat())
-    }, [data])
+        const handleScroll = () => {
+            if (
+                infiniteScrollRef.current &&
+                window.innerHeight + window.scrollY >= infiniteScrollRef.current.offsetTop
+            ) {
+                if (size * 10 === posts?.length) {
+                    setSize(size + 1);
+                    return;
+                }
+                else if (size * 10 < posts?.length) return setNoMorePosts(true);
+                else setNoMorePosts(true)
+            }
+        };
+        window.addEventListener('scroll', handleScroll);
+        return () => {
+            window.removeEventListener('scroll', handleScroll);
+        };
+    }, [size, posts]);
+
+
+    useEffect(() => {
+        if (size < 2) return;
+        (async () => {
+            setLoadingPosts(true);
+            const data = await getPosts(size);
+            setLoadingPosts(false)
+            if(data?.message){
+                return setError(true);
+            }
+            else{
+                setError(false);
+                setPosts((prev) => [...prev, ...data])
+            }
+        })()
+    }, [size])
+
+    console.log(loadingPosts, noMorePosts, size);
+
     const handleToggleExpand = (postId) => {
         setExpandedPosts((prevExpandedPosts) => {
             if (prevExpandedPosts.includes(postId)) {
@@ -79,18 +111,7 @@ const HomePagePosts = () => {
         };
     }, [selectedPostIdForOptions]);
 
-    const handleScroll = useCallback(() => {
-        // Check if the user has scrolled to the bottom
-        if (
-            infiniteScrollRef.current &&
-            window.innerHeight + window.scrollY >= infiniteScrollRef.current.offsetTop
-        ) {
-            if (size > 0 && (data && (data[size - 1]?.length == undefined || data[size - 1]?.length === 0))) {
-                return
-            }
-            setSize(size + 1)
-        }
-    }, [setSize, size, data]);
+
 
     const handleShowUser = (username) => {
         setSelectedUsernameToShowDetails(username);
@@ -108,18 +129,6 @@ const HomePagePosts = () => {
         }
     }, [likersArray]);
 
-    // Attach the scroll event listener
-    React.useEffect(() => {
-        window.addEventListener('scroll', handleScroll);
-        return () => {
-            window.removeEventListener('scroll', handleScroll);
-        };
-    }, [handleScroll]);
-
-    if (error) return <div>Error loading posts</div>;
-    if (!data) return <div>
-        <LoadingCards />
-    </div>
 
     const handleDislike = async (id) => {
         if (!fetchedUser) {
@@ -206,8 +215,8 @@ const HomePagePosts = () => {
                                 {
                                     post?.authorInfo?.photoURL ?
                                         <Image src={post?.authorInfo?.photoURL} alt='User Profile Photo'
-                                            width={30} 
-                                            height={30} 
+                                            width={30}
+                                            height={30}
                                             priority={true}
                                             quality={100}
                                             className='w-[45px] h-[45px] rounded-full border-gray-400 border-2'
@@ -270,15 +279,17 @@ const HomePagePosts = () => {
                 </div>
             ))}
 
-            {isValidating && (data[size - 1]?.length != undefined || data[size - 1]?.length != 0) && <div>
+            {loadingPosts && <div>
                 <LoadingCards />
             </div>}
-            {size > 0 && !isValidating && (data && (data[size - 1]?.length == undefined || data[size - 1]?.length === 0)) && <div className='py-1 text-center'>
+            {size > 0 && !error && !loadingPosts && noMorePosts && <div className='py-1 text-center'>
                 No more posts
             </div>}
-            {/* {size > 0 && posts[posts.length - 1].length < pageSize && (
-                <div>No more posts</div>
-            )} */}
+{
+    error && <div className='text-center'>
+        Error occured fetching more posts. Please reload the page.
+    </div>
+}
             {/* Infinite scrolling trigger */}
             <div ref={infiniteScrollRef} style={{ height: '10px' }} />
             {

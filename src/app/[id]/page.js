@@ -9,7 +9,7 @@ export async function generateMetadata({ params }) {
   return {
     title: (post?.authorInfo?.name || "Not Found") + " - " + "Ruqyah Forum",
     description:
-      "Explore a post on Ruqyah Forum. Engage with the community, share your thoughts, and stay informed on spiritual well-being topics.",
+      post?.post || "Explore a post on Ruqyah Forum. Engage with the community, share your thoughts, and stay informed on spiritual well-being topics.",
     keywords: ["post", "Ruqyah Forum", "community", "spiritual well-being"],
     author: "Ruqyah Support BD",
     image:
